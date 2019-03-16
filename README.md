@@ -12,7 +12,7 @@ La aplicación constará de tres componentes:
 * Una aplicación **Android**, el cual será utilizado por los usuarios.
 * Una **Interfaz Web** en donde se administrarán los datos de la aplicación.
 
-![Componentes](images/components.png)
+![Componentes](components.png)
 
 ### Application Server
 
