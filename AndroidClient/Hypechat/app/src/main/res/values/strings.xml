@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Hypechat</string>
+    <string name="navigation_drawer_open">Abrir panel de navegación</string>
+    <string name="navigation_drawer_close">Cerrar panel de navegación</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Cabecera del panel de navegación</string>
+    <string name="action_settings">Ajustes</string>
+    <string name="enter_message">Escriba un mensaje</string>
+</resources>
