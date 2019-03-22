@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.com/Kajachuan/taller2.svg?token=DLUXzs3eafPvvqKGJUzr&branch=master)](https://travis-ci.com/Kajachuan/taller2)
+[![Coverage Status](https://coveralls.io/repos/github/Kajachuan/taller2/badge.svg?branch=master)](https://coveralls.io/github/Kajachuan/taller2?branch=master)
+
 # HypeChat
 
 Una importante empresa, AppMaker©, ha decidido encargarnos el desarrollo de una **plataforma para la comunicación informal de empresas/equipos de trabajo**. El principal objetivo es permitir conectar en tiempo real a personas de todo el mundo para poder trabajar de forma colaborativa. 
