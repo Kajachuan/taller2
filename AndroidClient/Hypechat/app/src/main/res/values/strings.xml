@@ -7,4 +7,17 @@
     <string name="nav_header_desc">Cabecera del panel de navegación</string>
     <string name="action_settings">Ajustes</string>
     <string name="enter_message">Escriba un mensaje</string>
+
+    <string name="title_activity_login">Iniciar sesión</string>
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Iniciar sesión</string>
+    <string name="action_sign_in_short">Iniciar</string>
+    <string name="error_invalid_email">Este email no es válido</string>
+    <string name="error_invalid_password">Esta password es muy corta</string>
+    <string name="error_incorrect_password">Esta password es incorrecta</string>
+    <string name="error_field_required">Se requiere este campo</string>
+    <string name="or">ó</string>
+    <string name="action_register">Registrarse</string>
 </resources>
