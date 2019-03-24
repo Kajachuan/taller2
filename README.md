@@ -1,9 +1,10 @@
 [![Build Status](https://travis-ci.com/Kajachuan/taller2.svg?token=DLUXzs3eafPvvqKGJUzr&branch=master)](https://travis-ci.com/Kajachuan/taller2)
 [![Coverage Status](https://coveralls.io/repos/github/Kajachuan/taller2/badge.svg?branch=master)](https://coveralls.io/github/Kajachuan/taller2?branch=master)
+[![Heroku](https://heroku-badge.herokuapp.com/?app=hypechat-taller2)
 
 # HypeChat
 
-Una importante empresa, AppMaker©, ha decidido encargarnos el desarrollo de una **plataforma para la comunicación informal de empresas/equipos de trabajo**. El principal objetivo es permitir conectar en tiempo real a personas de todo el mundo para poder trabajar de forma colaborativa. 
+Una importante empresa, AppMaker©, ha decidido encargarnos el desarrollo de una **plataforma para la comunicación informal de empresas/equipos de trabajo**. El principal objetivo es permitir conectar en tiempo real a personas de todo el mundo para poder trabajar de forma colaborativa.
 
 AppMaker busca posicionarse en el mercado de aplicaciones, deseando conectar esta aplicación con sus otras aplicaciones que poseen gran cantidad de usuarios.
 
@@ -24,7 +25,7 @@ Se trata de una aplicación por consola destinada a mantenerse en ejecución por
 Esta aplicación debe brindar una interfaz REST [1] para la comunicación de los diferentes usuarios.
 
 #### Servicio de autenticación (login)
-Este servicio permitirá a los usuarios poder ingresar al sistema, obteniendo un token que deberá ser utilizado por los demás servicios. 
+Este servicio permitirá a los usuarios poder ingresar al sistema, obteniendo un token que deberá ser utilizado por los demás servicios.
 
 #### Servicio de recupero de contraseña
 Este servicio permitirá a los usuarios poder recuperar una cuenta. Este servicio deberá generar un token que deberá ser utilizado para definir una nueva contraseña
@@ -54,14 +55,14 @@ Este servicio permite a un usuario actualizar su perfil, debe permitir modificar
 
 ##### Roles
 El sistema debe permitir poder diferenciar los permisos que tiene un usuario a la hora de realizar diferentes acciones. se debe dar soporte para los siguientes roles:
-* Creador: usuario creador de la organización. Este rol podrá realizar cualquier acción sobre la organización: 
+* Creador: usuario creador de la organización. Este rol podrá realizar cualquier acción sobre la organización:
   - Administrar canales (alta/baja/modificación) dentro de la organización y eliminar usuarios dentro de la organización.
   - Administrar organización (alta/baja/modificación) dentro de la organización y eliminar usuarios dentro de la organización.
   - Cambiar roles de usuarios
 
 * Moderador: usuario moderador de una organización. Este rol podrá:
   - Administrar canales (alta/baja/modificación) dentro de la organización
-  - Administrar canales (alta/baja/modificación) dentro de la organización y eliminar usuarios dentro de la organización. 
+  - Administrar canales (alta/baja/modificación) dentro de la organización y eliminar usuarios dentro de la organización.
   - Administrar usuarios dentro de la organización (alta/baja)
 * Miembro: usuario miembro de una organización.  Este rol podrá:
   - Administrar sus propios canales
@@ -141,15 +142,15 @@ La interfaz WEB deberá brindar una GUI que permita la administración de datos.
 La interfaz WEB deberá solicitar usuario y contraseña para acceder a la administración de datos. Estos usuarios serán de uso exclusivo para la interfaz WEB.
 
 ##### Administración de equipos
-La interfaz WEB debe permitir la administración de equipos/organizaciones. 
+La interfaz WEB debe permitir la administración de equipos/organizaciones.
 
 ##### Administración de usuarios
-La interfaz WEB debe permitir la administración de equipos/organizaciones. 
+La interfaz WEB debe permitir la administración de equipos/organizaciones.
 
 ##### Administración de palabras prohibidas
-La interfaz WEB debe permitir la administración de palabras prohibidas por equipos/organizaciones. 
+La interfaz WEB debe permitir la administración de palabras prohibidas por equipos/organizaciones.
 
-##### Visualización de estadísticas 
+##### Visualización de estadísticas
 
 La interfaz WEB debe mostrar gráficos de actividad de los usuarios dentro del sistema. Se deberán visualizar al menos las siguientes estadísticas:
 
@@ -187,7 +188,7 @@ Se deberán listar las conversaciones entre usuarios.
 #### Vista de conversación
 Se deberán mostrar los mensajes intercambiados entre usuarios.
 
-#### Mapa de usuarios de una organización 
+#### Mapa de usuarios de una organización
 Se deberá poder visualizar la ubicación de los miembros de un equipo/organización en base a la ubicación que brindaron al registrarse. Esta opción dependerá de como este configurado el equipo/organización al momento de crearse.
 
 #### Interfaz gráfica
@@ -281,7 +282,7 @@ Se espera que dicha documentación se elabore de manera incremental y que cada e
 
 ### Criterios de Aceptación
 
-En cada checkpoint se deberá acordar el alcance de la entrega con cada ayudante. 
+En cada checkpoint se deberá acordar el alcance de la entrega con cada ayudante.
 
 ## Referencias
 
