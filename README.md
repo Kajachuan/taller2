@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.com/Kajachuan/taller2.svg?token=DLUXzs3eafPvvqKGJUzr&branch=master)](https://travis-ci.com/Kajachuan/taller2)
 [![Coverage Status](https://coveralls.io/repos/github/Kajachuan/taller2/badge.svg?branch=master)](https://coveralls.io/github/Kajachuan/taller2?branch=master)
-[![Heroku](https://heroku-badge.herokuapp.com/?app=hypechat-taller2)]
+[![Heroku](https://heroku-badge.herokuapp.com/?app=hypechat-taller2)](https://dashboard.heroku.com/apps/hypechat-taller2)
 
 # HypeChat
 
