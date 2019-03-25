@@ -1,6 +1,5 @@
 [![Build Status](https://travis-ci.com/Kajachuan/taller2.svg?token=DLUXzs3eafPvvqKGJUzr&branch=master)](https://travis-ci.com/Kajachuan/taller2)
 [![Coverage Status](https://coveralls.io/repos/github/Kajachuan/taller2/badge.svg?branch=master)](https://coveralls.io/github/Kajachuan/taller2?branch=master)
-[![Heroku](https://heroku-badge.herokuapp.com/?app=hypechat-taller2)](https://dashboard.heroku.com/apps/hypechat-taller2)
 
 # HypeChat
 
@@ -16,7 +15,7 @@ La aplicación constará de tres componentes:
 * Una aplicación **Android**, el cual será utilizado por los usuarios.
 * Una **Interfaz Web** en donde se administrarán los datos de la aplicación.
 
-![Componentes](components.png)
+![Componentes](img/components.png)
 
 ### Application Server
 
