@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.com/Kajachuan/taller2.svg?token=DLUXzs3eafPvvqKGJUzr&branch=master)](https://travis-ci.com/Kajachuan/taller2)
-[![Coverage Status](https://coveralls.io/repos/github/Kajachuan/taller2/badge.svg?branch=master)](https://coveralls.io/github/Kajachuan/taller2?branch=master)
+[![Coverage Status](https://codecov.io/gh/Kajachuan/taller2/branch/master/graph/badge.svg?token=kAPflBEnD3)](https://codecov.io/gh/Kajachuan/taller2)
 
 # HypeChat
 
