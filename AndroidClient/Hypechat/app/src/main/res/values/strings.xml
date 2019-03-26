@@ -20,4 +20,6 @@
     <string name="error_field_required">Se requiere este campo</string>
     <string name="or">ó</string>
     <string name="action_register">Registrarse</string>
+    <string name="prompt_name">Nombre</string>
+    <string name="prompt_password_confirm">Confirmar password</string>
 </resources>
