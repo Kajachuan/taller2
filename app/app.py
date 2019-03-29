@@ -6,10 +6,10 @@ app = Flask(__name__)
 app.config.from_object('taller2.config.app.' + environ['FLASK_ENV'].capitalize() + 'Config')
 db = MongoEngine(app)
 
-@app.route('/')
-def hello_world():
-    from .models.user import User
+from .controllers.users import users
 
-    u = User(name='Gino')
-    u.save()
+app.register_blueprint(users)
+
+@app.route('/')
+def root():
     return 'Hello, World!'
