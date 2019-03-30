@@ -27,3 +27,9 @@ class TestUsersController(object):
                                data='{"username": "MiNombre", "email": "usertest.com",\
                                      "password": "mipass", "password_confirmation": "mipass"}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
+
+    def test_short_password(self):
+        response = client.post('/register',
+                               data='{"username": "MiNombre", "email": "user@test.com",\
+                                     "password": "pw", "password_confirmation": "pw"}')
+        assert response.status_code == HTTPStatus.BAD_REQUEST

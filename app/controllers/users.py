@@ -14,7 +14,7 @@ def register():
     password = data['password']
     password_confirmation = data['password_confirmation']
 
-    if password != password_confirmation:
+    if len(password) < 5 or password != password_confirmation:
         abort(HTTPStatus.BAD_REQUEST)
 
     try:
