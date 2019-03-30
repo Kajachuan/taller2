@@ -15,7 +15,7 @@ def register():
     password_confirmation = data['password_confirmation']
 
     if password != password_confirmation:
-        abort(HTTPStatus.UNAUTHORIZED)
+        abort(HTTPStatus.BAD_REQUEST)
 
     try:
         cipher_suite = Fernet(environ['CRYPT_KEY'].encode())
@@ -27,5 +27,5 @@ def register():
     try:
         new_user.save()
     except:
-        abort(HTTPStatus.UNAUTHORIZED)
+        abort(HTTPStatus.BAD_REQUEST)
     return '', HTTPStatus.CREATED

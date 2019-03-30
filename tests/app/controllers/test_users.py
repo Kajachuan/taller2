@@ -14,10 +14,16 @@ class TestUsersController(object):
         response = client.post('/register',
                                data='{"username": "MiNombre", "email": "user@test.com",\
                                      "password": "mipass", "password_confirmation": "otropass"}')
-        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert response.status_code == HTTPStatus.BAD_REQUEST
 
     def test_blank_username(self):
         response = client.post('/register',
                                data='{"username": "", "email": "user@test.com",\
                                      "password": "mipass", "password_confirmation": "mipass"}')
-        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+
+    def test_invalid_email(self):
+        response = client.post('/register',
+                               data='{"username": "MiNombre", "email": "usertest.com",\
+                                     "password": "mipass", "password_confirmation": "mipass"}')
+        assert response.status_code == HTTPStatus.BAD_REQUEST
