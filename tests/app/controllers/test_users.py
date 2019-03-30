@@ -15,3 +15,9 @@ class TestUsersController(object):
                                data='{"username": "MiNombre", "email": "user@test.com",\
                                      "password": "mipass", "password_confirmation": "otropass"}')
         assert response.status_code == HTTPStatus.UNAUTHORIZED
+
+    def test_blank_username(self):
+        response = client.post('/register',
+                               data='{"username": "", "email": "user@test.com",\
+                                     "password": "mipass", "password_confirmation": "otropass"}')
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
