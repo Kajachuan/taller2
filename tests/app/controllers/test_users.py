@@ -9,3 +9,9 @@ class TestUsersController(object):
                                data='{"username": "MiNombre", "email": "user@test.com",\
                                      "password": "mipass", "password_confirmation": "mipass"}')
         assert response.status_code == HTTPStatus.CREATED
+
+    def test_no_passwords_match(self):
+        response = client.post('/register',
+                               data='{"username": "MiNombre", "email": "user@test.com",\
+                                     "password": "mipass", "password_confirmation": "otropass"}')
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
