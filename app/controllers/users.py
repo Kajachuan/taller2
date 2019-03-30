@@ -24,5 +24,8 @@ def register():
         crypted_password = password
 
     new_user = User(username=username, email=email, crypted_password=crypted_password)
-    new_user.save()
+    try:
+        new_user.save()
+    except:
+        abort(HTTPStatus.UNAUTHORIZED)
     return '', HTTPStatus.CREATED
