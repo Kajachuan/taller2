@@ -9,6 +9,7 @@ coverage:
 
   status:
     project: yes
+      target: 90%
     patch: yes
     changes: no
 
