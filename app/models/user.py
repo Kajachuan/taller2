@@ -1,4 +1,7 @@
-from ..app import *
+from ..app import db
 
 class User(db.Document):
-    name = db.StringField(max_length=200, required=True)
+    id = db.SequenceField()
+    username = db.StringField(required=True, unique=True, min_length=1)
+    email = db.EmailField(required=True)
+    crypted_password = db.StringField(required=True)
