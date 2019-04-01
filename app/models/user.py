@@ -1,4 +1,7 @@
-from ..app import db
+try:
+    from ..app import db
+except:
+    from app import db
 
 class User(db.Document):
     id = db.SequenceField()

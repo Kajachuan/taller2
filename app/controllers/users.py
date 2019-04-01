@@ -2,7 +2,11 @@ from os import environ
 from http import HTTPStatus
 from flask import Blueprint, request, abort
 from cryptography.fernet import Fernet
-from ..models.user import User
+
+try:
+    from ..models.user import User
+except ValueError:
+    from models.user import User
 
 users = Blueprint('users', __name__)
 

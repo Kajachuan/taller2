@@ -1,26 +1,23 @@
 from os import environ
 
-class Config(object):
+if environ['FLASK_ENV'] == 'production':
     DEBUG = False
     TESTING = False
+    MONGODB_SETTINGS = {
+        'db': 'hypechat',
+        'host': environ['MONGODB_URI']
+    }
 
-class ProductionConfig(Config):
-    try:
-        MONGODB_SETTINGS = {
-            'db': 'hypechat',
-            'host': environ['MONGODB_URI']
-        }
-    except KeyError:
-        pass
-
-class DevelopmentConfig(Config):
+elif environ['FLASK_ENV'] == 'development':
     DEBUG = True
+    TESTING = False
     MONGODB_SETTINGS = {
         'db': 'hypechat',
         'host': 'mongodb://localhost:27017/hypechat'
     }
 
-class TestingConfig(Config):
+else:
+    DEBUG = False
     TESTING = True
     MONGODB_SETTINGS = {
         'db': 'hypechat',

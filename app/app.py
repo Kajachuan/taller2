@@ -3,10 +3,13 @@ from flask_mongoengine import MongoEngine
 from os import environ
 
 app = Flask(__name__)
-app.config.from_object('taller2.config.app.' + environ['FLASK_ENV'].capitalize() + 'Config')
+app.config.from_pyfile('../config/app.py')
 db = MongoEngine(app)
 
-from .controllers.users import users
+try:
+    from .controllers.users import users
+except ImportError:
+    from controllers.users import users
 
 app.register_blueprint(users)
 
