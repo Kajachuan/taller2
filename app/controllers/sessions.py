@@ -18,4 +18,5 @@ def login():
     if not user:
         abort(HTTPStatus.BAD_REQUEST)
 
+    session['current_user'] = user.id
     return '', HTTPStatus.OK
