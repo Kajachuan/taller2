@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_mongoengine import MongoEngine
 from os import environ
 
@@ -18,4 +18,4 @@ app.register_blueprint(sessions)
 
 @app.route('/')
 def root():
-    return 'Hello, World!'
+    return render_template('index.html')
