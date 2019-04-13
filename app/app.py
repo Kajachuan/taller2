@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_mongoengine import MongoEngine
 from os import environ
 
@@ -8,11 +8,14 @@ db = MongoEngine(app)
 
 try:
     from .controllers.users import users
-except ImportError:
+    from .controllers.sessions import sessions
+except:
     from controllers.users import users
+    from controllers.sessions import sessions
 
 app.register_blueprint(users)
+app.register_blueprint(sessions)
 
 @app.route('/')
 def root():
-    return 'Hello, World!'
+    return render_template('index.html')

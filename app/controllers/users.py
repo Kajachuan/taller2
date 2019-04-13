@@ -5,7 +5,7 @@ from cryptography.fernet import Fernet
 
 try:
     from ..models.user import User
-except ValueError:
+except:
     from models.user import User
 
 users = Blueprint('users', __name__)
@@ -28,8 +28,10 @@ def register():
         crypted_password = password
 
     new_user = User(username=username, email=email, crypted_password=crypted_password)
+
     try:
         new_user.save()
     except:
         abort(HTTPStatus.BAD_REQUEST)
+
     return '', HTTPStatus.CREATED
