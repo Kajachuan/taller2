@@ -44,7 +44,7 @@ def profile():
     last_name = data['last_name']
 
     user = User.objects(username = username)
-    if not user:
+    if not user.count():
         abort(HTTPStatus.BAD_REQUEST)
 
     user.update_one(first_name = first_name, last_name = last_name)
@@ -52,5 +52,8 @@ def profile():
 
 @users.route('/profile/<username>', methods = ['GET'])
 def get_profile(username):
-    user = User.objects.get(username = username)
+    try:
+        user = User.objects.get(username = username)
+    except:
+        abort(HTTPStatus.BAD_REQUEST)
     return jsonify(first_name = user.first_name, last_name = user.last_name), HTTPStatus.OK

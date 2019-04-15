@@ -43,13 +43,17 @@ class TestUsersController(object):
                                         "last_name" : "Stark"}')
         assert response.status_code == HTTPStatus.OK
 
-    def test_get_profile(self):
-        client.post('/register', data='{"username": "Hulk", "email": "tony@stark.com",\
-                                      "password": "mipass", "password_confirmation": "mipass"}')
-
-        client.post('/profile', data = '{"username" : "Hulk" , "first_name" : "Tony",\
+    def test_set_profile_user_invalid(self):
+        response = client.post('/profile', data = '{"username" : "Hulk" , "first_name" : "Tony",\
                                         "last_name" : "Stark"}')
-        response = client.get('/profile/Hulk')
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+
+    def test_get_profile(self):
+        response = client.get('/profile/IronMan')
         assert response.status_code == HTTPStatus.OK
         assert response.get_json()['first_name'] == 'Tony'
         assert response.get_json()['last_name'] == 'Stark'
+
+    def test_get_profile_invalid_user(self):
+        response = client.get('/profile/Hulk')
+        assert response.status_code == HTTPStatus.BAD_REQUEST
