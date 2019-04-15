@@ -13,7 +13,7 @@ class User(db.Document):
     crypted_password = db.StringField(required=True)
     first_name = db.StringField(required = False)
     last_name = db.StringField(required = False)
-    profile_picture = db.ImageField(required = False)
+    #profile_picture = db.ImageField(required = False)
     meta = {'strict': False}
 
     @classmethod
