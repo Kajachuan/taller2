@@ -11,6 +11,9 @@ class User(db.Document):
     username = db.StringField(required=True, unique=True, min_length=1)
     email = db.EmailField(required=True)
     crypted_password = db.StringField(required=True)
+    first_name = db.StringField(required = False)
+    last_name = db.StringField(required = False)
+    #profile_picture = db.ImageField(required = False)
     meta = {'strict': False}
 
     @classmethod

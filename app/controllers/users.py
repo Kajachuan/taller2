@@ -1,6 +1,6 @@
 from os import environ
 from http import HTTPStatus
-from flask import Blueprint, request, abort
+from flask import Blueprint, request, abort, jsonify
 from cryptography.fernet import Fernet
 
 try:
@@ -35,3 +35,25 @@ def register():
         abort(HTTPStatus.BAD_REQUEST)
 
     return '', HTTPStatus.CREATED
+
+@users.route('/profile', methods=['POST'])
+def profile():
+    data = request.get_json(force=True)
+    username = data['username']
+    first_name = data['first_name']
+    last_name = data['last_name']
+
+    user = User.objects(username = username)
+    if not user.count():
+        abort(HTTPStatus.BAD_REQUEST)
+
+    user.update_one(first_name = first_name, last_name = last_name)
+    return '', HTTPStatus.OK
+
+@users.route('/profile/<username>', methods = ['GET'])
+def get_profile(username):
+    try:
+        user = User.objects.get(username = username)
+    except:
+        abort(HTTPStatus.BAD_REQUEST)
+    return jsonify(first_name = user.first_name, last_name = user.last_name), HTTPStatus.OK
