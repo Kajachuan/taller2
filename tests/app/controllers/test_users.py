@@ -1,6 +1,5 @@
 from http import HTTPStatus
 from taller2.app.app import app
-from flask import jsonify
 
 client = app.test_client()
 
