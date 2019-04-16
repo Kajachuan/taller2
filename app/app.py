@@ -1,3 +1,4 @@
+import logging
 from flask import Flask, render_template
 from flask_mongoengine import MongoEngine
 from os import environ
@@ -19,3 +20,8 @@ app.register_blueprint(sessions)
 @app.route('/')
 def root():
     return render_template('index.html')
+
+if __name__ != '__main__':
+    gunicorn_logger = logging.getLogger('gunicorn.error')
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
