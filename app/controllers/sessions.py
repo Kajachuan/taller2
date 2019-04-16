@@ -1,4 +1,4 @@
-from flask import Blueprint, request, abort, session
+from flask import Blueprint, request, abort, session, current_app
 from http import HTTPStatus
 
 try:
@@ -12,11 +12,14 @@ sessions = Blueprint('sessions', __name__)
 def login():
     data = request.get_json(force=True)
     username = data['username']
+    current_app.logger.debug('The username is: ' + username)
     password = data['password']
 
     user = User.authenticate(username, password)
     if not user:
+        current_app.logger.info('The username or password are wrong')
         abort(HTTPStatus.BAD_REQUEST)
 
     session['current_user'] = user.id
+    current_app.logger.info('Logged in')
     return '', HTTPStatus.OK
