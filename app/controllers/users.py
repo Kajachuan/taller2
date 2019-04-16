@@ -21,12 +21,12 @@ def register():
     password_confirmation = data['password_confirmation']
 
     if len(password) < 5:
-        abort(HTTPStatus.BAD_REQUEST)
         current_app.logger.info('The password is too short. It must have at least five characters')
+        abort(HTTPStatus.BAD_REQUEST)
 
     if password != password_confirmation:
-        abort(HTTPStatus.BAD_REQUEST)
         current_app.logger.info('The password and the confirmation are not the same')
+        abort(HTTPStatus.BAD_REQUEST)
 
     try:
         cipher_suite = Fernet(environ['CRYPT_KEY'].encode())
@@ -70,5 +70,5 @@ def get_profile(username):
     except:
         current_app.logger.info('The user does not exist')
         abort(HTTPStatus.BAD_REQUEST)
-        
+
     return jsonify(first_name = user.first_name, last_name = user.last_name), HTTPStatus.OK
