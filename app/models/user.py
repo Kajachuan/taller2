@@ -3,8 +3,10 @@ from cryptography.fernet import Fernet
 
 try:
     from ..app import db
+    from ..exceptions.register_error import *
 except:
     from app import db
+    from exceptions.register_error import *
 
 class User(db.Document):
     id = db.SequenceField()
@@ -15,6 +17,14 @@ class User(db.Document):
     last_name = db.StringField(required = False)
     #profile_picture = db.ImageField(required = False)
     meta = {'strict': False}
+
+    def clean(self):
+        if self.username == "":
+            raise BlankUsernameError()
+        try:
+            db.EmailField.validate(db.EmailField(), self.email)
+        except:
+            raise InvalidEmailError()
 
     @classmethod
     def authenticate(cls, username, password):

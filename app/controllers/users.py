@@ -5,8 +5,10 @@ from cryptography.fernet import Fernet
 
 try:
     from ..models.user import User
+    from ..exceptions.register_error import *
 except:
     from models.user import User
+    from exceptions.register_error import *
 
 users = Blueprint('users', __name__)
 
@@ -39,7 +41,8 @@ def register():
     try:
         new_user.save()
         current_app.logger.info('The user has been created')
-    except:
+    except RegisterError as error:
+        current_app.logger.info(str(error))
         abort(HTTPStatus.BAD_REQUEST)
 
     return '', HTTPStatus.CREATED
