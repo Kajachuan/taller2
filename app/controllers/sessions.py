@@ -16,6 +16,12 @@ def login():
         current_app.logger.info('The username or password are wrong')
         abort(HTTPStatus.BAD_REQUEST)
 
-    session['current_user'] = user.id
-    current_app.logger.info('Logged in')
+    session['username'] = user.username
+    current_app.logger.info('The user ' + username + ' is logged in')
+    return '', HTTPStatus.OK
+
+@sessions.route('/logout', methods=['DELETE'])
+def logout():
+    username = session.pop('username')
+    current_app.logger.info('The user ' + username + ' was logged out')
     return '', HTTPStatus.OK

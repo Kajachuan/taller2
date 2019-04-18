@@ -4,13 +4,11 @@ from ..app import db
 from ..exceptions.register_error import BlankUsernameError, InvalidEmailError
 
 class User(db.Document):
-    id = db.SequenceField()
     username = db.StringField(required=True, unique=True, min_length=1)
     email = db.EmailField(required=True)
     crypted_password = db.StringField(required=True)
     first_name = db.StringField(required=False)
     last_name = db.StringField(required=False)
-    #profile_picture = db.ImageField(required = False)
     meta = {'strict': False}
 
     def clean(self):
