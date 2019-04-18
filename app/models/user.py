@@ -31,9 +31,5 @@ class User(db.Document):
         return user
 
     def has_password(self, password):
-        try:
-            cipher_suite = Fernet(environ['CRYPT_KEY'].encode())
-            crypted_password = cipher_suite.encrypt(password.encode())
-        except KeyError:
-            crypted_password = password
-        return self.crypted_password == crypted_password
+        cipher_suite = Fernet(environ['CRYPT_KEY'].encode())
+        return password == cipher_suite.decrypt(self.crypted_password.encode()).decode()

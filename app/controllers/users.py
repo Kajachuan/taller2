@@ -25,11 +25,8 @@ def register():
         current_app.logger.info('The password and the confirmation are not the same')
         abort(HTTPStatus.BAD_REQUEST)
 
-    try:
-        cipher_suite = Fernet(environ['CRYPT_KEY'].encode())
-        crypted_password = cipher_suite.encrypt(password.encode())
-    except KeyError:
-        crypted_password = password
+    cipher_suite = Fernet(environ['CRYPT_KEY'].encode())
+    crypted_password = cipher_suite.encrypt(password.encode())
 
     new_user = User(username=username, email=email, crypted_password=crypted_password)
 
