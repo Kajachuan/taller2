@@ -1,18 +1,14 @@
 import logging
+from os import makedirs, path
 from flask import Flask, render_template
 from flask_mongoengine import MongoEngine
-from os import environ, makedirs, path
 
 app = Flask(__name__)
 app.config.from_pyfile('../config/app.py')
 db = MongoEngine(app)
 
-try:
-    from .controllers.users import users
-    from .controllers.sessions import sessions
-except:
-    from controllers.users import users
-    from controllers.sessions import sessions
+from .controllers.users import users
+from .controllers.sessions import sessions
 
 app.register_blueprint(users)
 app.register_blueprint(sessions)

@@ -1,10 +1,6 @@
-from flask import Blueprint, request, abort, session, current_app
 from http import HTTPStatus
-
-try:
-    from ..models.user import User
-except:
-    from models.user import User
+from flask import Blueprint, request, abort, session, current_app
+from ..models.user import User
 
 sessions = Blueprint('sessions', __name__)
 

@@ -2,13 +2,8 @@ from os import environ
 from http import HTTPStatus
 from flask import Blueprint, request, abort, jsonify, current_app
 from cryptography.fernet import Fernet
-
-try:
-    from ..models.user import User
-    from ..exceptions.register_error import *
-except:
-    from models.user import User
-    from exceptions.register_error import *
+from ..models.user import User
+from ..exceptions.register_error import RegisterError
 
 users = Blueprint('users', __name__)
 
@@ -57,21 +52,21 @@ def profile():
     last_name = data['last_name']
     current_app.logger.debug('The last name is: ' + last_name)
 
-    user = User.objects(username = username)
+    user = User.objects(username=username)
     if not user.count():
         current_app.logger.info('The user does not exist')
         abort(HTTPStatus.BAD_REQUEST)
 
-    user.update_one(first_name = first_name, last_name = last_name)
+    user.update_one(first_name=first_name, last_name=last_name)
     current_app.logger.info('The profile has been updated')
     return '', HTTPStatus.OK
 
-@users.route('/profile/<username>', methods = ['GET'])
+@users.route('/profile/<username>', methods=['GET'])
 def get_profile(username):
     try:
-        user = User.objects.get(username = username)
+        user = User.objects.get(username=username)
     except:
         current_app.logger.info('The user does not exist')
         abort(HTTPStatus.BAD_REQUEST)
 
-    return jsonify(first_name = user.first_name, last_name = user.last_name), HTTPStatus.OK
+    return jsonify(first_name=user.first_name, last_name=user.last_name), HTTPStatus.OK
