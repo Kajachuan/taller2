@@ -3,6 +3,7 @@ from http import HTTPStatus
 from flask import Blueprint, request, abort, jsonify, current_app
 from cryptography.fernet import Fernet
 from ..models.user import User
+from ..models.validators.password_validator import PasswordValidator
 from ..exceptions.register_error import RegisterError
 
 users = Blueprint('users', __name__)
@@ -17,12 +18,10 @@ def register():
     password = data['password']
     password_confirmation = data['password_confirmation']
 
-    if len(password) < 5:
-        current_app.logger.info('The password is too short. It must have at least five characters')
-        abort(HTTPStatus.BAD_REQUEST)
-
-    if password != password_confirmation:
-        current_app.logger.info('The password and the confirmation are not the same')
+    try:
+        PasswordValidator.validate(password, password_confirmation)
+    except RegisterError as error:
+        current_app.logger.info(str(error))
         abort(HTTPStatus.BAD_REQUEST)
 
     cipher_suite = Fernet(environ['CRYPT_KEY'].encode())
