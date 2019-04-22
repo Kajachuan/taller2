@@ -168,9 +168,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            /*
-            mAuthTask = new UserLoginTask(userId, password);
-            mAuthTask.execute((Void) null);*/
+
             final LoginBody test = new LoginBody(userId, password);
 
             Call<User> loginCall = mHypechatRequest.login(test);
@@ -223,8 +221,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         showChannelScreen();
 
     }
-
-
 
     private boolean isUserValid(String userId) {
         return userId.length() > 4;

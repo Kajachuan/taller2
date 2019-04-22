@@ -50,16 +50,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-
-                    <LinearLayout
-                        android:focusable="true" android:focusableInTouchMode="true"
-                        android:layout_width="0px" android:layout_height="0px"/>
-
                     <AutoCompleteTextView
                         android:id="@+id/user"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/prompt_email"
+                        android:hint="@string/prompt_username"
                         android:inputType="textEmailAddress"
                         android:maxLines="1"
                         android:singleLine="true" />

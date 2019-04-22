@@ -15,12 +15,14 @@
     <string name="action_sign_in">Iniciar sesión</string>
     <string name="action_sign_in_short">Iniciar</string>
     <string name="error_invalid_user">Este usuario no es válido</string>
+    <string name="error_invalid_email">Este email no es válido</string>
     <string name="error_invalid_password">Esta password es muy corta</string>
     <string name="error_incorrect_password">Esta password es incorrecta</string>
+    <string name="error_pw_match">Las passwords no coinciden</string>
     <string name="error_field_required">Se requiere este campo</string>
     <string name="error_network">Conexión de red no disponible</string>
     <string name="or">ó</string>
     <string name="action_register">Registrarse</string>
-    <string name="prompt_name">Nombre</string>
+    <string name="prompt_username">Nombre de usuario</string>
     <string name="prompt_password_confirm">Confirmar password</string>
 </resources>

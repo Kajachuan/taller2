@@ -10,8 +10,8 @@ public class SessionPrefs {
     private static SessionPrefs INSTANCE;
 
     public static final String PREFS_NAME = "HYPECHAT_PREFS";
-    public static final String PREF_USER_ID = "PREF_USER_ID";
-    public static final String PREF_USER_NAME = "PREF_USER_NAME";
+    public static final String PREF_USERNAME = "PREF_USERNAME";
+    public static final String PREF_USER_EMAIL = "PREF_USER_EMAIL";
     public static final String PREF_USER_TOKEN = "PREF_USER_TOKEN";
 
     private final SharedPreferences mPrefs;
@@ -38,8 +38,8 @@ public class SessionPrefs {
     public void saveUser(User user) {
         if (user != null) {
             SharedPreferences.Editor editor = mPrefs.edit();
-            editor.putString(PREF_USER_ID, user.getId());
-            editor.putString(PREF_USER_NAME, user.getName());
+            editor.putString(PREF_USERNAME, user.getUserId());
+            editor.putString(PREF_USER_EMAIL, user.getEmail());
             editor.putString(PREF_USER_TOKEN, user.getToken());
             editor.apply();
 
@@ -50,8 +50,8 @@ public class SessionPrefs {
     public void logOut(){
         mIsLoggedIn = false;
         SharedPreferences.Editor editor = mPrefs.edit();
-        editor.putString(PREF_USER_ID, null);
-        editor.putString(PREF_USER_NAME, null);
+        editor.putString(PREF_USERNAME, null);
+        editor.putString(PREF_USER_EMAIL, null);
         editor.putString(PREF_USER_TOKEN, null);
         editor.apply();
     }

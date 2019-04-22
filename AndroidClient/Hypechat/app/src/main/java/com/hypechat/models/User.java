@@ -2,30 +2,30 @@ package com.hypechat.models;
 
 public class User {
 
-    private String id;
-    private String name;
+    private String username;
+    private String email;
     private String token;
 
-    public User(String id, String name, String token) {
-        this.id = id;
-        this.name = name;
+    public User(String username, String email, String token) {
+        this.username = username;
+        this.email = email;
         this.token = token;
     }
 
-    public String getId() {
-        return id;
+    public String getUserId() {
+        return username;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setId(String username) {
+        this.username = username;
     }
 
-    public String getName() {
-        return name;
+    public String getEmail() {
+        return email;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getToken() {
