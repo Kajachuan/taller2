@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         // Redirección al Login
-        if (!SessionPrefs.get(this).isLoggedIn()) {
+        if (false){//!SessionPrefs.get(this).isLoggedIn()) {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
@@ -69,9 +69,9 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent login = new Intent(this, LoginActivity.class);
-            startActivity(login);
+        if (id == R.id.action_profile) {
+            Intent profile = new Intent(this, ProfileActivity.class);
+            startActivity(profile);
         }
 
         return super.onOptionsItemSelected(item);

@@ -6,6 +6,7 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Cabecera del panel de navegación</string>
     <string name="action_settings">Ajustes</string>
+    <string name="action_profile">Perfil</string>
     <string name="enter_message">Escriba un mensaje</string>
 
     <string name="title_activity_login">Iniciar sesión</string>
@@ -25,4 +26,7 @@
     <string name="action_register">Registrarse</string>
     <string name="prompt_username">Nombre de usuario</string>
     <string name="prompt_password_confirm">Confirmar password</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
