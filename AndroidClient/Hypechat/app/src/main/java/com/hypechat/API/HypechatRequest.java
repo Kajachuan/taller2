@@ -10,15 +10,11 @@ import retrofit2.http.POST;
 
 public interface HypechatRequest {
 
-    // Cambiar host por "10.0.0.2" para Genymotion.
-    // Cambiar host por "10.0.0.3" para AVD.
-    // Cambiar host por IP de PC para dispositivo real.
-    //public static final String BASE_URL = "http://10.0.0.2/api.hypechat.com/v1/";
-    public static final String BASE_URL = "http://virtserver.swaggerhub.com/FabrizioCozza/Hypechat/1.0.0/";
+    public static final String BASE_URL = "https://hypechat-taller2-staging.herokuapp.com/";
 
-    @POST("users/login")
-    Call<User> login(@Body LoginBody loginBody);
+    @POST("login")
+    Call<Void> login(@Body LoginBody loginBody);
 
-    @POST("users/register")
-    Call<User> register(@Body RegisterBody registerBody);
+    @POST("register")
+    Call<Void> register(@Body RegisterBody registerBody);
 }

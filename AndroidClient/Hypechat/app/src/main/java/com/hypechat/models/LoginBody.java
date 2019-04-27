@@ -1,26 +1,23 @@
 package com.hypechat.models;
 
-import com.google.gson.annotations.SerializedName;
-
 public class LoginBody {
 
-    @SerializedName("id")
-    private String userId;
+    private String username;
     private String name;
     private String password;
 
-    public LoginBody(String userId, String password) {
-        this.userId = userId;
+    public LoginBody(String username, String password) {
+        this.username = username;
         this.name = name;
         this.password = password;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public void setName(String name) {

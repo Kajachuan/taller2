@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         // Redirección al Login
-        if (false){//!SessionPrefs.get(this).isLoggedIn()) {
+        if (!SessionPrefs.get(this).isLoggedIn()) {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;

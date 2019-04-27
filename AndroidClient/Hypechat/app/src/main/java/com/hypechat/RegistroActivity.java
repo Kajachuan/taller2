@@ -122,6 +122,7 @@ public class RegistroActivity extends AppCompatActivity {
     }
 
     private void showRegisterError(String error) {
+        //Log.d("Reg",error);
         Toast.makeText(this, error, Toast.LENGTH_LONG).show();
     }
 
@@ -224,17 +225,17 @@ public class RegistroActivity extends AppCompatActivity {
             // perform the user register attempt.
             showProgress(true);
 
-            final RegisterBody reg_body = new RegisterBody(username, email, password);
+            final RegisterBody reg_body = new RegisterBody(username, email, password, confirmPassword);
 
-            Call<User> registerCall = mHypechatRequest.register(reg_body);
-            registerCall.enqueue(new Callback<User>() {
+            Call<Void> registerCall = mHypechatRequest.register(reg_body);
+            registerCall.enqueue(new Callback<Void>() {
                 @Override
-                public void onResponse(Call<User> call, Response<User> response) {
+                public void onResponse(Call<Void> call, Response<Void> response) {
                     processResponse(response);
                 }
 
                 @Override
-                public void onFailure(Call<User> call, Throwable t) {
+                public void onFailure(Call<Void> call, Throwable t) {
                     showProgress(false);
                     showRegisterError(t.getMessage());
                 }
@@ -242,10 +243,11 @@ public class RegistroActivity extends AppCompatActivity {
         }
     }
 
-    private void processResponse(Response<User> response) {
+    private void processResponse(Response<Void> response) {
         // Mostrar progreso
         showProgress(false);
-
+        Log.d("Reg",response.raw().message());
+/*
         // Procesar errores
         if (!response.isSuccessful()) {
             String error;
@@ -254,20 +256,19 @@ public class RegistroActivity extends AppCompatActivity {
                     .subtype()
                     .equals("application/json")) {
                 ApiError apiError = ApiError.fromResponseBody(response.errorBody());
-                Log.d("LoginActivity","asd");
+                Log.d("Reg","entra");
                 assert apiError != null;
                 error = apiError.getMessage();
-                Log.d("LoginActivity", apiError.getDeveloperMessage());
+                Log.d("Reg", apiError.getDeveloperMessage());
             } else {
                 error = response.message();
-                Log.d("LoginActivity",error);
+                Log.d("Reg",error);
             }
-
-            showRegisterError(error);
-            return;
-        }
-
-        showLoginScreen();
+*/
+            //showRegisterError(error);
+            //return;
+        //}
+        //showLoginScreen();
 
     }
 

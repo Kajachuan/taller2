@@ -15,7 +15,6 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -171,29 +170,28 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             final LoginBody test = new LoginBody(userId, password);
 
-            Call<User> loginCall = mHypechatRequest.login(test);
-            loginCall.enqueue(new Callback<User>() {
+            Call<Void> loginCall = mHypechatRequest.login(test);
+            loginCall.enqueue(new Callback<Void>() {
                 @Override
-                public void onResponse(Call<User> call, Response<User> response) {
+                public void onResponse(Call<Void> call, Response<Void> response) {
                     processResponse(response);
                 }
 
                 @Override
-                public void onFailure(Call<User> call, Throwable t) {
+                public void onFailure(Call<Void> call, Throwable t) {
                     showProgress(false);
                     showLoginError(t.getMessage());
-                    Log.d("LoginActivity",test.getUserId());
-                    Log.d("LoginActivity",test.getPassword());
-                    Log.d("LoginActivity",t.getMessage());
                 }
             });
         }
     }
 
-    private void processResponse(Response<User> response) {
+    private void processResponse(Response<Void> response) {
         // Mostrar progreso
         showProgress(false);
 
+        Log.d("Login",response.raw().message());
+/*
         // Procesar errores
         if (!response.isSuccessful()) {
             String error;
@@ -217,8 +215,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         // Guardar usuario en preferencias
         SessionPrefs.get(LoginActivity.this).saveUser(response.body());
-
-        showChannelScreen();
+*/
+        //showChannelScreen();
 
     }
 
