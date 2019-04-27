@@ -15,7 +15,6 @@ class TestOrganization(object):
 
     def test_default_info_organization(self):
         assert self.organization.ubication == 'Not Specified'
-        assert self.organization.image_link == 'default-image.com'
         assert self.organization.description == 'Organization Information'
         assert self.organization.welcome_message == 'Welcome'
 

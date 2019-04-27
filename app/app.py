@@ -9,9 +9,11 @@ db = MongoEngine(app)
 
 from .controllers.users import users
 from .controllers.sessions import sessions
+from .controllers.organizations import organizations
 
 app.register_blueprint(users)
 app.register_blueprint(sessions)
+app.register_blueprint(organizations)
 
 @app.route('/')
 def root():

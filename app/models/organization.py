@@ -7,12 +7,12 @@ class Organization(db.Document):
     moderators = db.ListField(db.ReferenceField(User))
     members = db.ListField(db.ReferenceField(User))
     ubication = db.StringField(default = 'Not Specified')
-    image_link = db.URLField(default = 'default-image.com')
+    image_link = db.URLField()
     description = db.StringField(default = 'Organization Information')
     welcome_message = db.StringField(default = 'Welcome')
     #channels = db.ListField(db.ReferenceField(Channel))
     #map_of_active_users ?
-    #meta = {'strict': False) ?
+    meta = {'strict': False}
 
     def add_new_member(self, new_member):
         self.members.append(new_member)
