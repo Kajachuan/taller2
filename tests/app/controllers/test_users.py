@@ -38,13 +38,13 @@ class TestUsersController(object):
         assert response.status_code == HTTPStatus.BAD_REQUEST
 
     def test_set_profile_user_valid(self):
-        response = client.post('/profile', data = '{"username" : "IronMan" , "first_name" : "Tony",\
-                                        "last_name" : "Stark"}')
+        response = client.post('/profile', data='{"username" : "IronMan" , "first_name" : "Tony",\
+                                                  "last_name" : "Stark"}')
         assert response.status_code == HTTPStatus.OK
 
     def test_set_profile_user_invalid(self):
-        response = client.post('/profile', data = '{"username" : "Hulk" , "first_name" : "Tony",\
-                                        "last_name" : "Stark"}')
+        response = client.post('/profile', data='{"username" : "Hulk" , "first_name" : "Tony",\
+                                                  "last_name" : "Stark"}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
 
     def test_get_profile(self):
