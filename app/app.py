@@ -9,13 +9,15 @@ db = MongoEngine(app)
 
 from .controllers.users import users
 from .controllers.sessions import sessions
+from .controllers.admins import admins
 
 app.register_blueprint(users)
 app.register_blueprint(sessions)
+app.register_blueprint(admins)
 
 @app.route('/')
-def root():
-    return render_template('index.html')
+def index():
+    return redirect(url_for('admin_login'))
 
 if __name__ != '__main__':
     makedirs(path.dirname('logs/app.log'), exist_ok=True)
