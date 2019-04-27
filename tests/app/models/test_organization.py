@@ -13,6 +13,12 @@ class TestOrganization(object):
         assert len(self.organization.moderators) == 0
         assert len(self.organization.members) == 0
 
+    def test_default_info_organization(self):
+        assert self.organization.ubication == 'Not Specified'
+        assert self.organization.image_link == 'default-image.com'
+        assert self.organization.description == 'Organization Information'
+        assert self.organization.welcome_message == 'Welcome'
+
     def test_add_new_member(self):
         member = User(username='Member', email='member@test.com', crypted_password='mipass')
         self.organization.add_new_member(member)
@@ -26,3 +32,25 @@ class TestOrganization(object):
         assert len(self.organization.members) == 1
         assert len(self.organization.moderators) == 1
         assert self.organization.is_moderator(member) is True
+
+    def test_delete_member(self):
+        member = User(username = 'Member', email = 'member@test.com', crypted_password = 'mipass')
+        self.organization.add_new_member(member)
+        self.organization.delete_member(member)
+        assert self.organization.is_member(member) is False
+
+    def test_delete_member_that_is_moderator(self):
+        member = User(username='Member', email='member@test.com', crypted_password='mipass')
+        self.organization.add_new_member(member)
+        self.organization.add_moderator(member)
+        self.organization.delete_member(member)
+        assert self.organization.is_member(member) is False
+        assert self.organization.is_moderator(member) is False
+
+    def test_remove_member_as_moderator(self):
+        member = User(username='Member', email='member@test.com', crypted_password='mipass')
+        self.organization.add_new_member(member)
+        self.organization.add_moderator(member)
+        self.organization.remove_moderator(member)
+        assert self.organization.is_moderator(member) is False
+        assert self.organization.is_member(member) is True

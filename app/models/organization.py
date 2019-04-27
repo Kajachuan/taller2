@@ -6,6 +6,12 @@ class Organization(db.Document):
     owner = db.ReferenceField(User, required = True)
     moderators = db.ListField(db.ReferenceField(User))
     members = db.ListField(db.ReferenceField(User))
+    ubication = db.StringField(default = 'Not Specified')
+    image_link = db.URLField(default = 'default-image.com')
+    description = db.StringField(default = 'Organization Information')
+    welcome_message = db.StringField(default = 'Welcome')
+    #channels = db.ListField(db.ReferenceField(Channel))
+    #map_of_active_users ?
     #meta = {'strict': False) ?
 
     def add_new_member(self, new_member):
@@ -19,3 +25,11 @@ class Organization(db.Document):
 
     def is_moderator(self, user):
         return user in self.moderators
+
+    def delete_member(self, member):
+        if self.is_moderator(member):
+            self.moderators.remove(member)
+        self.members.remove(member)
+
+    def remove_moderator(self, member):
+        self.moderators.remove(member)
