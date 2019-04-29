@@ -4,43 +4,35 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
-
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.hypechat.API.ApiError;
+import com.hypechat.API.APIError;
+import com.hypechat.API.ErrorUtils;
 import com.hypechat.API.HypechatRequest;
 import com.hypechat.models.LoginBody;
-import com.hypechat.models.User;
 import com.hypechat.prefs.SessionPrefs;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -51,7 +43,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends AppCompatActivity {
 
     // UI references.
     private AutoCompleteTextView mUserView;
@@ -61,7 +53,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mProgressView;
     private View mLoginFormView;
 
-    private Retrofit mRestAdapter;
     private HypechatRequest mHypechatRequest;
 
     @Override
@@ -69,15 +60,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        /*
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_login);
         toolbar.setTitle(R.string.action_sign_in);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar);*/
+
+        View view = this.getWindow().getDecorView();
+        view.setBackgroundColor(getResources().getColor(R.color.activity_background));
 
         // Set up the login form.
         mUserView = (AutoCompleteTextView) findViewById(R.id.user);
         mFloatLabelUserId = (TextInputLayout) findViewById(R.id.user_ti_layout);
         mFloatLabelPassword = (TextInputLayout) findViewById(R.id.pw_ti_layout);
-
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -87,6 +81,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         showLoginError(getString(R.string.error_network));
                         return false;
                     }
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(mPasswordView.getWindowToken(), 0);
                     attemptLogin();
                     return true;
                 }
@@ -109,15 +105,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
-
         // Crear conexión al servicio REST
-        mRestAdapter = new Retrofit.Builder()
+        Retrofit mLoginRestAdapter = new Retrofit.Builder()
                 .baseUrl(HypechatRequest.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         // Crear conexión a la API
-        mHypechatRequest = mRestAdapter.create(HypechatRequest.class);
+        mHypechatRequest = mLoginRestAdapter.create(HypechatRequest.class);
     }
 
     /**
@@ -131,7 +126,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mFloatLabelPassword.setError(null);
 
         // Store values at the time of the login attempt.
-        String userId = mUserView.getText().toString();
+        final String userId = mUserView.getText().toString();
         String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
@@ -139,11 +134,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         // Check for a valid password, if the user entered one.
         if (TextUtils.isEmpty(password)) {
-            mFloatLabelPassword.setError(getString(R.string.error_invalid_password));
+            mFloatLabelPassword.setError(getString(R.string.error_field_required));
             focusView = mFloatLabelPassword;
             cancel = true;
         } else if (!isPasswordValid(password)){
-            mFloatLabelPassword.setError(getString(R.string.error_incorrect_password));
+            mFloatLabelPassword.setError(getString(R.string.error_invalid_password));
             focusView = mFloatLabelPassword;
             cancel = true;
         }
@@ -168,13 +163,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // perform the user login attempt.
             showProgress(true);
 
-            final LoginBody test = new LoginBody(userId, password);
+            final LoginBody userLoginBody = new LoginBody(userId, password);
 
-            Call<Void> loginCall = mHypechatRequest.login(test);
+            Call<Void> loginCall = mHypechatRequest.login(userLoginBody);
             loginCall.enqueue(new Callback<Void>() {
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
-                    processResponse(response);
+                    processResponse(response,userLoginBody);
                 }
 
                 @Override
@@ -186,12 +181,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
-    private void processResponse(Response<Void> response) {
+    private void processResponse(Response<Void> response, LoginBody userLoginBody) {
         // Mostrar progreso
         showProgress(false);
 
-        Log.d("Login",response.raw().message());
-/*
         // Procesar errores
         if (!response.isSuccessful()) {
             String error;
@@ -199,25 +192,22 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     .contentType()
                     .subtype()
                     .equals("application/json")) {
-                ApiError apiError = ApiError.fromResponseBody(response.errorBody());
-                Log.d("LoginActivity","asd");
+                APIError apiError = ErrorUtils.parseError(response);
                 assert apiError != null;
-                error = apiError.getMessage();
-                Log.d("LoginActivity", apiError.getDeveloperMessage());
+                error = apiError.message();
             } else {
                 error = response.message();
-                Log.d("LoginActivity",error);
+                if(error.equals("BAD REQUEST")) {
+                    error = "El usuario o contraseña ingresado son incorrectos.";
+                }
             }
-
             showLoginError(error);
-            return;
+        } else {
+            // Guardar usuario en preferencias
+            SessionPrefs.get(LoginActivity.this).saveUser(userLoginBody);
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
         }
-
-        // Guardar usuario en preferencias
-        SessionPrefs.get(LoginActivity.this).saveUser(response.body());
-*/
-        //showChannelScreen();
-
     }
 
     private boolean isUserValid(String userId) {
@@ -228,12 +218,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         return password.length() > 4;
     }
 
-    private void showChannelScreen() {
-        startActivity(new Intent(this, MainActivity.class));
-        finish();
+    public void openRegisterActivity(View view) {
+        startActivity(new Intent(this, RegistroActivity.class));
     }
-
-
 
     private void showLoginError(String error) {
         Toast.makeText(this, error, Toast.LENGTH_LONG).show();
@@ -257,6 +244,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // the progress spinner.
         int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
+        if(show){
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        } else {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        }
+
         mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         mLoginFormView.animate().setDuration(shortAnimTime).alpha(
                 show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
@@ -274,64 +268,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             }
         });
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this,
-                // Retrieve data rows for the device user's 'profile' contact.
-                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
-
-                // Select only email addresses.
-                ContactsContract.Contacts.Data.MIMETYPE +
-                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
-                .CONTENT_ITEM_TYPE},
-
-                // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
-                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        List<String> emails = new ArrayList<>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
-            cursor.moveToNext();
-        }
-
-        addEmailsToAutoComplete(emails);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
-    }
-
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(LoginActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        mUserView.setAdapter(adapter);
-    }
-
-    public void openRegisterActivity(View view) {
-        startActivity(new Intent(this, RegistroActivity.class));
-    }
-
-
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
-
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
     }
 }
 

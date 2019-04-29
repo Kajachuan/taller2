@@ -4,30 +4,29 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.hypechat.API.ApiError;
+import com.hypechat.API.APIError;
+import com.hypechat.API.ErrorUtils;
 import com.hypechat.API.HypechatRequest;
 import com.hypechat.models.RegisterBody;
-import com.hypechat.models.User;
-import com.hypechat.prefs.SessionPrefs;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -49,7 +48,6 @@ public class RegistroActivity extends AppCompatActivity {
     private View mProgressView;
     private View mRegisterFormView;
 
-    private Retrofit mRestAdapter;
     private HypechatRequest mHypechatRequest;
 
     @Override
@@ -57,23 +55,28 @@ public class RegistroActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registro);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_register);
-        toolbar.setTitle(R.string.action_register);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        View view = this.getWindow().getDecorView();
+        view.setBackgroundColor(getResources().getColor(R.color.activity_background));
+
+        ImageView viewGoBack =(ImageView) findViewById(R.id.go_back);
+        viewGoBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                finish();
+            }
+        });
 
         // Set up the register form.
         mUsernameView = (AutoCompleteTextView) findViewById(R.id.username_reg);
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email_reg);
-        mConfirmPasswordView = (EditText) findViewById(R.id.password_conf_reg);
+        mPasswordView = (EditText) findViewById(R.id.password_reg);
         mFloatLabelUsername = (TextInputLayout) findViewById(R.id.username_reg_ti);
         mFloatLabelEmail = (TextInputLayout) findViewById(R.id.email_reg_ti);
         mFloatLabelPassword = (TextInputLayout) findViewById(R.id.password_reg_ti);
         mFloatLabelConfirmPassword = (TextInputLayout) findViewById(R.id.password_confirm_reg_ti);
 
-        mPasswordView = (EditText) findViewById(R.id.password_reg);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mConfirmPasswordView = (EditText) findViewById(R.id.password_conf_reg);
+        mConfirmPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
@@ -81,6 +84,8 @@ public class RegistroActivity extends AppCompatActivity {
                         showRegisterError(getString(R.string.error_network));
                         return false;
                     }
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(mConfirmPasswordView.getWindowToken(), 0);
                     attemptRegister();
                     return true;
                 }
@@ -104,7 +109,7 @@ public class RegistroActivity extends AppCompatActivity {
         mProgressView = findViewById(R.id.register_progress);
 
         // Crear conexión al servicio REST
-        mRestAdapter = new Retrofit.Builder()
+        Retrofit mRestAdapter = new Retrofit.Builder()
                 .baseUrl(HypechatRequest.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -246,8 +251,7 @@ public class RegistroActivity extends AppCompatActivity {
     private void processResponse(Response<Void> response) {
         // Mostrar progreso
         showProgress(false);
-        Log.d("Reg",response.raw().message());
-/*
+
         // Procesar errores
         if (!response.isSuccessful()) {
             String error;
@@ -255,26 +259,23 @@ public class RegistroActivity extends AppCompatActivity {
                     .contentType()
                     .subtype()
                     .equals("application/json")) {
-                ApiError apiError = ApiError.fromResponseBody(response.errorBody());
-                Log.d("Reg","entra");
+                APIError apiError = ErrorUtils.parseError(response);
                 assert apiError != null;
-                error = apiError.getMessage();
-                Log.d("Reg", apiError.getDeveloperMessage());
+                error = apiError.message();
             } else {
                 error = response.message();
-                Log.d("Reg",error);
+                if(error.equals("INTERNAL SERVER ERROR")) {
+                    //SUPUESTAMENTE TIRA ESTO CUANDO YA ESTA CREADO EL USER PERO RARO OJO
+                    //TODO: Revisar esta response
+                    error = "El usuario ya fue creado";
+                } else {
+                    error = "Se produjo un error, por favor intente de nuevo";
+                }
             }
-*/
-            //showRegisterError(error);
-            //return;
-        //}
-        //showLoginScreen();
-
-    }
-
-    private void showLoginScreen() {
-        startActivity(new Intent(this, LoginActivity.class));
-        finish();
+            showRegisterError(error);
+        } else {
+            finish();
+        }
     }
 
     /**
@@ -286,6 +287,13 @@ public class RegistroActivity extends AppCompatActivity {
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
         int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+        if(show){
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        } else {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        }
 
         mRegisterFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         mRegisterFormView.animate().setDuration(shortAnimTime).alpha(

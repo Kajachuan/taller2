@@ -1,9 +1,11 @@
 package com.hypechat;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -72,7 +74,32 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.action_profile) {
             Intent profile = new Intent(this, ProfileActivity.class);
             startActivity(profile);
-        }
+        } else
+            if(id == R.id.action_logout){
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                        MainActivity.this);
+
+                // set dialog message
+                alertDialogBuilder
+                        .setMessage("¿Está seguro que desea cerrar sesión?")
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.ok,new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                SessionPrefs.get(MainActivity.this).logOut();
+                                Intent login = new Intent(MainActivity.this, LoginActivity.class);
+                                startActivity(login);
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel,new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+                // create alert dialog
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                // show it
+                alertDialog.show();
+            }
 
         return super.onOptionsItemSelected(item);
     }
