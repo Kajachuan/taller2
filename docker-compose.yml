@@ -4,6 +4,8 @@ services:
     build: .
     ports:
       - "80:8000"
+    image:
+      "kajachuan/hypechat"
     depends_on:
       - mongo
   mongo:
