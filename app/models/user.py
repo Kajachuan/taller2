@@ -9,6 +9,7 @@ class User(db.Document):
     crypted_password = db.StringField(required=True)
     first_name = db.StringField(required=False)
     last_name = db.StringField(required=False)
+    recovery_code = db.StringField(required=False)
     meta = {'strict': False}
 
     def clean(self):
