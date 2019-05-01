@@ -1,6 +1,6 @@
 from os import environ
 from http import HTTPStatus
-from flask import Blueprint, request, abort, jsonify, current_app
+from flask import Blueprint, request, abort, jsonify, current_app, make_response
 from cryptography.fernet import Fernet
 from ..models.user import User
 from ..models.validators.password_validator import PasswordValidator
@@ -22,7 +22,7 @@ def register():
         PasswordValidator.validate(password, password_confirmation)
     except RegisterError as error:
         current_app.logger.info(str(error))
-        abort(HTTPStatus.BAD_REQUEST)
+        abort(make_response(jsonify(message=str(error)), HTTPStatus.BAD_REQUEST))
 
     cipher_suite = Fernet(environ['CRYPT_KEY'].encode())
     crypted_password = cipher_suite.encrypt(password.encode())
@@ -34,9 +34,9 @@ def register():
         current_app.logger.info('The user has been created')
     except RegisterError as error:
         current_app.logger.info(str(error))
-        abort(HTTPStatus.BAD_REQUEST)
+        abort(make_response(jsonify(message=str(error)), HTTPStatus.BAD_REQUEST))
 
-    return '', HTTPStatus.CREATED
+    return jsonify(message='The user has been created'), HTTPStatus.CREATED
 
 @users.route('/profile', methods=['POST'])
 def profile():

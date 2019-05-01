@@ -4,10 +4,10 @@ from ..models.admin import Admin
 
 admins = Blueprint('admins', __name__)
 
-@admins.route('/admin/', methods=['GET','POST'])
+@admins.route('/admin/', methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'GET':
-        return render_template('login.html')
+        return render_template('index.html')
 
     data = request.get_json(force=True)
     name = data['name']

@@ -12,30 +12,44 @@ class TestUsersController(object):
                                data='{"username": "MiNombre", "email": "user@test.com",\
                                       "password": "mipass", "password_confirmation": "mipass"}')
         assert response.status_code == HTTPStatus.CREATED
+        assert response.get_json() == {'message': 'The user has been created'}
 
     def test_wrong_password_confirmation(self):
         response = client.post('/register',
-                               data='{"username": "MiNombre", "email": "user@test.com",\
+                               data='{"username": "MiNombre2", "email": "user@test.com",\
                                       "password": "mipass", "password_confirmation": "otropass"}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.get_json() == {'message': 'The password and the confirmation are not the same'}
 
     def test_blank_username(self):
         response = client.post('/register',
                                data='{"username": "", "email": "user@test.com",\
                                       "password": "mipass", "password_confirmation": "mipass"}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.get_json() == {'message': 'The username cannot be blank'}
 
     def test_invalid_email(self):
         response = client.post('/register',
-                               data='{"username": "MiNombre", "email": "usertest.com",\
+                               data='{"username": "MiNombre3", "email": "usertest.com",\
                                       "password": "mipass", "password_confirmation": "mipass"}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.get_json() == {'message': 'The email is invalid. It must be user@domain'}
 
     def test_short_password(self):
         response = client.post('/register',
-                               data='{"username": "MiNombre", "email": "user@test.com",\
+                               data='{"username": "MiNombre4", "email": "user@test.com",\
                                       "password": "pw", "password_confirmation": "pw"}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.get_json() == {'message': 'The password is too short. It must have at least five characters'}
+
+    def test_duplicate_username(self):
+        client.post('/register', data='{"username": "NewUser", "email": "user@test.com",\
+                                        "password": "mipass", "password_confirmation": "mipass"}')
+        response = client.post('/register',
+                               data='{"username": "NewUser", "email": "user2@test.com",\
+                                      "password": "123456", "password_confirmation": "123456"}')
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.get_json() == {'message': 'The username already exists'}
 
     def test_set_profile_user_valid(self):
         response = client.post('/profile', data='{"username" : "IronMan" , "first_name" : "Tony",\
