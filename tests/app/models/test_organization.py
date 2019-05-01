@@ -53,3 +53,19 @@ class TestOrganization(object):
         self.organization.remove_moderator(member)
         assert self.organization.is_moderator(member) is False
         assert self.organization.is_member(member) is True
+
+    def test_generate_invite_token(self):
+        user = User(username='Member', email='member@test.com', crypted_password='mipass')
+        token = self.organization.invite_user(user)
+        assert token != ''
+
+    def test_is_valid_token(self):
+        user = User(username='Member', email='member@test.com', crypted_password='mipass')
+        token = self.organization.invite_user(user)
+        self.organization.pending_invitations[token] = user
+        assert self.organization.is_valid_token(token)
+
+    def test_accept_invitation_invalid_token(self):
+        token = 'a token'
+        response = self.organization.is_valid_token(token)
+        assert not response
