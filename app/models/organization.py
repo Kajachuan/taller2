@@ -16,29 +16,17 @@ class Organization(db.Document):
     #map_of_active_users ?
     meta = {'strict': False}
 
-    def add_new_member(self, new_member):
-        self.members.append(new_member)
-
     def is_member(self, user):
         return user in self.members
-
-    def add_moderator(self, member):
-        self.moderators.append(member)
 
     def is_moderator(self, user):
         return user in self.moderators
 
-    def delete_member(self, member):
-        if self.is_moderator(member):
-            self.moderators.remove(member)
-        self.members.remove(member)
-
-    def remove_moderator(self, member):
-        self.moderators.remove(member)
+    def is_owner(self, user):
+        return user == self.owner
 
     def invite_user(self, user):
         return str(uuid.uuid1())
 
     def is_valid_token(self, token):
-        print('is_valid')
         return token in self.pending_invitations.keys()

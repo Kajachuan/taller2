@@ -20,39 +20,17 @@ class TestOrganization(object):
 
     def test_add_new_member(self):
         member = User(username='Member', email='member@test.com', crypted_password='mipass')
-        self.organization.add_new_member(member)
+        self.organization.members.append(member)
         assert len(self.organization.members) == 1
         assert self.organization.is_member(member) is True
 
     def test_set_member_as_moderator(self):
         member = User(username='Member', email='member@test.com', crypted_password='mipass')
-        self.organization.add_new_member(member)
-        self.organization.add_moderator(member)
+        self.organization.members.append(member)
+        self.organization.moderators.append(member)
         assert len(self.organization.members) == 1
         assert len(self.organization.moderators) == 1
         assert self.organization.is_moderator(member) is True
-
-    def test_delete_member(self):
-        member = User(username = 'Member', email = 'member@test.com', crypted_password = 'mipass')
-        self.organization.add_new_member(member)
-        self.organization.delete_member(member)
-        assert self.organization.is_member(member) is False
-
-    def test_delete_member_that_is_moderator(self):
-        member = User(username='Member', email='member@test.com', crypted_password='mipass')
-        self.organization.add_new_member(member)
-        self.organization.add_moderator(member)
-        self.organization.delete_member(member)
-        assert self.organization.is_member(member) is False
-        assert self.organization.is_moderator(member) is False
-
-    def test_remove_member_as_moderator(self):
-        member = User(username='Member', email='member@test.com', crypted_password='mipass')
-        self.organization.add_new_member(member)
-        self.organization.add_moderator(member)
-        self.organization.remove_moderator(member)
-        assert self.organization.is_moderator(member) is False
-        assert self.organization.is_member(member) is True
 
     def test_generate_invite_token(self):
         user = User(username='Member', email='member@test.com', crypted_password='mipass')

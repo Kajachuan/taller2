@@ -1,6 +1,6 @@
 from os import environ
 from http import HTTPStatus
-from flask import Blueprint, request, abort, jsonify, current_app
+from flask import Blueprint, request,session, abort, jsonify, current_app
 from cryptography.fernet import Fernet
 from ..models.user import User
 from ..models.validators.password_validator import PasswordValidator
@@ -66,3 +66,15 @@ def get_profile(username):
         abort(HTTPStatus.BAD_REQUEST)
 
     return jsonify(first_name=user.first_name, last_name=user.last_name), HTTPStatus.OK
+
+@users.route('/profile/<username>/invitations', methods=['GET'])
+def get_invitations(username):
+    if session['username'] != username:
+        return jsonify(msg = 'You are not allowed to see other user invitations'), HTTPStatus.FORBIDDEN
+    user = User.objects.get(username = username)
+    return jsonify(invitations = user.invitations), HTTPStatus.OK
+
+@users.route('/profile/<username>/organizations', methods=['GET'])
+def get_organizations(username):
+    user = User.objects.get(username = username)
+    return jsonify(organizations = user.organizations), HTTPStatus.OK

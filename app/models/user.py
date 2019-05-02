@@ -9,6 +9,8 @@ class User(db.Document):
     crypted_password = db.StringField(required=True)
     first_name = db.StringField(required=False)
     last_name = db.StringField(required=False)
+    invitations = db.DictField()
+    organizations = db.ListField(db.StringField())
     meta = {'strict': False}
 
     def clean(self):
@@ -29,6 +31,16 @@ class User(db.Document):
         if not user.has_password(password):
             return None
         return user
+
+    @classmethod
+    def invite(cls,username, token, organization):
+        user = cls.objects.get(username = username)
+        user.update(**{'set__invitations__' + token: organization})
+
+    @classmethod
+    def add_to_organization(cls, username, organization_name):
+        user = cls.objects.get(username = username)
+        user.update(push__organizations = organization_name)
 
     def has_password(self, password):
         cipher_suite = Fernet(environ['CRYPT_KEY'].encode())

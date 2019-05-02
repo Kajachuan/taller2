@@ -56,3 +56,42 @@ class TestUsersController(object):
     def test_get_profile_invalid_user(self):
         response = client.get('/profile/Hulk')
         assert response.status_code == HTTPStatus.BAD_REQUEST
+
+    def test_get_invitations(self):
+        client.post('/login', data = '{"username" : "MiNombre", "password" : "mipass"}')
+        response = client.get('/profile/MiNombre/invitations')
+        assert response.status_code == HTTPStatus.OK
+        assert len(response.get_json()['invitations'].keys()) == 0
+
+    def test_get_invitations_not_my_user(self):
+        client.post('/login', data = '{"username" : "MiNombre", "password" : "mipass"}')
+        response = client.get('/profile/IronMan/invitations')
+        assert response.status_code == HTTPStatus.FORBIDDEN
+
+    def test_get_user_organizations_empty(self):
+        client.post('/login', data = '{"username" : "MiNombre", "password" : "mipass"}')
+        response = client.get('/profile/MiNombre/organizations')
+        assert response.status_code == HTTPStatus.OK
+        assert len(response.get_json()['organizations']) == 0
+
+    def test_get_user_organizations_owner(self):
+        client.post('/login', data = '{"username" : "IronMan", "password" : "mipass"}')
+        client.post('/organization',data = '{"name" : "Avengers"}')
+        response = client.get('/profile/IronMan/organizations')
+        assert response.status_code == HTTPStatus.OK
+        assert 'Avengers' in response.get_json()['organizations']
+
+    def test_get_user_organizations_member(self):
+        response = client.post('/organization/Avengers/invite', data = '{"username" : "MiNombre" }')
+        assert response.status_code == HTTPStatus.OK
+        client.post('/login', data = '{"username" : "MiNombre", "password" : "mipass"}')
+        invitations = client.get('/profile/MiNombre/invitations')
+        token = list(invitations.get_json()['invitations'].keys())[0]
+        organization = invitations.get_json()['invitations'][token]
+        response = client.post('/organization/'+organization+'/accept-invitation', data = '{"token" : "'+token+'"}')
+        assert response.status_code == HTTPStatus.OK
+        response = client.get('/organization/Avengers/members')
+        assert 'MiNombre' in response.get_json()['members']
+        response = client.get('/profile/MiNombre/organizations')
+        assert response.status_code == HTTPStatus.OK
+        assert 'Avengers' in response.get_json()['organizations']
