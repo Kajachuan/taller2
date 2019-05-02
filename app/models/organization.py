@@ -1,5 +1,5 @@
 from ..app import db
-from taller2.app.models.user import User
+from .user import User
 import uuid
 
 class Organization(db.Document):
