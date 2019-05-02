@@ -1,7 +1,7 @@
 from os import environ
 from cryptography.fernet import Fernet
 from ..app import db
-from ..exceptions.register_error import BlankUsernameError, InvalidEmailError
+from ..exceptions.register_error import BlankUsernameError, InvalidEmailError, DuplicateUsernameError
 
 class User(db.Document):
     username = db.StringField(required=True, unique=True, min_length=1)
@@ -11,11 +11,14 @@ class User(db.Document):
     last_name = db.StringField(required=False)
     invitations = db.DictField()
     organizations = db.ListField(db.StringField())
+    recovery_code = db.StringField(required=False)
     meta = {'strict': False}
 
     def clean(self):
         if self.username == "":
             raise BlankUsernameError()
+        if User.objects(username=self.username).count():
+            raise DuplicateUsernameError()
         try:
             db.EmailField.validate(db.EmailField(), self.email)
         except:
