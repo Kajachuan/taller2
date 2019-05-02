@@ -9,11 +9,13 @@ db = MongoEngine(app)
 
 from .controllers.users import users
 from .controllers.sessions import sessions
+from .controllers.organizations import organizations
 from .controllers.admins import admins
 from .controllers.passwords import passwords
 
 app.register_blueprint(users)
 app.register_blueprint(sessions)
+app.register_blueprint(organizations)
 app.register_blueprint(admins)
 app.register_blueprint(passwords)
 
