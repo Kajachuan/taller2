@@ -29,6 +29,8 @@ public class SessionPrefs {
                 .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
         //mIsLoggedIn = !TextUtils.isEmpty(mPrefs.getString(PREF_USER_TOKEN, null));
+
+        mIsLoggedIn = !TextUtils.isEmpty(mPrefs.getString(PREF_USERNAME, null));
     }
 
     public boolean isLoggedIn(){
@@ -43,6 +45,14 @@ public class SessionPrefs {
             editor.apply();
 
             mIsLoggedIn = true;
+        }
+    }
+
+    public String getUsername() {
+        if(mIsLoggedIn){
+            return mPrefs.getString(PREF_USERNAME,null);
+        } else {
+            return null;
         }
     }
 

@@ -1,5 +1,6 @@
 package com.hypechat;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,11 +16,25 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.Toast;
 
+import com.hypechat.API.APIError;
+import com.hypechat.API.ErrorUtils;
+import com.hypechat.API.HypechatRequest;
+import com.hypechat.models.LoginBody;
 import com.hypechat.prefs.SessionPrefs;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private HypechatRequest mHypechatRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,23 +42,31 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         // Redirección al Login
-        if (!SessionPrefs.get(this).isLoggedIn()) {
+        if (!SessionPrefs.get(MainActivity.this).isLoggedIn()) {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
-            return;
+        } else {
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_canal);
+            setSupportActionBar(toolbar);
+
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                    this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+            drawer.addDrawerListener(toggle);
+            toggle.syncState();
+
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            navigationView.setNavigationItemSelectedListener(this);
+
+            // Crear conexión al servicio REST
+            Retrofit mMainRestAdapter = new Retrofit.Builder()
+                    .baseUrl(HypechatRequest.BASE_URL)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+
+            // Crear conexión a la API
+            mHypechatRequest = mMainRestAdapter.create(HypechatRequest.class);
         }
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_canal);
-        setSupportActionBar(toolbar);
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
     }
 
     @Override
@@ -63,6 +86,54 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    private void showMainError(String error) {
+        Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+    }
+
+    public void logOut(){
+        final ProgressDialog dialog = new ProgressDialog(MainActivity.this);
+        dialog.setMessage("Cerrando sesión, por favor espere...");
+        dialog.setCancelable(false);
+        dialog.show();
+
+        Call<Void> logoutCall = mHypechatRequest.logout();
+        logoutCall.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                processResponse(response,dialog);
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                showMainError(t.getMessage());
+            }
+        });
+
+    }
+
+    private void processResponse(Response<Void> response, ProgressDialog progressDialog) {
+        progressDialog.dismiss();
+        // Procesar errores
+        if (!response.isSuccessful()) {
+            String error;
+            if (response.errorBody()
+                    .contentType()
+                    .subtype()
+                    .equals("application/json")) {
+                APIError apiError = ErrorUtils.parseError(response);
+                assert apiError != null;
+                error = apiError.message();
+            } else {
+                error = response.message();
+            }
+            showMainError(error);
+        } else {
+            SessionPrefs.get(MainActivity.this).logOut();
+            Intent login = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(login);
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -76,6 +147,7 @@ public class MainActivity extends AppCompatActivity
             startActivity(profile);
         } else
             if(id == R.id.action_logout){
+
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                         MainActivity.this);
 
@@ -85,6 +157,7 @@ public class MainActivity extends AppCompatActivity
                         .setCancelable(false)
                         .setPositiveButton(R.string.ok,new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
+                                //logOut();
                                 SessionPrefs.get(MainActivity.this).logOut();
                                 Intent login = new Intent(MainActivity.this, LoginActivity.class);
                                 startActivity(login);
@@ -95,8 +168,10 @@ public class MainActivity extends AppCompatActivity
                                 dialog.cancel();
                             }
                         });
+
                 // create alert dialog
-                AlertDialog alertDialog = alertDialogBuilder.create();
+                final AlertDialog alertDialog = alertDialogBuilder.create();
+
                 // show it
                 alertDialog.show();
             }

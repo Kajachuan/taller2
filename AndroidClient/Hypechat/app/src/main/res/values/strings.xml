@@ -32,4 +32,12 @@
     <string name="prompt_password_confirm">Confirmar password</string>
     <string name="ok">OK</string>
     <string name="cancel">CANCELAR</string>
+
+    <string name="usr_image_desc">Imagen de perfil del usuario</string>
+    <string name="image_desc">Imagen segun corresponda al tipo</string>
+    <string name="name">Nombre</string>
+    <string name="last_name">Apellido</string>
+    <string name="successful_login">Login exitoso</string>
+    <string name="action_save_profile">Guardar cambios</string>
+    <string name="saved_profile">Perfil guardado exitosamente</string>
 </resources>

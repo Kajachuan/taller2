@@ -109,13 +109,13 @@ public class RegistroActivity extends AppCompatActivity {
         mProgressView = findViewById(R.id.register_progress);
 
         // Crear conexión al servicio REST
-        Retrofit mRestAdapter = new Retrofit.Builder()
+        Retrofit mRegisterRestAdapter = new Retrofit.Builder()
                 .baseUrl(HypechatRequest.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         // Crear conexión a la API
-        mHypechatRequest = mRestAdapter.create(HypechatRequest.class);
+        mHypechatRequest = mRegisterRestAdapter.create(HypechatRequest.class);
     }
 
     private boolean isOnline() {
@@ -127,7 +127,6 @@ public class RegistroActivity extends AppCompatActivity {
     }
 
     private void showRegisterError(String error) {
-        //Log.d("Reg",error);
         Toast.makeText(this, error, Toast.LENGTH_LONG).show();
     }
 
@@ -274,6 +273,7 @@ public class RegistroActivity extends AppCompatActivity {
             }
             showRegisterError(error);
         } else {
+            Toast.makeText(this, "Registro exitoso", Toast.LENGTH_SHORT).show();
             finish();
         }
     }

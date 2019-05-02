@@ -205,6 +205,7 @@ public class LoginActivity extends AppCompatActivity {
         } else {
             // Guardar usuario en preferencias
             SessionPrefs.get(LoginActivity.this).saveUser(userLoginBody);
+            Toast.makeText(this, R.string.successful_login, Toast.LENGTH_SHORT).show();
             startActivity(new Intent(this, MainActivity.class));
             finish();
         }
