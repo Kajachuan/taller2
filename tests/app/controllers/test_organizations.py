@@ -126,3 +126,36 @@ class TestOrganizationsController(object):
         response = client.delete('/organization/OrgaDatos/members', data = '{"username" : "orgacreator"}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.get_json()['msg'] == 'Organization does not exist'
+
+    def test_get_moderators(self):
+        response = client.get('/organization/Taller2/moderators')
+        assert response.status_code == HTTPStatus.OK
+        assert len(response.get_json()['moderators']) == 0
+
+    def test_upgrade_member_to_moderator(self):
+        client.post('/login', data = '{"username" : "orgacreator", "password" : "mipass"}')
+        response = client.post('/organization/Taller2/invite', data = '{"username" : "IronMan" }')
+        assert response.status_code == HTTPStatus.OK
+        client.post('/login', data = '{"username" : "IronMan", "password" : "mipass"}')
+        invitations = client.get('/profile/IronMan/invitations')
+        token = list(invitations.get_json()['invitations'].keys())[-1]
+        organization = invitations.get_json()['invitations'][token]
+        response = client.post('/organization/'+organization+'/accept-invitation', data = '{"token" : "'+token+'"}')
+        assert response.status_code == HTTPStatus.OK
+        response = client.get('/organization/Taller2/members')
+        assert 'IronMan' in response.get_json()['members']
+        response = client.post('/organization/Taller2/moderators', data = '{"username":"IronMan"}')
+        assert response.status_code == HTTPStatus.OK
+        response = client.get('/organization/Taller2/moderators')
+        assert response.status_code == HTTPStatus.OK
+        assert len(response.get_json()['moderators']) == 1
+        assert "IronMan" in response.get_json()['moderators']
+
+    def test_delete_moderator(self):
+        client.post('/login', data = '{"username" : "orgacreator", "password" : "mipass"}')
+        response = client.delete('/organization/Taller2/moderators', data = '{"username" : "IronMan" }')
+        assert response.status_code == HTTPStatus.OK
+        response = client.get('/organization/Taller2/moderators')
+        assert response.status_code == HTTPStatus.OK
+        assert len(response.get_json()['moderators']) == 0
+        assert not "IronMan" in response.get_json()['moderators']

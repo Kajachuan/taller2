@@ -79,7 +79,7 @@ def send_invitation(organization_name):
     token = organization.invite_user(user)
     User.invite(username, token, organization_name)
     organization.update(**{'set__pending_invitations__' + token: user.username})
-    current_app.logger.debug('User %s added to organization %s',user.username, organization_name)
+    current_app.logger.debug('User %s invited to organization %s',user.username, organization_name)
     return jsonify(msg = 'Sent invitation'),HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/accept-invitation', methods=['POST'])
@@ -118,3 +118,29 @@ def delete_member(organization_name):
     organization.update(pull__members__ = user)
     current_app.logger.debug('Member %s deleted from organization %s',username,organization_name)
     return jsonify(msg = 'Member deleted'), HTTPStatus.OK
+
+@organizations.route('/organization/<organization_name>/moderators', methods=['GET'])
+def get_moderators(organization_name):
+    organization = Organization.objects.get(organization_name = organization_name)
+    usernames = [member.username for member in organization.moderators]
+    return jsonify(moderators = usernames),HTTPStatus.OK
+
+@organizations.route('/organization/<organization_name>/moderators', methods=['POST'])
+def upgrade_to_moderator(organization_name):
+    organization = Organization.objects.get(organization_name = organization_name)
+    username = request.get_json(force = True)['username']
+    user = User.objects.get(username = username)
+    if not organization.is_member(user):
+        return jsonify(msg = 'User is not member'), HTTPStatus.BAD_REQUEST
+    organization.update(push__moderators = user)
+    return jsonify(msg = 'member is now a moderator'), HTTPStatus.OK
+
+@organizations.route('/organization/<organization_name>/moderators', methods=['DELETE'])
+def delete_moderator(organization_name):
+    organization = Organization.objects.get(organization_name = organization_name)
+    username = request.get_json(force = True)['username']
+    user = User.objects.get(username = username)
+    if not organization.is_moderator(user):
+        return jsonify(msg = 'User is not moderator'), HTTPStatus.BAD_REQUEST
+    organization.update(pull__moderators = user)
+    return jsonify(msg = 'member is not a moderator anymore'), HTTPStatus.OK
