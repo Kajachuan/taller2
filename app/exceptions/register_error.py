@@ -16,3 +16,7 @@ class ShortPasswordError(RegisterError):
 class PasswordConfirmationError(RegisterError):
     def __str__(self):
         return 'The password and the confirmation are not the same'
+
+class DuplicateUsernameError(RegisterError):
+    def __str__(self):
+        return 'The username already exists'

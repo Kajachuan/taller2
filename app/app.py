@@ -1,6 +1,6 @@
 import logging
 from os import makedirs, path
-from flask import Flask, render_template
+from flask import Flask, redirect, url_for
 from flask_mongoengine import MongoEngine
 
 app = Flask(__name__)
@@ -10,14 +10,18 @@ db = MongoEngine(app)
 from .controllers.users import users
 from .controllers.sessions import sessions
 from .controllers.organizations import organizations
+from .controllers.admins import admins
+from .controllers.passwords import passwords
 
 app.register_blueprint(users)
 app.register_blueprint(sessions)
 app.register_blueprint(organizations)
+app.register_blueprint(admins)
+app.register_blueprint(passwords)
 
 @app.route('/')
-def root():
-    return render_template('index.html')
+def index():
+    return redirect(url_for('admins.admin_login'))
 
 if __name__ != '__main__':
     makedirs(path.dirname('logs/app.log'), exist_ok=True)

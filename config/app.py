@@ -15,7 +15,7 @@ elif environ['FLASK_ENV'] == 'development':
     SECRET_KEY = b'\xe2Y2\x80HM\xf5\xff\n\x11\xe9`k:\xc6\x89'
     MONGODB_SETTINGS = {
         'db': 'hypechat',
-        'host': 'mongodb://localhost:27017/hypechat'
+        'host': environ['MONGODB_URI']
     }
 
 else:
