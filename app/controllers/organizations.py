@@ -12,7 +12,7 @@ def inexistent_organization_handler(e):
     error_messages = {'Organization matching query does not exist.' : 'Organization does not exist',
                       'User matching query does not exist.' : 'User does not exist'}
     current_app.logger.debug('Error: %s',error_messages[e.args[0]])
-    return jsonify(msg = error_messages[e.args[0]]), HTTPStatus.BAD_REQUEST
+    return jsonify(message = error_messages[e.args[0]]), HTTPStatus.BAD_REQUEST
 
 @organizations.route('/organization', methods=['POST'])
 def create():
@@ -22,7 +22,7 @@ def create():
     try:
         owner = User.objects.get(username = session['username'])
     except KeyError:
-        return jsonify(msg = 'You have to be logged'),HTTPStatus.UNAUTHORIZED
+        return jsonify(message = 'You have to be logged'),HTTPStatus.UNAUTHORIZED
 
     new_organization = Organization(organization_name = organization_name, owner = owner)
 
@@ -31,10 +31,10 @@ def create():
         current_app.logger.debug('Organization created')
     except:
         current_app.logger.debug('Failed to create Organization')
-        return jsonify(msg = 'Failed to create'),HTTPStatus.BAD_REQUEST
+        return jsonify(message = 'Failed to create'),HTTPStatus.BAD_REQUEST
     new_organization.update(push__members = owner)
     User.add_to_organization(owner.username, organization_name)
-    return jsonify(msg = 'Organization created'),HTTPStatus.CREATED
+    return jsonify(message = 'Organization created'),HTTPStatus.CREATED
 
 @organizations.route('/organization/<organization_name>', methods = ['GET'])
 def get_info(organization_name):
@@ -54,9 +54,9 @@ def change_info(organization_name):
     try:
         username = session['username']
     except KeyError:
-        return jsonify(msg = 'Please log in first'), HTTPStatus.UNAUTHORIZED
+        return jsonify(message = 'Please log in first'), HTTPStatus.UNAUTHORIZED
     if not organization.is_owner(User.objects.get(username = username)):
-        return jsonify(msg = 'You are not the owner'), HTTPStatus.FORBIDDEN
+        return jsonify(message = 'You are not the owner'), HTTPStatus.FORBIDDEN
     data = request.get_json(force = True)
     ubication = data.get('ubication', organization.organization_name)
     image_link = data.get('image_link', organization.image_link)
@@ -66,7 +66,7 @@ def change_info(organization_name):
     organization.update(image_link = image_link)
     organization.update(description = description)
     organization.update(welcome_message = welcome_message)
-    return jsonify(msg = 'Information changed'), HTTPStatus.OK
+    return jsonify(message = 'Information changed'), HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/invite', methods=['POST'])
 def send_invitation(organization_name):
@@ -75,12 +75,12 @@ def send_invitation(organization_name):
     organization = Organization.objects.get(organization_name = organization_name)
     user = User.objects.get(username = username)
     if organization.is_member(user):
-        return jsonify(msg = 'User is already a member'),HTTPStatus.BAD_REQUEST
+        return jsonify(message = 'User is already a member'),HTTPStatus.BAD_REQUEST
     token = organization.invite_user(user)
     User.invite(username, token, organization_name)
     organization.update(**{'set__pending_invitations__' + token: user.username})
     current_app.logger.debug('User %s invited to organization %s',user.username, organization_name)
-    return jsonify(msg = 'Sent invitation'),HTTPStatus.OK
+    return jsonify(message = 'Sent invitation'),HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/accept-invitation', methods=['POST'])
 def accept(organization_name):
@@ -94,9 +94,9 @@ def accept(organization_name):
         organization.update(push__members = user)
         organization.update(**{'unset__pending_invitations__' + token : user.username})
         current_app.logger.debug('User %s added to organization %s',username,organization_name)
-        return jsonify(msg = 'Member added'),HTTPStatus.OK
+        return jsonify(message = 'Member added'),HTTPStatus.OK
     current_app.logger.debug('User %s failed to join organization %s: invalid token',session['username'],organization_name)
-    return jsonify(msg = 'Invalid Token'),HTTPStatus.BAD_REQUEST
+    return jsonify(message = 'Invalid Token'),HTTPStatus.BAD_REQUEST
 
 @organizations.route('/organization/<organization_name>/members', methods=['GET'])
 def return_members(organization_name):
@@ -111,13 +111,13 @@ def delete_member(organization_name):
     user = User.objects.get(username = username)
     if not organization.is_owner(User.objects.get(username = session['username'])):
         current_app.logger.debug('Not owner tried to delete a member from %s',organization_name)
-        return jsonify(msg = 'Only owner can delete a member'), HTTPStatus.FORBIDDEN
+        return jsonify(message = 'Only owner can delete a member'), HTTPStatus.FORBIDDEN
     if not organization.is_member(user):
         current_app.logger.debug('Tried to remove not a member from %s',organization_name)
-        return jsonify(msg = 'User is not member'), HTTPStatus.BAD_REQUEST
+        return jsonify(message = 'User is not member'), HTTPStatus.BAD_REQUEST
     organization.update(pull__members__ = user)
     current_app.logger.debug('Member %s deleted from organization %s',username,organization_name)
-    return jsonify(msg = 'Member deleted'), HTTPStatus.OK
+    return jsonify(message = 'Member deleted'), HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/moderators', methods=['GET'])
 def get_moderators(organization_name):
@@ -131,9 +131,9 @@ def upgrade_to_moderator(organization_name):
     username = request.get_json(force = True)['username']
     user = User.objects.get(username = username)
     if not organization.is_member(user):
-        return jsonify(msg = 'User is not member'), HTTPStatus.BAD_REQUEST
+        return jsonify(message = 'User is not member'), HTTPStatus.BAD_REQUEST
     organization.update(push__moderators = user)
-    return jsonify(msg = 'member is now a moderator'), HTTPStatus.OK
+    return jsonify(message = 'member is now a moderator'), HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/moderators', methods=['DELETE'])
 def delete_moderator(organization_name):
@@ -141,6 +141,6 @@ def delete_moderator(organization_name):
     username = request.get_json(force = True)['username']
     user = User.objects.get(username = username)
     if not organization.is_moderator(user):
-        return jsonify(msg = 'User is not moderator'), HTTPStatus.BAD_REQUEST
+        return jsonify(message = 'User is not moderator'), HTTPStatus.BAD_REQUEST
     organization.update(pull__moderators = user)
-    return jsonify(msg = 'member is not a moderator anymore'), HTTPStatus.OK
+    return jsonify(message = 'member is not a moderator anymore'), HTTPStatus.OK

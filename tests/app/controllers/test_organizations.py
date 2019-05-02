@@ -97,7 +97,7 @@ class TestOrganizationsController(object):
     def test_invite_user_that_is_member(self):
         response = client.post('/organization/Taller2/invite', data = '{"username" : "IronMan"}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.get_json()['msg'] == 'User is already a member'
+        assert response.get_json()['message'] == 'User is already a member'
 
     def test_accept_invitation_invalid_token(self):
         json_token = '{"token" : "the-token-2019" }'
@@ -114,18 +114,18 @@ class TestOrganizationsController(object):
     def test_delete_not_member(self):
         response = client.delete('/organization/Taller2/members', data = '{"username" : "IronMan"}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.get_json()['msg'] == 'User is not member'
+        assert response.get_json()['message'] == 'User is not member'
 
     def test_delete_member_only_owner(self):
         client.post('/login', data = '{"username" : "testlogin", "password" : "mipass"}')
         response = client.delete('/organization/Taller2/members', data = '{"username" : "orgacreator"}')
         assert response.status_code == HTTPStatus.FORBIDDEN
-        assert response.get_json()['msg'] == 'Only owner can delete a member'
+        assert response.get_json()['message'] == 'Only owner can delete a member'
 
     def test_delete_member_inexistent_organization(self):
         response = client.delete('/organization/OrgaDatos/members', data = '{"username" : "orgacreator"}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.get_json()['msg'] == 'Organization does not exist'
+        assert response.get_json()['message'] == 'Organization does not exist'
 
     def test_get_moderators(self):
         response = client.get('/organization/Taller2/moderators')
