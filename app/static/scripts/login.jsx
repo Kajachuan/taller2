@@ -24,17 +24,11 @@ class LoginForm extends React.Component {
   render() {
     return(
       <form onSubmit={this.handleSubmit} method="post" action="http://127.0.0.1:8000/admin/">
-        <label>
-          Nombre:
-          <input type="text" name="name" value={this.state.name} onChange={this.handleChange}/>
-        </label>
+        <input type="text" name="name" placeholder="Nombre" value={this.state.name} onChange={this.handleChange}/>
         <br/>
-        <label>
-          Contraseña:
-          <input type="password" name="password"/>
-        </label>
+        <input type="password" name="password" placeholder="Contraseña"/>
         <br/>
-        <input type="submit" value="Login"/>
+        <input type="submit" value="INICIAR SESIÓN"/>
       </form>
     );
   }
