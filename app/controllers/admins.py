@@ -17,7 +17,7 @@ def admin_login():
     if not admin:
         current_app.logger.info('The name or password are wrong')
         flash('El nombre y/o la contraseña son incorrectos')
-        return redirect(url_for('admins.admin_login'))
+        return redirect(url_for('admins.admin_login'), HTTPStatus.BAD_REQUEST)
 
     session['admin'] = admin.name
     current_app.logger.info('The admin ' + name + ' is logged in')
