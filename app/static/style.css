@@ -1,0 +1,31 @@
+:root {
+  --background-color: #A8C0DD;
+  --accent-color: #303841;
+}
+
+body {
+  background-color: var(--background-color);
+}
+
+input[type=text], input[type=password] {
+  background-color: var(--background-color);
+  color: var(--accent-color);
+  border: none;
+  border-bottom: 1px solid var(--accent-color);
+}
+
+input[type=text]:focus, input[type=password]:focus {
+  background-color: var(--background-color);
+  border: none;
+  border-bottom: 2px solid var(--accent-color);
+}
+
+input[type=submit] {
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+}
+
+::placeholder {
+  color: var(--accent-color);
+}
