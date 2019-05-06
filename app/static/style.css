@@ -1,6 +1,7 @@
 :root {
   --background-color: #A8C0DD;
   --accent-color: #303841;
+  --accent-light-color: #47525F;
 }
 
 body {
@@ -40,6 +41,11 @@ body {
   background-color: var(--accent-color);
   color: white;
   cursor: pointer;
+  box-shadow: 0px 2px 5px 0px var(--accent-light-color);
+}
+
+.login-form input[type=submit]:hover {
+  box-shadow: 0px 3px 5px 0px var(--accent-light-color);
 }
 
 .login-form form div {
