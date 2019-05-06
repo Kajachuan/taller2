@@ -67,3 +67,13 @@ body {
 .login-form input[type=password]:focus {
   border-bottom: 2px solid var(--accent-color);
 }
+
+.alert {
+  font-family: "Teko";
+  font-size: 30px;
+  font-weight: bold;
+  color: var(--accent-color);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
