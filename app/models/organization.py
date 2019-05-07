@@ -1,5 +1,6 @@
 from ..app import db
 from .user import User
+from .channel import Channel
 import uuid
 
 class Organization(db.Document):
@@ -12,7 +13,7 @@ class Organization(db.Document):
     description = db.StringField(default = 'Organization Information')
     welcome_message = db.StringField(default = 'Welcome')
     pending_invitations = db.MapField(db.StringField())
-    #channels = db.ListField(db.ReferenceField(Channel))
+    channels = db.ListField(db.ReferenceField('Channel'))
     #map_of_active_users ?
     meta = {'strict': False}
 
@@ -30,3 +31,13 @@ class Organization(db.Document):
 
     def is_valid_token(self, token):
         return token in self.pending_invitations.keys()
+
+    @classmethod
+    def create_channel(cls,organization_name, channel_name, owner, private):
+        organization = cls.objects.get(organization_name = organization_name)
+        if channel_name in [channel.channel_name for channel in organization.channels]:
+            return False
+        channel = Channel(channel_name, owner, private)
+        channel.save()
+        organization.update(push__channels = channel)
+        return True

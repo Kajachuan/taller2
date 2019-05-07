@@ -144,3 +144,21 @@ def delete_moderator(organization_name):
         return jsonify(message = 'User is not moderator'), HTTPStatus.BAD_REQUEST
     organization.update(pull__moderators = user)
     return jsonify(message = 'member is not a moderator anymore'), HTTPStatus.OK
+
+#channels
+
+@organizations.route('/organization/<organization_name>/channels', methods=['GET'])
+def get_channels(organization_name):
+    organization = Organization.objects.get(organization_name = organization_name)
+    channels = [channel.channel_name for channel in organization.channels]
+    return jsonify(channels = channels), HTTPStatus.OK
+
+@organizations.route('/organization/<organization_name>/channels', methods=['POST'])
+def create_channel(organization_name):
+    data = request.get_json(force = True)
+    channel_name = data['name']
+    owner = session['username']
+    private = True if data['private'] == "True" else False
+    if Organization.create_channel(organization_name, channel_name, owner, private):
+        return '',HTTPStatus.CREATED
+    return '',HTTPStatus.BAD_REQUEST
