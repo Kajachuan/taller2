@@ -10,6 +10,7 @@ import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -204,9 +205,13 @@ public class ProfileActivity extends AppCompatActivity {
         } else {
             mName.setText(response.body().getName());
             mLastName.setText(response.body().getLastName());
-            String nameSpace = response.body().getName().concat(" ");
-            String fullName = nameSpace.concat(response.body().getLastName());
-            mTextNameView.setText(fullName);
+            String nameSpace = response.body().getName();
+            if(nameSpace != null){
+                nameSpace = nameSpace.concat(" ");
+                String fullName = nameSpace.concat(response.body().getLastName());
+                mTextNameView.setText(fullName);
+            }
+
         }
     }
 
