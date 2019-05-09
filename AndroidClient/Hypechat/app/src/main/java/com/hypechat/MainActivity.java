@@ -22,9 +22,14 @@ import android.widget.Toast;
 import com.hypechat.API.APIError;
 import com.hypechat.API.ErrorUtils;
 import com.hypechat.API.HypechatRequest;
+import com.hypechat.cookies.AddCookiesInterceptor;
+import com.hypechat.cookies.ReceivedCookiesInterceptor;
 import com.hypechat.models.LoginBody;
 import com.hypechat.prefs.SessionPrefs;
 
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -58,9 +63,17 @@ public class MainActivity extends AppCompatActivity
             NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
             navigationView.setNavigationItemSelectedListener(this);
 
+            OkHttpClient.Builder okHttpClient = new OkHttpClient().newBuilder()
+                    .connectTimeout(60 * 5, TimeUnit.SECONDS)
+                    .readTimeout(60 * 5, TimeUnit.SECONDS)
+                    .writeTimeout(60 * 5, TimeUnit.SECONDS);
+            okHttpClient.interceptors().add(new AddCookiesInterceptor());
+            okHttpClient.interceptors().add(new ReceivedCookiesInterceptor());
+
             // Crear conexión al servicio REST
             Retrofit mMainRestAdapter = new Retrofit.Builder()
                     .baseUrl(HypechatRequest.BASE_URL)
+                    .client(okHttpClient.build())
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
 
@@ -157,10 +170,7 @@ public class MainActivity extends AppCompatActivity
                         .setCancelable(false)
                         .setPositiveButton(R.string.ok,new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
-                                //logOut();
-                                SessionPrefs.get(MainActivity.this).logOut();
-                                Intent login = new Intent(MainActivity.this, LoginActivity.class);
-                                startActivity(login);
+                                logOut();
                             }
                         })
                         .setNegativeButton(R.string.cancel,new DialogInterface.OnClickListener() {

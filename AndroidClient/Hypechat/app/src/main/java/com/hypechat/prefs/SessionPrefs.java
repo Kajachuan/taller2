@@ -7,11 +7,14 @@ import android.text.TextUtils;
 import com.hypechat.models.LoginBody;
 import com.hypechat.models.User;
 
+import java.util.HashSet;
+
 public class SessionPrefs {
     private static SessionPrefs INSTANCE;
 
     public static final String PREFS_NAME = "HYPECHAT_PREFS";
     public static final String PREF_USERNAME = "PREF_USERNAME";
+    public static final String PREF_COOKIES = "cookies";
     //public static final String PREF_USER_TOKEN = "PREF_USER_TOKEN";
 
     private final SharedPreferences mPrefs;
@@ -31,6 +34,19 @@ public class SessionPrefs {
         //mIsLoggedIn = !TextUtils.isEmpty(mPrefs.getString(PREF_USER_TOKEN, null));
 
         mIsLoggedIn = !TextUtils.isEmpty(mPrefs.getString(PREF_USERNAME, null));
+    }
+
+    public static HashSet<String> getCookies(Context context) {
+        SharedPreferences mcpPreferences = context.getApplicationContext()
+                .getSharedPreferences(PREF_COOKIES,Context.MODE_PRIVATE);
+        return (HashSet<String>) mcpPreferences.getStringSet("cookies", new HashSet<String>());
+    }
+
+    public static boolean setCookies(Context context, HashSet<String> cookies) {
+        SharedPreferences mcpPreferences = context.getApplicationContext()
+                .getSharedPreferences(PREF_COOKIES,Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = mcpPreferences.edit();
+        return editor.putStringSet("cookies", cookies).commit();
     }
 
     public boolean isLoggedIn(){

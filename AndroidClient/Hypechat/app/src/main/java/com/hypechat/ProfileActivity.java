@@ -211,7 +211,6 @@ public class ProfileActivity extends AppCompatActivity {
                 String fullName = nameSpace.concat(response.body().getLastName());
                 mTextNameView.setText(fullName);
             }
-
         }
     }
 

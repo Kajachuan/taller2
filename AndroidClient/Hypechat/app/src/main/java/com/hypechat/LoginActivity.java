@@ -31,9 +31,14 @@ import android.widget.Toast;
 import com.hypechat.API.APIError;
 import com.hypechat.API.ErrorUtils;
 import com.hypechat.API.HypechatRequest;
+import com.hypechat.cookies.AddCookiesInterceptor;
+import com.hypechat.cookies.ReceivedCookiesInterceptor;
 import com.hypechat.models.LoginBody;
 import com.hypechat.prefs.SessionPrefs;
 
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -105,9 +110,17 @@ public class LoginActivity extends AppCompatActivity {
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
+        OkHttpClient.Builder okHttpClient = new OkHttpClient().newBuilder()
+                .connectTimeout(60 * 5, TimeUnit.SECONDS)
+                .readTimeout(60 * 5, TimeUnit.SECONDS)
+                .writeTimeout(60 * 5, TimeUnit.SECONDS);
+        okHttpClient.interceptors().add(new AddCookiesInterceptor());
+        okHttpClient.interceptors().add(new ReceivedCookiesInterceptor());
+
         // Crear conexión al servicio REST
         Retrofit mLoginRestAdapter = new Retrofit.Builder()
                 .baseUrl(HypechatRequest.BASE_URL)
+                .client(okHttpClient.build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
