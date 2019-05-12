@@ -162,3 +162,17 @@ def create_channel(organization_name):
     if Organization.create_channel(organization_name, channel_name, owner, private):
         return '',HTTPStatus.CREATED
     return '',HTTPStatus.BAD_REQUEST
+
+@organizations.route('/organization/<organization_name>/<channel_name>/members', methods=['GET'])
+def get_channel_members(organization_name, channel_name):
+    members = Organization.get_channel_members(organization_name, channel_name)
+    return jsonify(members = members), HTTPStatus.OK
+
+@organizations.route('/organization/<organization_name>/<channel_name>/members', methods=['POST'])
+def add_member_to_channel(organization_name, channel_name):
+    data = request.get_json(force = True)
+    member = data['name']
+    if not Organization.has_member(organization_name, member):
+        return jsonify(message = 'User is not member'), HTTPStatus.BAD_REQUEST
+    Organization.add_member_to_channel(organization_name, channel_name, member)
+    return '', HTTPStatus.OK
