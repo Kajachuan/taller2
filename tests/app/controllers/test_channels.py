@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from taller2.app.app import app
+import datetime as dt
 
 client = app.test_client()
 
@@ -52,3 +53,34 @@ class TestChannelsControllers(object):
         assert response.status_code == HTTPStatus.OK
         response = client.get('/organization/Avengers/EndGame/members')
         assert response.get_json()['members'] == ['IronMan', 'Thor']
+
+    def test_get_channels_messages_empty(self):
+        response = client.get('/organization/Avengers/EndGame/messages', data = '{"init":"1", "end":"5"}')
+        assert response.status_code == HTTPStatus.OK
+        assert response.get_json()['messages'] == []
+
+    def test_send_message_to_channel(self):
+        data = '{"sender":"IronMan","message":"Hello1"}'
+        response = client.post('/organization/Avengers/EndGame/messages', data = data)
+        assert response.status_code == HTTPStatus.OK
+
+    def test_get_channels_messages(self):
+        response = client.get('/organization/Avengers/EndGame/messages', data = '{"init":"1", "end":"5"}')
+        assert response.status_code == HTTPStatus.OK
+        message_wout_tstamp = [(message[1], message[2]) for message in response.get_json()['messages']]
+        assert message_wout_tstamp == [('IronMan','Hello1')]
+
+    def test_get_messages_by_slices(self):
+        data = ['{"sender":"IronMan","message":"Hello2"}',
+                '{"sender":"IronMan","message":"Hello3"}',
+                '{"sender":"Thor","message":"Hello4"}',
+                '{"sender":"Thor","message":"Hello5"}']
+        for msg in data:
+            client.post('/organization/Avengers/EndGame/messages', data = msg)
+        response = client.get('/organization/Avengers/EndGame/messages', data = '{"init":"1", "end":"2"}')
+        message_wout_tstamp = [(message[1], message[2]) for message in response.get_json()['messages']]
+        assert message_wout_tstamp == [('Thor','Hello4'),('Thor','Hello5')]
+        response = client.get('/organization/Avengers/EndGame/messages', data = '{"init":"3", "end":"5"}')
+        message_wout_tstamp = [(message[1], message[2]) for message in response.get_json()['messages']]
+        print(message_wout_tstamp)
+        assert message_wout_tstamp == [('IronMan','Hello1'),('IronMan','Hello2'),('IronMan','Hello3')]

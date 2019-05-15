@@ -49,6 +49,13 @@ class Organization(db.Document):
         return True
 
     @classmethod
+    def get_channel(cls, organization_name, channel_name):
+        organization = cls.objects.get(organization_name = organization_name)
+        for channel in organization.channels:
+            if channel.channel_name == channel_name:
+                return channel
+
+    @classmethod
     def get_channel_members(cls, organization_name, channel_name):
         organization = Organization.objects.get(organization_name = organization_name)
         members = []
