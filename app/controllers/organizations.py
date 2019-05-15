@@ -152,7 +152,7 @@ def delete_moderator(organization_name):
 @organizations.route('/organization/<organization_name>/channels', methods=['GET'])
 def get_channels(organization_name):
     organization = Organization.objects.get(organization_name = organization_name)
-    channels = [channel.channel_name for channel in organization.channels]
+    channels = [channel.channel_name for channel in organization.channels if session['username'] in channel.members]
     return jsonify(channels = channels), HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/channels', methods=['POST'])

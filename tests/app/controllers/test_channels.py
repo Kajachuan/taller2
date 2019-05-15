@@ -22,7 +22,7 @@ class TestChannelsControllers(object):
         assert 'Thor' in response.get_json()['members']
         client.post('/login', data='{"username": "IronMan", "password": "mipass"}')
 
-    def test_get_channels_empty(self):
+    def test_get_user_channels_empty(self):
         response = client.get('/organization/Avengers/channels')
         assert response.get_json()['channels'] == []
         assert response.status_code == HTTPStatus.OK
@@ -39,6 +39,14 @@ class TestChannelsControllers(object):
         assert response.status_code == HTTPStatus.BAD_REQUEST
         response = client.get('/organization/Avengers/channels')
         assert len(response.get_json()['channels']) == 1
+
+    def test_get_user_channels_in_organization(self):
+        client.post('/login', data = '{"username" : "Thor", "password" : "mipass"}')
+        client.post('/organization/Avengers/channels', data = '{"name" : "Asgard", "private" : "False"}')
+        client.post('/login', data = '{"username" : "IronMan", "password" : "mipass"}')
+        response = client.get('/organization/Avengers/channels')
+        assert response.status_code == HTTPStatus.OK
+        assert response.get_json()['channels'] == ['EndGame']
 
     def test_get_channel_members(self):
         response = client.get('/organization/Avengers/EndGame/members')
