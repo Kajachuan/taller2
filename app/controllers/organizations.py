@@ -3,6 +3,8 @@ from http import HTTPStatus
 from flask import Blueprint, request, abort, session, current_app, jsonify
 from ..models.organization import Organization
 from ..models.user import User
+from ..models.message import Message
+import datetime as dt
 
 organizations = Blueprint('organizations', __name__)
 
@@ -144,3 +146,52 @@ def delete_moderator(organization_name):
         return jsonify(message = 'User is not moderator'), HTTPStatus.BAD_REQUEST
     organization.update(pull__moderators = user)
     return jsonify(message = 'member is not a moderator anymore'), HTTPStatus.OK
+
+#channels
+
+@organizations.route('/organization/<organization_name>/channels', methods=['GET'])
+def get_channels(organization_name):
+    organization = Organization.objects.get(organization_name = organization_name)
+    channels = [channel.channel_name for channel in organization.channels if session['username'] in channel.members]
+    return jsonify(channels = channels), HTTPStatus.OK
+
+@organizations.route('/organization/<organization_name>/channels', methods=['POST'])
+def create_channel(organization_name):
+    data = request.get_json(force = True)
+    channel_name = data['name']
+    owner = session['username']
+    private = True if data['private'] == "True" else False
+    if Organization.create_channel(organization_name, channel_name, owner, private):
+        return '',HTTPStatus.CREATED
+    return '',HTTPStatus.BAD_REQUEST
+
+@organizations.route('/organization/<organization_name>/<channel_name>/members', methods=['GET'])
+def get_channel_members(organization_name, channel_name):
+    members = Organization.get_channel_members(organization_name, channel_name)
+    return jsonify(members = members), HTTPStatus.OK
+
+@organizations.route('/organization/<organization_name>/<channel_name>/members', methods=['POST'])
+def add_member_to_channel(organization_name, channel_name):
+    data = request.get_json(force = True)
+    member = data['name']
+    if not Organization.has_member(organization_name, member):
+        return jsonify(message = 'User is not member'), HTTPStatus.BAD_REQUEST
+    Organization.add_member_to_channel(organization_name, channel_name, member)
+    return '', HTTPStatus.OK
+
+@organizations.route('/organization/<organization_name>/<channel_name>/messages', methods=['GET'])
+def get_n_channel_messages(organization_name, channel_name):
+    data = request.get_json(force = True)
+    channel = Organization.get_channel(organization_name, channel_name)
+    messages = channel.get_messages(int(data['init']), int(data['end']))
+    list_of_msg = [(message.timestamp,message.sender,message.message) for message in messages]
+    return jsonify(messages = list_of_msg), HTTPStatus.OK
+
+@organizations.route('/organization/<organization_name>/<channel_name>/messages', methods=['POST'])
+def send_message(organization_name, channel_name):
+    data = request.get_json(force = True)
+    channel = Organization.get_channel(organization_name,channel_name)
+    message = Message(message = data['message'], sender = data['sender'], timestamp = dt.datetime.today())
+    message.save()
+    channel.update(push__messages = message)
+    return '',HTTPStatus.OK

@@ -132,6 +132,14 @@ class TestOrganizationsController(object):
         assert response.status_code == HTTPStatus.OK
         assert len(response.get_json()['moderators']) == 0
 
+    def test_upgrade_to_moderatoror_not_member(self):
+        client.post('/login', data = '{"username" : "orgacreator", "password" : "mipass"}')
+        response = client.post('/organization/Taller2/moderators', data = '{"username":"Thanos"}')
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        response = client.get('/organization/Taller2/moderators')
+        assert response.status_code == HTTPStatus.OK
+        assert response.get_json()['moderators'] == []
+
     def test_upgrade_member_to_moderator(self):
         client.post('/login', data = '{"username" : "orgacreator", "password" : "mipass"}')
         response = client.post('/organization/Taller2/invite', data = '{"username" : "IronMan" }')
@@ -159,3 +167,11 @@ class TestOrganizationsController(object):
         assert response.status_code == HTTPStatus.OK
         assert len(response.get_json()['moderators']) == 0
         assert not "IronMan" in response.get_json()['moderators']
+
+    def test_delete_not_moderator(self):
+        client.post('/login', data = '{"username" : "orgacreator", "password" : "mipass"}')
+        response = client.delete('/organization/Taller2/moderators', data = '{"username" : "IronMan" }')
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        response = client.get('/organization/Taller2/moderators')
+        assert response.status_code == HTTPStatus.OK
+        assert response.get_json()['moderators'] == []

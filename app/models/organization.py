@@ -1,5 +1,6 @@
 from ..app import db
 from .user import User
+from .channel import Channel
 import uuid
 
 class Organization(db.Document):
@@ -12,7 +13,7 @@ class Organization(db.Document):
     description = db.StringField(default = 'Organization Information')
     welcome_message = db.StringField(default = 'Welcome')
     pending_invitations = db.MapField(db.StringField())
-    #channels = db.ListField(db.ReferenceField(Channel))
+    channels = db.ListField(db.ReferenceField('Channel'))
     #map_of_active_users ?
     meta = {'strict': False}
 
@@ -30,3 +31,42 @@ class Organization(db.Document):
 
     def is_valid_token(self, token):
         return token in self.pending_invitations.keys()
+
+    @classmethod
+    def has_member(cls, organization_name, username):
+        organization = cls.objects.get(organization_name = organization_name)
+        user = User.objects.get(username = username)
+        return organization.is_member(user)
+
+    @classmethod
+    def create_channel(cls,organization_name, channel_name, owner, private):
+        organization = cls.objects.get(organization_name = organization_name)
+        if channel_name in [channel.channel_name for channel in organization.channels]:
+            return False
+        channel = Channel(channel_name, owner, private)
+        channel.save()
+        organization.update(push__channels = channel)
+        return True
+
+    @classmethod
+    def get_channel(cls, organization_name, channel_name):
+        organization = cls.objects.get(organization_name = organization_name)
+        for channel in organization.channels:
+            if channel.channel_name == channel_name:
+                return channel
+
+    @classmethod
+    def get_channel_members(cls, organization_name, channel_name):
+        organization = Organization.objects.get(organization_name = organization_name)
+        members = []
+        for channel in organization.channels:
+            if channel.channel_name == channel_name:
+                members = channel.members
+        return members
+
+    @classmethod
+    def add_member_to_channel(cls, organization_name, channel_name, member_name):
+        organization = Organization.objects.get(organization_name = organization_name)
+        member = User.objects.get(username = member_name)
+        channel = [channel for channel in organization.channels if channel.channel_name == channel_name].pop()
+        channel.update(push__members = member_name)
