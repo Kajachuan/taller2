@@ -10,6 +10,8 @@ class TestChannelsControllers(object):
                                         "password": "mipass", "password_confirmation": "mipass"}')
         client.post('/register', data='{"username": "Thor", "email": "thor@test.com",\
                                         "password": "mipass", "password_confirmation": "mipass"}')
+        client.post('/register', data='{"username": "Thanos", "email": "thanos@test.com",\
+                                        "password": "mipass", "password_confirmation": "mipass"}')
         client.post('/login', data='{"username": "IronMan", "password": "mipass"}')
         client.post('/organization', data = '{"name" : "Avengers"}')
         client.post('/organization/Avengers/invite', data = '{"username" : "Thor" }')
@@ -53,8 +55,9 @@ class TestChannelsControllers(object):
         assert response.get_json()['members'] == ['IronMan']
 
     def test_add_member_not_in_organization(self):
-        response = client.post('/organization/Avengers/EndGame/members', data = '{"name" : "Superman"}')
+        response = client.post('/organization/Avengers/EndGame/members', data = '{"name" : "Thanos"}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.get_json()['message'] == 'User is not member'
 
     def test_add_member_ok(self):
         response = client.post('/organization/Avengers/EndGame/members', data = '{"name" : "Thor"}')
