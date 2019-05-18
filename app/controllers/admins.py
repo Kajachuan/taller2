@@ -4,7 +4,7 @@ from ..models.admin import Admin
 
 admins = Blueprint('admins', __name__)
 
-@admins.route('/admin/', methods=['GET', 'POST'])
+@admins.route('/admin', methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'GET':
         return render_template('login.html')
@@ -21,10 +21,14 @@ def admin_login():
 
     session['admin'] = admin.name
     current_app.logger.info('The admin ' + name + ' is logged in')
-    return jsonify(message='The admin ' + name + ' is logged in'), HTTPStatus.OK
+    return redirect(url_for('admins.menu'), HTTPStatus.OK)
 
-@admins.route('/admin/logout/', methods=['DELETE'])
+@admins.route('/admin/logout', methods=['DELETE'])
 def admin_logout():
     name = session.pop('admin')
     current_app.logger.info('The admin ' + name + ' was logged out')
     return jsonify(message='The admin ' + name + ' was logged out'), HTTPStatus.OK
+
+@admins.route('/admin/menu', methods=['GET'])
+def menu():
+    return render_template('menu.html')
