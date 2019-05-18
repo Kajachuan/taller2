@@ -28,6 +28,6 @@ class TestAdminsController(object):
 
     def test_correct_admin_logout(self):
         client.post('/admin', data={"name": "soyadmin", "password": "mipass"})
-        response = client.delete('/admin/logout/')
+        response = client.delete('/admin/logout')
 
         assert response.status_code == HTTPStatus.OK
