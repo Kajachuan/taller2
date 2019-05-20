@@ -26,7 +26,7 @@ class LoginForm extends React.Component {
       <div class="login-form">
         <img src="/static/img/logo.png" height="280px"/>
         <h1>Back Office</h1>
-        <form onSubmit={this.handleSubmit} method="post" action="/admin">
+        <form onSubmit={this.handleSubmit} method="post" action="/admin/">
           <div>
             <input type="text" name="name" value={this.state.name}
               onChange={this.handleChange} required onInvalid={this.handleInvalid}/>
