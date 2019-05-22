@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 
 class MenuButton extends React.Component {
   constructor(props) {
@@ -57,7 +56,4 @@ class Menu extends React.Component {
   }
 }
 
-ReactDOM.render(
-  <Menu/>,
-  document.getElementById('content')
-);
+export default Menu;
