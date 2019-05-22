@@ -1,0 +1,105 @@
+:root {
+  --background-color: #A8C0DD;
+  --accent-color: #303841;
+  --accent-light-color: #47525F;
+}
+
+body {
+  background-color: var(--background-color);
+}
+
+.login-form {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.login-form h1 {
+  font-family: "Teko", sans-serif;
+  font-size: 50px;
+  color: var(--accent-color);
+}
+
+.login-form input {
+  font-family: "Teko";
+  font-weight: bold;
+  margin-bottom: 25px;
+  width: 100%;
+  outline: none;
+  border: none;
+}
+
+.login-form input[type=text],
+.login-form input[type=password] {
+  background-color: var(--background-color);
+  color: var(--accent-color);
+  border-bottom: 1px solid var(--accent-color);
+}
+
+.login-form input[type=submit] {
+  background-color: var(--accent-color);
+  color: white;
+  cursor: pointer;
+  box-shadow: 0px 2px 5px 0px var(--accent-light-color);
+}
+
+.login-form input[type=submit]:hover {
+  box-shadow: 0px 3px 5px 0px var(--accent-light-color);
+}
+
+.login-form form div {
+  position: relative;
+}
+
+.login-form form div label {
+  position: absolute;
+  left: 0;
+  font-family: "Teko";
+  color: var(--accent-color);
+  pointer-events: none;
+}
+
+.login-form input:focus ~ label,
+.login-form input:valid ~ label {
+  top: -12px;
+  left: 0;
+  color: var(--accent-color);
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.login-form input[type=text]:focus,
+.login-form input[type=password]:focus {
+  border-bottom: 2px solid var(--accent-color);
+}
+
+.alert {
+  font-family: "Teko";
+  font-size: 30px;
+  font-weight: bold;
+  color: var(--accent-color);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.menu-button {
+  float: left;
+  width: 20%;
+}
+
+.menu-button button {
+  font-family: "Teko";
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--accent-color);
+  width: 100%;
+}
+
+.menu h1 {
+  text-align: center;
+  font-family: "Teko";
+  font-size: 50px;
+  color: var(--accent-color);
+}

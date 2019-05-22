@@ -12,22 +12,22 @@ admin.save()
 
 class TestAdminsController(object):
     def test_correct_admin_login(self):
-        response = client.post('/admin/', data='{"name": "soyadmin", "password": "mipass"}')
+        response = client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
 
-        assert response.status_code == HTTPStatus.OK
+        assert response.status_code == HTTPStatus.FOUND
 
     def test_wrong_admin_name(self):
-        response = client.post('/admin/', data='{"name": "cualquiera", "password": "mipass"}')
+        response = client.post('/admin/', data={"name": "cualquiera", "password": "mipass"})
 
-        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.status_code == HTTPStatus.FOUND
 
     def test_wrong_admin_password(self):
-        response = client.post('/admin/', data='{"name": "soyadmin", "password": "malpass"}')
+        response = client.post('/admin/', data={"name": "soyadmin", "password": "malpass"})
 
-        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.status_code == HTTPStatus.FOUND
 
     def test_correct_admin_logout(self):
-        client.post('/admin/', data='{"name": "soyadmin", "password": "mipass"}')
-        response = client.delete('/admin/logout/')
+        client.post('/admin', data={"name": "soyadmin", "password": "mipass"})
+        response = client.post('/admin/logout/')
 
-        assert response.status_code == HTTPStatus.OK
+        assert response.status_code == HTTPStatus.FOUND

@@ -2,11 +2,14 @@ const webpack = require('webpack');
 const resolve = require('path').resolve;
 
 const config = {
-  entry: __dirname + '/app/static/scripts/index.jsx',
+  entry: {
+    login: './app/static/scripts/login.jsx',
+    menu: './app/static/scripts/menu.jsx'
+  },
   output: {
-    path: resolve('app/static'),
-    filename: 'bundle.js',
-    publicPath: resolve('app/static')
+    path: resolve('app/static/js'),
+    filename: '[name].js',
+    publicPath: resolve('app/static/js')
   },
   resolve: {
     extensions: ['.js','.jsx','.css']
