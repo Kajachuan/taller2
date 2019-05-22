@@ -32,3 +32,7 @@ def admin_logout():
 @admins.route('/admin/home/', methods=['GET'])
 def home():
     return render_template('home.html')
+
+@admins.route('/admin/statistics/', methods=['GET'])
+def statistics():
+    return render_template('statistics.html')

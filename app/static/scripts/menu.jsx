@@ -45,8 +45,8 @@ class Menu extends React.Component {
                   />
         <MenuButton name="Estadísticas"
                     img="/static/img/statistics.png"
-                    // Faltan method y url
-                  />
+                    method="get"
+                    url="/admin/statistics/" />
         <MenuButton name="Cerrar Sesión"
                     img="/static/img/logout.png"
                     method="post"
