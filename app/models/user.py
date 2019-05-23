@@ -9,6 +9,7 @@ class User(db.Document):
     crypted_password = db.StringField(required=True)
     first_name = db.StringField(required=False)
     last_name = db.StringField(required=False)
+    encoded_image = db.StringField(required=False)
     invitations = db.DictField()
     organizations = db.ListField(db.StringField())
     recovery_code = db.StringField(required=False)
