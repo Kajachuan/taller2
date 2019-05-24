@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from flask import Blueprint, request, session, current_app, render_template, jsonify, redirect, flash, make_response
+from flask import Blueprint, request, session, current_app, render_template, redirect, flash
 from ..models.admin import Admin
 from ..models.forbidden_words import ForbiddenWords
 
@@ -22,7 +22,7 @@ def admin_login():
 
     session['admin'] = admin.name
     current_app.logger.info('The admin ' + name + ' is logged in')
-    return redirect('/admin/menu/')
+    return redirect('/admin/home/')
 
 @admins.route('/admin/logout/', methods=['POST'])
 def admin_logout():
@@ -42,3 +42,11 @@ def get_forbidden_words():
 
 @admins.route('/admin/forbidden-words/words', methods = ['GET'])
     return jsonify(list_of_words = ForbiddenWords.get_words()), HTTPStatus.OK
+
+@admins.route('/admin/home/', methods=['GET'])
+def home():
+    return render_template('home.html')
+
+@admins.route('/admin/statistics/', methods=['GET'])
+def statistics():
+    return render_template('statistics.html')

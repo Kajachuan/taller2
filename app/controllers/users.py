@@ -1,5 +1,6 @@
 from os import environ
 from http import HTTPStatus
+from datetime import datetime
 from flask import Blueprint, request, session, abort, jsonify, current_app, make_response
 from cryptography.fernet import Fernet
 from ..models.user import User
@@ -27,7 +28,8 @@ def register():
     cipher_suite = Fernet(environ['CRYPT_KEY'].encode())
     crypted_password = cipher_suite.encrypt(password.encode())
 
-    new_user = User(username=username, email=email, crypted_password=crypted_password)
+    new_user = User(username=username, email=email,
+                    crypted_password=crypted_password, creation_date=datetime.now())
 
     try:
         new_user.save()

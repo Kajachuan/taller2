@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 
 class MenuButton extends React.Component {
   constructor(props) {
@@ -46,8 +45,8 @@ class Menu extends React.Component {
                     url="/admin/forbidden-words/" />
         <MenuButton name="Estadísticas"
                     img="/static/img/statistics.png"
-                    // Faltan method y url
-                  />
+                    method="get"
+                    url="/admin/statistics/" />
         <MenuButton name="Cerrar Sesión"
                     img="/static/img/logout.png"
                      />
@@ -56,7 +55,4 @@ class Menu extends React.Component {
   }
 }
 
-ReactDOM.render(
-  <Menu/>,
-  document.getElementById('content')
-);
+export default Menu;
