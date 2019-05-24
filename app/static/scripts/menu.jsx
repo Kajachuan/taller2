@@ -40,18 +40,17 @@ class Menu extends React.Component {
                     img="/static/img/user.png"
                     // Faltan method y url
                   />
-        <MenuButton name="Administración de Palabras Prohibidas"
+        <MenuButton name="WTF"
                     img="/static/img/words.png"
-                    // Faltan method y url
-                  />
+                    method="get"
+                    url="/admin/forbidden-words/" />
         <MenuButton name="Estadísticas"
                     img="/static/img/statistics.png"
                     // Faltan method y url
                   />
         <MenuButton name="Cerrar Sesión"
                     img="/static/img/logout.png"
-                    method="post"
-                    url="/admin/logout/" />
+                     />
       </div>
     );
   }

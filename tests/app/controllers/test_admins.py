@@ -31,3 +31,7 @@ class TestAdminsController(object):
         response = client.post('/admin/logout/')
 
         assert response.status_code == HTTPStatus.FOUND
+
+    def test_get_forbidden_words(self):
+        response = client.get('/admin/forbidden-words/')
+        assert response.status_code == HTTPStatus.OK

@@ -4,7 +4,8 @@ const resolve = require('path').resolve;
 const config = {
   entry: {
     login: './app/static/scripts/login.jsx',
-    menu: './app/static/scripts/menu.jsx'
+    menu: './app/static/scripts/menu.jsx',
+    forbidden_words: './app/static/scripts/forbidden_words.jsx'
   },
   output: {
     path: resolve('app/static/js'),
