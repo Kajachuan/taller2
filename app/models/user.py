@@ -12,6 +12,7 @@ class User(db.Document):
     invitations = db.DictField()
     organizations = db.ListField(db.StringField())
     recovery_code = db.StringField(required=False)
+    creation_date = db.DateTimeField(required=True)
     meta = {'strict': False}
 
     def clean(self):
