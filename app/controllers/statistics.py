@@ -10,14 +10,22 @@ def get_period_statistics(queryset, days):
     queryset = queryset(creation_date__gte=period)
     pipeline = [
         { '$project': {
-            'date': { '$dateToString': { 'format': '%d-%m-%Y', 'date': '$creation_date' } }
+            'date': { '$dateToString': { 'format': '%Y-%m-%d', 'date': '$creation_date' } }
         } },
         { '$group': {
             '_id': '$date',
             'count' : { '$sum': 1 }
         } }
     ]
-    return list(queryset.aggregate(*pipeline))
+    stat = list(queryset.aggregate(*pipeline))
+    keys = [dict['_id'] for dict in stat]
+
+    for i in range(0,days+1):
+        day = (period + timedelta(days=i)).strftime('%Y-%m-%d')
+        if day not in keys:
+            stat.append({'_id': day, 'count': 0})
+
+    return sorted(stat, key=lambda dict: dict['_id'])
 
 @statistics.route('/statistics/users', methods=['GET'])
 def users_statistics():
@@ -25,5 +33,5 @@ def users_statistics():
     user_queryset = User.objects
     data['count'] = user_queryset.count()
     data['week'] = get_period_statistics(user_queryset, 7)
-    data['month'] = get_period_statistics(user_queryset, 31)
+    data['month'] = get_period_statistics(user_queryset, 30)
     return jsonify(data), HTTPStatus.OK
