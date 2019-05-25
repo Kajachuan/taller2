@@ -27,6 +27,7 @@ class ForbiddenWords extends React.Component{
     return(
     <div>
       <Menu/>
+      {words}
     </div>);
   }
 }

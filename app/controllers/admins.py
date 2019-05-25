@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from flask import Blueprint, request, session, current_app, render_template, redirect, flash
+from flask import Blueprint, request, session, current_app, render_template, redirect, flash, jsonify
 from ..models.admin import Admin
 from ..models.forbidden_words import ForbiddenWords
 
