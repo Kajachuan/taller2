@@ -41,6 +41,7 @@ def get_forbidden_words():
     return render_template('forbidden_words.html')
 
 @admins.route('/admin/forbidden-words/words', methods = ['GET'])
+def get_forbidden_words_get():
     return jsonify(list_of_words = ForbiddenWords.get_words()), HTTPStatus.OK
 
 @admins.route('/admin/home/', methods=['GET'])
