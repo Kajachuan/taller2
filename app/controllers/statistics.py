@@ -26,5 +26,4 @@ def users_statistics():
     data['count'] = user_queryset.count()
     data['week'] = get_period_statistics(user_queryset, 7)
     data['month'] = get_period_statistics(user_queryset, 31)
-    data['year'] = get_period_statistics(user_queryset, 365)
     return jsonify(data), HTTPStatus.OK

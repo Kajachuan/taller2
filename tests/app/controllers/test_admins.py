@@ -31,3 +31,15 @@ class TestAdminsController(object):
         response = client.post('/admin/logout/')
 
         assert response.status_code == HTTPStatus.FOUND
+
+    def test_get_login_page(self):
+        response = client.get('/admin/')
+        assert response.status_code == HTTPStatus.OK
+
+    def test_get_home_page(self):
+        response = client.get('/admin/home/')
+        assert response.status_code == HTTPStatus.OK
+
+    def test_get_statistics_page(self):
+        response = client.get('/admin/statistics/')
+        assert response.status_code == HTTPStatus.OK
