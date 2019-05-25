@@ -37,13 +37,41 @@ class Statistics extends React.Component {
           });
         }
       )
+    fetch("/statistics/organizations")
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            organizations: result
+          });
+        }
+      )
+    fetch("/statistics/channels")
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            channels: result
+          });
+        }
+      )
+    fetch("/statistics/messages")
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            messages: result
+          });
+        }
+      )
   }
 
   changeToUsers() {
     this.setState({
       count: this.state.users.count,
       typeSelected: true,
-      type: 'usuarios'
+      type: 'usuarios',
+      periodSelected: false
     });
   }
 
@@ -51,7 +79,8 @@ class Statistics extends React.Component {
     this.setState({
       count: this.state.organizations.count,
       typeSelected: true,
-      type: 'organizaciones'
+      type: 'organizaciones',
+      periodSelected: false
     });
   }
 
@@ -59,7 +88,8 @@ class Statistics extends React.Component {
     this.setState({
       count: this.state.channels.count,
       typeSelected: true,
-      type: 'canales'
+      type: 'canales',
+      periodSelected: false
     });
   }
 
@@ -67,7 +97,8 @@ class Statistics extends React.Component {
     this.setState({
       count: this.state.messages.count,
       typeSelected: true,
-      type: 'mensajes'
+      type: 'mensajes',
+      periodSelected: false
     });
   }
 
