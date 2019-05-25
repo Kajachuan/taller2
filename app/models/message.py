@@ -4,4 +4,5 @@ class Message(db.Document):
     timestamp = db.DateField(required = True)
     sender = db.StringField(required = True)
     message = db.StringField(required = True)
+    creation_date = db.DateTimeField(required=True)
     meta = {'strict': False}

@@ -2,6 +2,9 @@ from http import HTTPStatus
 from datetime import date, timedelta
 from flask import Blueprint, jsonify
 from ..models.user import User
+from ..models.organization import Organization
+from ..models.channel import Channel
+from ..models.message import Message
 
 statistics = Blueprint('statistics', __name__)
 
@@ -14,7 +17,7 @@ def get_period_statistics(queryset, days):
         } },
         { '$group': {
             '_id': '$date',
-            'count' : { '$sum': 1 }
+            'count': { '$sum': 1 }
         } }
     ]
     stat = list(queryset.aggregate(*pipeline))
@@ -34,4 +37,31 @@ def users_statistics():
     data['count'] = user_queryset.count()
     data['week'] = get_period_statistics(user_queryset, 7)
     data['month'] = get_period_statistics(user_queryset, 30)
+    return jsonify(data), HTTPStatus.OK
+
+@statistics.route('/statistics/organizations', methods=['GET'])
+def organizations_statistics():
+    data = {}
+    org_queryset = Organization.objects
+    data['count'] = org_queryset.count()
+    data['week'] = get_period_statistics(org_queryset, 7)
+    data['month'] = get_period_statistics(org_queryset, 30)
+    return jsonify(data), HTTPStatus.OK
+
+@statistics.route('/statistics/channels', methods=['GET'])
+def channels_statistics():
+    data = {}
+    channel_queryset = Channel.objects
+    data['count'] = channel_queryset.count()
+    data['week'] = get_period_statistics(channel_queryset, 7)
+    data['month'] = get_period_statistics(channel_queryset, 30)
+    return jsonify(data), HTTPStatus.OK
+
+@statistics.route('/statistics/messages', methods=['GET'])
+def messages_statistics():
+    data = {}
+    msg_queryset = Message.objects
+    data['count'] = msg_queryset.count()
+    data['week'] = get_period_statistics(msg_queryset, 7)
+    data['month'] = get_period_statistics(msg_queryset, 30)
     return jsonify(data), HTTPStatus.OK
