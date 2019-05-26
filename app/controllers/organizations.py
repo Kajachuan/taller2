@@ -1,10 +1,10 @@
 from os import environ
 from http import HTTPStatus
+from datetime import datetime
 from flask import Blueprint, request, abort, session, current_app, jsonify
 from ..models.organization import Organization
 from ..models.user import User
 from ..models.message import Message
-import datetime as dt
 
 organizations = Blueprint('organizations', __name__)
 
@@ -26,7 +26,7 @@ def create():
     except KeyError:
         return jsonify(message = 'You have to be logged'),HTTPStatus.UNAUTHORIZED
 
-    new_organization = Organization(organization_name = organization_name, owner = owner)
+    new_organization = Organization(organization_name = organization_name, owner = owner, creation_date = datetime.now())
 
     try:
         new_organization.save()
@@ -191,7 +191,7 @@ def get_n_channel_messages(organization_name, channel_name):
 def send_message(organization_name, channel_name):
     data = request.get_json(force = True)
     channel = Organization.get_channel(organization_name,channel_name)
-    message = Message(message = data['message'], sender = data['sender'], timestamp = dt.datetime.today())
+    message = Message(message = data['message'], sender = data['sender'], timestamp = datetime.now(), creation_date = datetime.now())
     message.save()
     channel.update(push__messages = message)
     return '',HTTPStatus.OK

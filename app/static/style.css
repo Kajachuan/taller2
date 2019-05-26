@@ -103,3 +103,24 @@ body {
   font-size: 50px;
   color: var(--accent-color);
 }
+
+.statistics {
+  font-family: "Teko";
+  color: var(--accent-color);
+}
+
+.statistics-button {
+  font-family: "Teko";
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--accent-color);
+  width: 10%;
+}
+
+.period-button {
+  font-family: "Teko";
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--accent-color);
+  width: 5%;
+}
