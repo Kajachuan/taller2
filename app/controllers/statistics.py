@@ -5,6 +5,7 @@ from ..models.user import User
 from ..models.organization import Organization
 from ..models.channel import Channel
 from ..models.message import Message
+from ..decorators.admin_required import admin_required
 
 statistics = Blueprint('statistics', __name__)
 
@@ -31,6 +32,7 @@ def get_period_statistics(queryset, days):
     return sorted(stat, key=lambda dict: dict['_id'])
 
 @statistics.route('/statistics/users', methods=['GET'])
+@admin_required
 def users_statistics():
     data = {}
     user_queryset = User.objects
@@ -40,6 +42,7 @@ def users_statistics():
     return jsonify(data), HTTPStatus.OK
 
 @statistics.route('/statistics/organizations', methods=['GET'])
+@admin_required
 def organizations_statistics():
     data = {}
     org_queryset = Organization.objects
@@ -49,6 +52,7 @@ def organizations_statistics():
     return jsonify(data), HTTPStatus.OK
 
 @statistics.route('/statistics/channels', methods=['GET'])
+@admin_required
 def channels_statistics():
     data = {}
     channel_queryset = Channel.objects
@@ -58,6 +62,7 @@ def channels_statistics():
     return jsonify(data), HTTPStatus.OK
 
 @statistics.route('/statistics/messages', methods=['GET'])
+@admin_required
 def messages_statistics():
     data = {}
     msg_queryset = Message.objects

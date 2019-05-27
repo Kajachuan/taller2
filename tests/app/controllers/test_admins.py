@@ -37,9 +37,11 @@ class TestAdminsController(object):
         assert response.status_code == HTTPStatus.OK
 
     def test_get_home_page(self):
+        client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
         response = client.get('/admin/home/')
         assert response.status_code == HTTPStatus.OK
 
     def test_get_statistics_page(self):
+        client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
         response = client.get('/admin/statistics/')
         assert response.status_code == HTTPStatus.OK

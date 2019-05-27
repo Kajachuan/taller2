@@ -91,7 +91,7 @@ body {
 
 .menu-button button {
   font-family: "Teko";
-  font-size: 20px;
+  font-size: 1.5vw;
   font-weight: bold;
   color: var(--accent-color);
   width: 100%;
@@ -111,7 +111,7 @@ body {
 
 .statistics-button {
   font-family: "Teko";
-  font-size: 18px;
+  font-size: 1.35vw;
   font-weight: bold;
   color: var(--accent-color);
   width: 10%;
@@ -119,7 +119,7 @@ body {
 
 .period-button {
   font-family: "Teko";
-  font-size: 18px;
+  font-size: 1.35vw;
   font-weight: bold;
   color: var(--accent-color);
   width: 5%;
