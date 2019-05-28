@@ -49,15 +49,16 @@ def profile():
     current_app.logger.debug('The first name is: ' + first_name)
     last_name = data['last_name']
     current_app.logger.debug('The last name is: ' + last_name)
+    encoded_image = data['image']
 
     user = User.objects(username=username)
     if not user.count():
         current_app.logger.info('The user does not exist')
         abort(HTTPStatus.BAD_REQUEST)
 
-    user.update_one(first_name=first_name, last_name=last_name)
+    user.update_one(first_name=first_name, last_name=last_name, encoded_image=encoded_image)
     current_app.logger.info('The profile has been updated')
-    return '', HTTPStatus.OK
+    return jsonify(message='The profile has been updated'), HTTPStatus.OK
 
 @users.route('/profile/<username>', methods=['GET'])
 def get_profile(username):
@@ -67,7 +68,8 @@ def get_profile(username):
         current_app.logger.info('The user does not exist')
         abort(HTTPStatus.BAD_REQUEST)
 
-    return jsonify(first_name=user.first_name, last_name=user.last_name), HTTPStatus.OK
+    return jsonify(first_name=user.first_name, last_name=user.last_name,
+                   image=user.encoded_image), HTTPStatus.OK
 
 @users.route('/profile/<username>/invitations', methods=['GET'])
 def get_invitations(username):
