@@ -130,6 +130,11 @@ body {
   color: var(--accent-color);
 }
 
+.users p {
+  font-size: 22px;
+  font-weight: bold;
+}
+
 .user-search label {
   font-size: 18px;
 }
@@ -138,6 +143,8 @@ body {
   font-family: "Teko";
   font-size: 20px;
   color: var(--accent-color);
+  margin-left: 5px;
+  margin-right: 5px;
 }
 
 .user-search input[type=submit] {
@@ -154,4 +161,14 @@ body {
   font-weight: bold;
   color: var(--accent-color);
   width: 10%;
+}
+
+.user-profile h2 {
+  display: inline;
+}
+
+.user-profile p {
+  display: inline;
+  font-size: 24px;
+  font-weight: normal;
 }

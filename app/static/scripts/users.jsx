@@ -72,10 +72,15 @@ class Users extends React.Component {
     if(this.state.showProfile) {
       profile = (<div class="user-profile">
                    <img src={"data:image/png;base64," + this.state.image} height="150" />
-                   <h2>Nombre de usuario: {this.state.username}</h2>
-                   <h2>Email: {this.state.email}</h2>
-                   <h2>Nombre: {this.state.firstName}</h2>
-                   <h2>Apellido: {this.state.lastName}</h2>
+                   <br/>
+                   <h2>Nombre de usuario: </h2><p>{this.state.username}</p>
+                   <br/>
+                   <h2>Email: </h2><p>{this.state.email}</p>
+                   <br/>
+                   <h2>Nombre: </h2><p>{this.state.firstName}</p>
+                   <br/>
+                   <h2>Apellido: </h2><p>{this.state.lastName}</p>
+                   <br/>
                    <button onClick={this.searchAgain}>Volver</button>
                  </div>)
     }
@@ -86,7 +91,7 @@ class Users extends React.Component {
         <center>
           <h1>Administración de Usuarios</h1>
           {form}
-          {this.state.errorMessage}
+          <p>{this.state.errorMessage}</p>
           {profile}
         </center>
       </div>
