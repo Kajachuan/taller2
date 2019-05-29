@@ -72,6 +72,7 @@ class TestUsersController(object):
         assert response.status_code == HTTPStatus.OK
         assert response.get_json()['first_name'] == 'Tony'
         assert response.get_json()['last_name'] == 'Stark'
+        assert response.get_json()['email'] == 'tony@stark.com'
         assert response.get_json()['image'] == img
 
     def test_get_profile_invalid_user(self):

@@ -11,7 +11,9 @@ class Users extends React.Component {
       showProfile: false,
       username: '',
       firstName: '',
-      lastName: ''
+      lastName: '',
+      email: '',
+      image: ''
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -31,6 +33,8 @@ class Users extends React.Component {
           this.setState({
             firstName: result.first_name,
             lastName: result.last_name,
+            email: result.email,
+            image: result.image,
             showForm: false,
             showProfile: true,
             errorMessage: ''
@@ -67,7 +71,9 @@ class Users extends React.Component {
 
     if(this.state.showProfile) {
       profile = (<div class="user-profile">
+                   <img src={"data:image/png;base64," + this.state.image} height="150" />
                    <h2>Nombre de usuario: {this.state.username}</h2>
+                   <h2>Email: {this.state.email}</h2>
                    <h2>Nombre: {this.state.firstName}</h2>
                    <h2>Apellido: {this.state.lastName}</h2>
                    <button onClick={this.searchAgain}>Volver</button>
