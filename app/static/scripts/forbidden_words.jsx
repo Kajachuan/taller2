@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Menu from './menu'
+import MenuButton from './menu';
 
 class ForbiddenWords extends React.Component{
   constructor(props){
@@ -23,12 +24,16 @@ class ForbiddenWords extends React.Component{
   }
 
   render(){
-    const { words } = this.state;
+    const {words} = this.state;
+    const listWords = words.map((d) => <li key={d}>{d}</li>);
     return(
-    <div>
-      <Menu/>
-      {words}
-    </div>);
+      <div class="list">
+        <Menu/>
+        <h1>Lista de palabras prohibidas</h1>
+        <button>Agregar palabra</button>
+        <button>Eliminar palabra</button>
+        {listWords}
+      </div>);
   }
 }
 
