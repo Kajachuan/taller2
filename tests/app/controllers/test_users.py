@@ -1,7 +1,13 @@
+from base64 import b64encode
 from http import HTTPStatus
+from os import path
 from taller2.app.app import app
 
 client = app.test_client()
+
+file_path = path.join(path.dirname(__file__), '../../../img/components.png')
+file = open(path.abspath(file_path), 'rb')
+img = b64encode(file.read()).decode()
 
 client.post('/register', data='{"username": "IronMan", "email": "tony@stark.com",\
                               "password": "mipass", "password_confirmation": "mipass"}')
@@ -52,13 +58,13 @@ class TestUsersController(object):
         assert response.get_json() == {'message': 'The username already exists'}
 
     def test_set_profile_user_valid(self):
-        response = client.post('/profile', data='{"username" : "IronMan" , "first_name" : "Tony",\
-                                                  "last_name" : "Stark"}')
+        response = client.post('/profile', data='{"username": "IronMan", "first_name": "Tony",\
+                                                  "last_name": "Stark", "image": "' + img + '"}')
         assert response.status_code == HTTPStatus.OK
 
     def test_set_profile_user_invalid(self):
-        response = client.post('/profile', data='{"username" : "Hulk" , "first_name" : "Tony",\
-                                                  "last_name" : "Stark"}')
+        response = client.post('/profile', data='{"username": "Hulk", "first_name": "Tony",\
+                                                  "last_name": "Stark", "image": "' + img + '"}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
 
     def test_get_profile(self):
@@ -66,6 +72,7 @@ class TestUsersController(object):
         assert response.status_code == HTTPStatus.OK
         assert response.get_json()['first_name'] == 'Tony'
         assert response.get_json()['last_name'] == 'Stark'
+        assert response.get_json()['image'] == img
 
     def test_get_profile_invalid_user(self):
         response = client.get('/profile/Hulk')
