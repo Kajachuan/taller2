@@ -40,3 +40,8 @@ def home():
 @admin_required
 def statistics():
     return render_template('statistics.html')
+
+@admins.route('/admin/users/', methods=['GET'])
+@admin_required
+def users_admin():
+    return render_template('users.html')
