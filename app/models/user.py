@@ -23,6 +23,8 @@ class User(db.Document):
     organizations = db.ListField(db.StringField())
     recovery_code = db.StringField(required=False)
     creation_date = db.DateTimeField(required=True)
+    ban_date = db.DateTimeField(required=False)
+    ban_reason = db.StringField(required=False)
     meta = {'strict': False}
 
     def clean(self):

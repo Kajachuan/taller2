@@ -1,6 +1,7 @@
 from http import HTTPStatus
 from flask import Blueprint, request, session, current_app, render_template, redirect, flash
 from ..models.admin import Admin
+from ..models.user import User
 from ..decorators.admin_required import admin_required
 
 admins = Blueprint('admins', __name__)
@@ -45,3 +46,12 @@ def statistics():
 @admin_required
 def users_admin():
     return render_template('users.html')
+
+@admins.route('/admin/ban', methods=['POST'])
+@admin_required
+def user_ban():
+    username = request.form['username']
+    date = request.form['ban_date']
+    reason = request.form['ban_reason']
+    User.objects(username=username).update_one(ban_date=date, ban_reason=reason)
+    return redirect('/admin/users/')

@@ -135,7 +135,7 @@ body {
   font-weight: bold;
 }
 
-.user-search label {
+.users form label {
   font-size: 18px;
 }
 
@@ -155,14 +155,6 @@ body {
   width: 5%;
 }
 
-.user-profile button {
-  font-family: "Teko";
-  font-size: 1.5vw;
-  font-weight: bold;
-  color: var(--accent-color);
-  width: 10%;
-}
-
 .user-profile h2 {
   display: inline;
 }
@@ -171,4 +163,35 @@ body {
   display: inline;
   font-size: 24px;
   font-weight: normal;
+}
+
+.back-button {
+  font-family: "Teko";
+  font-size: 1.5vw;
+  font-weight: bold;
+  color: var(--accent-color);
+  width: 10%;
+}
+
+.ban-button {
+  font-family: "Teko";
+  font-size: 1.5vw;
+  font-weight: bold;
+  background-color: var(--accent-color);
+  color: white;
+  width: 10%;
+}
+
+.ban-form input[type=date] {
+  font-family: "Teko";
+  font-size: 20px;
+  color: var(--accent-color);
+  margin-left: 5px;
+}
+
+.ban-form textarea {
+  font-family: "Teko";
+  font-size: 20px;
+  color: var(--accent-color);
+  margin-left: 5px;
 }

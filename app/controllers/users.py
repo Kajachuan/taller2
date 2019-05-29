@@ -69,7 +69,8 @@ def get_profile(username):
         abort(HTTPStatus.BAD_REQUEST)
 
     return jsonify(first_name=user.first_name, last_name=user.last_name,
-                   image=user.encoded_image, email=user.email), HTTPStatus.OK
+                   image=user.encoded_image, email=user.email,
+                   ban_date=user.ban_date, ban_reason=user.ban_reason), HTTPStatus.OK
 
 @users.route('/profile/<username>/invitations', methods=['GET'])
 def get_invitations(username):
