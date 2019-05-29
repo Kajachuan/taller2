@@ -23,11 +23,8 @@ def create():
     data = request.get_json(force=True)
     organization_name = data['name']
     current_app.logger.debug('The organization name is: ' + organization_name)
-    try:
-        owner = User.objects.get(username = session['username'])
-    except KeyError:
-        return jsonify(message = 'You have to be logged'),HTTPStatus.UNAUTHORIZED
 
+    owner = User.objects.get(username = session['username'])
     new_organization = Organization(organization_name = organization_name, owner = owner, creation_date = datetime.now())
 
     try:
@@ -57,10 +54,7 @@ def get_info(organization_name):
 @no_ban_required
 def change_info(organization_name):
     organization = Organization.objects.get(organization_name = organization_name)
-    try:
-        username = session['username']
-    except KeyError:
-        return jsonify(message = 'Please log in first'), HTTPStatus.UNAUTHORIZED
+    username = session['username']
     if not organization.is_owner(User.objects.get(username = username)):
         return jsonify(message = 'You are not the owner'), HTTPStatus.FORBIDDEN
     data = request.get_json(force = True)
