@@ -129,3 +129,29 @@ body {
   font-family: "Teko";
   color: var(--accent-color);
 }
+
+.user-search label {
+  font-size: 18px;
+}
+
+.user-search input[type=text] {
+  font-family: "Teko";
+  font-size: 20px;
+  color: var(--accent-color);
+}
+
+.user-search input[type=submit] {
+  font-family: "Teko";
+  font-size: 1.35vw;
+  font-weight: bold;
+  color: var(--accent-color);
+  width: 5%;
+}
+
+.user-profile button {
+  font-family: "Teko";
+  font-size: 1.5vw;
+  font-weight: bold;
+  color: var(--accent-color);
+  width: 10%;
+}

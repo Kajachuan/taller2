@@ -16,6 +16,7 @@ class Users extends React.Component {
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.searchAgain = this.searchAgain.bind(this);
   }
 
   handleChange(event) {
@@ -44,11 +45,18 @@ class Users extends React.Component {
     event.preventDefault();
   }
 
+  searchAgain() {
+    this.setState({
+      showForm: true,
+      showProfile: false
+    });
+  }
+
   render() {
     let form, profile;
 
     if(this.state.showForm) {
-      form = (<form onSubmit={this.handleSubmit}>
+      form = (<form class="user-search" onSubmit={this.handleSubmit}>
                 <label>
                   Nombre de usuario:
                   <input type="text" value={this.state.username} onChange={this.handleChange} />
@@ -58,10 +66,11 @@ class Users extends React.Component {
     }
 
     if(this.state.showProfile) {
-      profile = (<div>
+      profile = (<div class="user-profile">
                    <h2>Nombre de usuario: {this.state.username}</h2>
                    <h2>Nombre: {this.state.firstName}</h2>
                    <h2>Apellido: {this.state.lastName}</h2>
+                   <button onClick={this.searchAgain}>Volver</button>
                  </div>)
     }
 
