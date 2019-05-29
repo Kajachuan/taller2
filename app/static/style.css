@@ -124,3 +124,8 @@ body {
   color: var(--accent-color);
   width: 5%;
 }
+
+.users {
+  font-family: "Teko";
+  color: var(--accent-color);
+}
