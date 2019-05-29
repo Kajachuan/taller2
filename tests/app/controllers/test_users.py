@@ -11,6 +11,7 @@ img = b64encode(file.read()).decode()
 
 client.post('/register', data='{"username": "IronMan", "email": "tony@stark.com",\
                               "password": "mipass", "password_confirmation": "mipass"}')
+client.post('/login', data='{"username": "IronMan", "password": "mipass"}')
 
 class TestUsersController(object):
     def test_new_user(self):
