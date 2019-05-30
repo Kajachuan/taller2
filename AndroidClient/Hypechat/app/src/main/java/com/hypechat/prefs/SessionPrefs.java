@@ -5,9 +5,9 @@ import android.content.SharedPreferences;
 import android.text.TextUtils;
 
 import com.hypechat.models.LoginBody;
-import com.hypechat.models.User;
 
 import java.util.HashSet;
+import java.util.Set;
 
 public class SessionPrefs {
     private static SessionPrefs INSTANCE;

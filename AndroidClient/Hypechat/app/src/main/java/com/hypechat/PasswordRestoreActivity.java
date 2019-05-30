@@ -226,6 +226,30 @@ public class PasswordRestoreActivity extends AppCompatActivity {
         mNewPwConfirm.setVisibility(View.VISIBLE);
     }
 
+    public void showGotTokenLayout(View view){
+        TextInputLayout mToken = findViewById(R.id.pw_token_ti_layout);
+        TextInputLayout mNewPw = findViewById(R.id.new_pw_ti_layout);
+        TextInputLayout mNewPwConfirm = findViewById(R.id.confirm_new_pw_ti_layout);
+        TextInputLayout mUsername = findViewById(R.id.pw_restore_username_ti_layout);
+
+        Button mChangePw = findViewById(R.id.pw_confirm_restore_button);
+        Button mGotToken = findViewById(R.id.pw_token_button);
+        Button mRestorePw = findViewById(R.id.pw_restore_button);
+
+        ImageButton mCloseButton = findViewById(R.id.pw_restore_close);
+
+        mUsername.setVisibility(View.VISIBLE);
+
+        mGotToken.setVisibility(View.GONE);
+        mRestorePw.setVisibility(View.GONE);
+
+        mCloseButton.setVisibility(View.VISIBLE);
+        mChangePw.setVisibility(View.VISIBLE);
+        mToken.setVisibility(View.VISIBLE);
+        mNewPw.setVisibility(View.VISIBLE);
+        mNewPwConfirm.setVisibility(View.VISIBLE);
+    }
+
     public void hideTokenLayout(View view){
         TextInputLayout mToken = findViewById(R.id.pw_token_ti_layout);
         TextInputLayout mNewPw = findViewById(R.id.new_pw_ti_layout);
@@ -277,6 +301,7 @@ public class PasswordRestoreActivity extends AppCompatActivity {
     public void changePassword(View view){
         showProgressChangePassword(true);
 
+        EditText mUsernameRestore = findViewById(R.id.username_password_restore);
         EditText mToken = findViewById(R.id.token_password_restore);
         EditText mNewPw = findViewById(R.id.new_pw_restore);
         EditText mNewPwConfirm = findViewById(R.id.confirm_new_pw_restore);
@@ -285,14 +310,24 @@ public class PasswordRestoreActivity extends AppCompatActivity {
         mNewPw.setError(null);
         mNewPwConfirm.setError(null);
         mToken.setError(null);
+        mUsernameRestore.setError(null);
 
         // Store values at the time of the register attempt.
+        String username = mUsernameRestore.getText().toString();
         String password = mNewPw.getText().toString();
         String confirmPassword = mNewPwConfirm.getText().toString();
         String token = mToken.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
+
+        if (TextUtils.isEmpty(username)) {
+            mUsernameRestore.setError(getString(R.string.error_field_required));
+            focusView = mUsernameRestore;
+            cancel = true;
+        } else {
+            mUsername = username;
+        }
 
         // Check for a valid password, if the user entered one.
         if (TextUtils.isEmpty(token)) {

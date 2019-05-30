@@ -3,11 +3,11 @@ package com.hypechat.models;
 public class ChannelCreateBody {
 
     private String name;
-    private String _private;
+    private String privado;
 
-    public ChannelCreateBody(String name, String _private) {
+    public ChannelCreateBody(String name, String privado) {
         this.name = name;
-        this._private = _private;
+        this.privado = privado;
     }
 
 }

@@ -1,18 +1,15 @@
 package com.hypechat;
 
-import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.SubMenu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -23,7 +20,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,9 +34,10 @@ import com.hypechat.fragments.ChatChannelFragment;
 import com.hypechat.fragments.JoinOrganizationFragment;
 import com.hypechat.fragments.OrganizationFragment;
 import com.hypechat.models.ChannelListBody;
-import com.hypechat.models.LoginBody;
 import com.hypechat.prefs.SessionPrefs;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -53,6 +52,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private HypechatRequest mHypechatRequest;
+    Typeface tfteko;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,8 +99,34 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    public void initializeSpinner(List<String> list){
+        Spinner spinner = (Spinner) findViewById(R.id.spinner_header);
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, list) {
+            @NonNull
+            public View getView(int position, View convertView, @NonNull android.view.ViewGroup parent) {
+                tfteko = Typeface.createFromAsset(getAssets(),"fonts/tekoregular.otf");
+                TextView v = (TextView) super.getView(position, convertView, parent);
+                v.setTypeface(tfteko);
+                v.setTextColor(Color.WHITE);
+                v.setTextSize(35);
+                return v;
+            }
+            public View getDropDownView(int position, View convertView, @NonNull android.view.ViewGroup parent) {
+                TextView v = (TextView) super.getView(position, convertView, parent);
+                v.setTypeface(tfteko);
+                v.setTextColor(Color.WHITE);
+                v.setTextSize(35);
+                return v;
+            }
+        };
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(dataAdapter);
+    }
+
     public void setupChannels(List<String> organizations){
         final String primaryOrganization = organizations.get(0);
+        initializeSpinner(organizations);
         Call<ChannelListBody> channelsCall = mHypechatRequest.getOrganizationChannels(primaryOrganization);
         channelsCall.enqueue(new Callback<ChannelListBody>() {
             @Override
@@ -163,15 +189,11 @@ public class MainActivity extends AppCompatActivity
                         return true;
                     }
                 });
-                //setear que pasa cuando se clickean
-                //TO DO
             }
             SubMenu addChannelMenu = menu.addSubMenu(null);
             addChannelMenu.add(Menu.NONE, Menu.NONE, 0,"+ Añadir canal");
 
             //setear nuevo fragment
-            TextView header_nav = findViewById(R.id.header_nav_text);
-            header_nav.setText(primaryOrganization);
             if(channels.size() > 0){
                 Fragment fragment = ChatChannelFragment.newInstance(channels.get(0));
                 displaySelectedFragment(fragment);

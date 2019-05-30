@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.hypechat.API.APIError;
@@ -30,7 +31,10 @@ import com.hypechat.models.OrganizationCreateBody;
 import com.hypechat.models.OrganizationListBody;
 import com.hypechat.prefs.SessionPrefs;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -352,6 +356,10 @@ public class OrganizationFragment extends Fragment {
                 //noinspection ConstantConditions
                 ((MainActivity) getActivity()).setupChannels(organizations);
             } else {
+                String[] myResArray = getResources().getStringArray(R.array.org_initial_array);
+                List<String> myResArrayList = Arrays.asList(myResArray);
+                //noinspection ConstantConditions
+                ((MainActivity) getActivity()).initializeSpinner(myResArrayList);
                 showProgressWhileLoading(false);
             }
         }
