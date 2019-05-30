@@ -50,3 +50,24 @@ class TestAdminsController(object):
         client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
         response = client.get('/admin/users/')
         assert response.status_code == HTTPStatus.OK
+
+    def test_redirect_if_not_admin(self):
+        client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
+        client.post('/admin/logout/')
+        response = client.get('/admin/users/')
+        assert response.status_code == HTTPStatus.FOUND
+
+    def test_ban(self):
+        client.post('/register',
+                     data='{"username": "banUser", "email": "user@test.com",\
+                            "password": "mipass", "password_confirmation": "mipass"}')
+        client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
+        response = client.post('/admin/ban',
+                               data={"username": "banUser", "ban_date": "2020-12-20",
+                                     "ban_reason": "a reason"})
+        assert response.status_code == HTTPStatus.FOUND
+        client.post('/admin/logout/')
+
+        response = client.post('/login', data='{"username": "banUser", "password": "mipass"}')
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert response.get_json() == {'message': 'You are banned until 2020-12-20 00:00:00 because a reason'}
