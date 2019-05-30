@@ -13,7 +13,6 @@ from ..decorators.no_ban_required import no_ban_required
 passwords = Blueprint('passwords', __name__)
 
 @passwords.route('/recovery', methods=['POST'])
-@no_ban_required
 def password_recovery():
     data = request.get_json(force=True)
     username = data['username']
@@ -44,7 +43,6 @@ def password_recovery():
     return jsonify(message='The token was sended'), HTTPStatus.OK
 
 @passwords.route('/password', methods=['POST'])
-@no_ban_required
 def password_settings():
     data = request.get_json(force=True)
     username = data['username']

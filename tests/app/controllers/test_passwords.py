@@ -7,7 +7,6 @@ client.post('/register', data='{"username": "testrecovery", "email": "user@test.
                                 "password": "password", "password_confirmation": "password"}')
 client.post('/register', data='{"username": "testpassword", "email": "user@test.com",\
                                 "password": "password", "password_confirmation": "password"}')
-client.post('/login', data='{"username": "testrecovery", "password": "password"}')
 
 def get_token_from_mail():
     file_path = path.join(path.dirname(__file__), '../../../mails/mail.txt')
