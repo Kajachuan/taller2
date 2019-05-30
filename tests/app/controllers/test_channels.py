@@ -30,21 +30,21 @@ class TestChannelsControllers(object):
         assert response.status_code == HTTPStatus.OK
 
     def test_create_channel(self):
-        response = client.post('/organization/Avengers/channels', data = '{"name" : "EndGame", "private" : "True"}')
+        response = client.post('/organization/Avengers/channels', data = '{"name" : "EndGame", "privado" : "True"}')
         assert response.status_code == HTTPStatus.CREATED
         response = client.get('/organization/Avengers/channels')
         assert 'EndGame' in response.get_json()['channels']
         assert len(response.get_json()['channels']) == 1
 
     def test_cant_create_same_channel_in_organization(self):
-        response = client.post('/organization/Avengers/channels', data = '{"name" : "EndGame", "private" : "True"}')
+        response = client.post('/organization/Avengers/channels', data = '{"name" : "EndGame", "privado" : "True"}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
         response = client.get('/organization/Avengers/channels')
         assert len(response.get_json()['channels']) == 1
 
     def test_get_user_channels_in_organization(self):
         client.post('/login', data = '{"username" : "Thor", "password" : "mipass"}')
-        client.post('/organization/Avengers/channels', data = '{"name" : "Asgard", "private" : "False"}')
+        client.post('/organization/Avengers/channels', data = '{"name" : "Asgard", "privado" : "False"}')
         client.post('/login', data = '{"username" : "IronMan", "password" : "mipass"}')
         response = client.get('/organization/Avengers/channels')
         assert response.status_code == HTTPStatus.OK

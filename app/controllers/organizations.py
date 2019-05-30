@@ -160,8 +160,8 @@ def create_channel(organization_name):
     data = request.get_json(force = True)
     channel_name = data['name']
     owner = session['username']
-    private = True if data['private'] == "True" else False
-    if Organization.create_channel(organization_name, channel_name, owner, private):
+    privado = True if data['privado'] == "True" else False
+    if Organization.create_channel(organization_name, channel_name, owner, privado):
         return '',HTTPStatus.CREATED
     return '',HTTPStatus.BAD_REQUEST
 

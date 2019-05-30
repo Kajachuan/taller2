@@ -5,7 +5,7 @@ import datetime as dt
 class Channel(db.Document):
     channel_name = db.StringField(required = True)
     owner = db.StringField(required = True)
-    public = db.BooleanField(required = True)
+    private = db.BooleanField(required = True)
     description = db.StringField(default = 'No description', max_length = 100)
     welcome_message = db.StringField(default = 'Welcome', max_length = 30)
 
@@ -23,7 +23,7 @@ class Channel(db.Document):
         return self.owner == owner
 
     def is_public(self):
-        return self.public
+        return not self.private
 
     def num_of_members(self):
         return len(self.members)
