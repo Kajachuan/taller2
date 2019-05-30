@@ -91,7 +91,7 @@ body {
 
 .menu-button button {
   font-family: "Teko";
-  font-size: 20px;
+  font-size: 1.5vw;
   font-weight: bold;
   color: var(--accent-color);
   width: 100%;
@@ -102,4 +102,96 @@ body {
   font-family: "Teko";
   font-size: 50px;
   color: var(--accent-color);
+}
+
+.statistics {
+  font-family: "Teko";
+  color: var(--accent-color);
+}
+
+.statistics-button {
+  font-family: "Teko";
+  font-size: 1.35vw;
+  font-weight: bold;
+  color: var(--accent-color);
+  width: 10%;
+}
+
+.period-button {
+  font-family: "Teko";
+  font-size: 1.35vw;
+  font-weight: bold;
+  color: var(--accent-color);
+  width: 5%;
+}
+
+.users {
+  font-family: "Teko";
+  color: var(--accent-color);
+}
+
+.users p {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.users form label {
+  font-size: 18px;
+}
+
+.user-search input[type=text] {
+  font-family: "Teko";
+  font-size: 20px;
+  color: var(--accent-color);
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.user-search input[type=submit] {
+  font-family: "Teko";
+  font-size: 1.35vw;
+  font-weight: bold;
+  color: var(--accent-color);
+  width: 5%;
+}
+
+.user-profile h2 {
+  display: inline;
+}
+
+.user-profile p {
+  display: inline;
+  font-size: 24px;
+  font-weight: normal;
+}
+
+.back-button {
+  font-family: "Teko";
+  font-size: 1.5vw;
+  font-weight: bold;
+  color: var(--accent-color);
+  width: 10%;
+}
+
+.ban-button {
+  font-family: "Teko";
+  font-size: 1.5vw;
+  font-weight: bold;
+  background-color: var(--accent-color);
+  color: white;
+  width: 10%;
+}
+
+.ban-form input[type=date] {
+  font-family: "Teko";
+  font-size: 20px;
+  color: var(--accent-color);
+  margin-left: 5px;
+}
+
+.ban-form textarea {
+  font-family: "Teko";
+  font-size: 20px;
+  color: var(--accent-color);
+  margin-left: 5px;
 }

@@ -1,11 +1,12 @@
 from ..app import db
 from .message import Message
-import datetime as dt
+from datetime import datetime
 
 class Channel(db.Document):
     channel_name = db.StringField(required = True)
     owner = db.StringField(required = True)
-    private = db.BooleanField(required = True)
+    public = db.BooleanField(required = True)
+    creation_date = db.DateTimeField(required=True)
     description = db.StringField(default = 'No description', max_length = 100)
     welcome_message = db.StringField(default = 'Welcome', max_length = 30)
 
@@ -49,6 +50,6 @@ class Channel(db.Document):
     def add_message(cls, channel_name, requester, message):
         channel = cls.objects.get(channel_name = channel_name)
         if channel.is_member(requester):
-            message = Message(timestamp = dt.datetime.today(), sender = requester, message = message)
+            message = Message(timestamp = datetime.today(), sender = requester, message = message, creation_date = datetime.now())
             message.save()
             channel.update(push__messages = message)

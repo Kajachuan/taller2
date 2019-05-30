@@ -12,12 +12,14 @@ from .controllers.sessions import sessions
 from .controllers.organizations import organizations
 from .controllers.admins import admins
 from .controllers.passwords import passwords
+from .controllers.statistics import statistics
 
 app.register_blueprint(users)
 app.register_blueprint(sessions)
 app.register_blueprint(organizations)
 app.register_blueprint(admins)
 app.register_blueprint(passwords)
+app.register_blueprint(statistics)
 
 @app.route('/')
 def index():

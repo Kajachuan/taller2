@@ -31,3 +31,59 @@ class TestAdminsController(object):
         response = client.post('/admin/logout/')
 
         assert response.status_code == HTTPStatus.FOUND
+
+    def test_get_login_page(self):
+        response = client.get('/admin/')
+        assert response.status_code == HTTPStatus.OK
+
+    def test_get_home_page(self):
+        client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
+        response = client.get('/admin/home/')
+        assert response.status_code == HTTPStatus.OK
+
+    def test_get_statistics_page(self):
+        client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
+        response = client.get('/admin/statistics/')
+        assert response.status_code == HTTPStatus.OK
+
+    def test_get_users_page(self):
+        client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
+        response = client.get('/admin/users/')
+        assert response.status_code == HTTPStatus.OK
+
+    def test_redirect_if_not_admin(self):
+        client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
+        client.post('/admin/logout/')
+        response = client.get('/admin/users/')
+        assert response.status_code == HTTPStatus.FOUND
+
+    def test_ban(self):
+        client.post('/register',
+                     data='{"username": "banUser", "email": "user@test.com",\
+                            "password": "mipass", "password_confirmation": "mipass"}')
+        client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
+        response = client.post('/admin/ban',
+                               data={"username": "banUser", "ban_date": "2020-12-20",
+                                     "ban_reason": "a reason"})
+        assert response.status_code == HTTPStatus.FOUND
+        client.post('/admin/logout/')
+
+        response = client.post('/login', data='{"username": "banUser", "password": "mipass"}')
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert response.get_json() == {'message': 'You are banned until 2020-12-20 00:00:00 because a reason'}
+
+    def test_ban_while_logged_in(self):
+        client.post('/register',
+                    data='{"username": "banUser2", "email": "user@test.com",\
+                           "password": "mipass", "password_confirmation": "mipass"}')
+        client.post('/login', data='{"username": "banUser2", "password": "mipass"}')
+
+        client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
+        response = client.post('/admin/ban',
+                               data={"username": "banUser2", "ban_date": "2020-12-20",
+                                     "ban_reason": "a reason"})
+        client.post('/admin/logout/')
+        response = client.get('/profile/banUser2/invitations')
+
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert response.get_json() == {'message': 'You are banned until 2020-12-20 00:00:00 because a reason'}

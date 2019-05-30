@@ -2,6 +2,7 @@ from ..app import db
 from .user import User
 from .channel import Channel
 import uuid
+from datetime import datetime
 
 class Organization(db.Document):
     organization_name = db.StringField(required = True, unique = True)
@@ -14,6 +15,7 @@ class Organization(db.Document):
     welcome_message = db.StringField(default = 'Welcome')
     pending_invitations = db.MapField(db.StringField())
     channels = db.ListField(db.ReferenceField('Channel'))
+    creation_date = db.DateTimeField(required=True)
     #map_of_active_users ?
     meta = {'strict': False}
 
@@ -43,7 +45,7 @@ class Organization(db.Document):
         organization = cls.objects.get(organization_name = organization_name)
         if channel_name in [channel.channel_name for channel in organization.channels]:
             return False
-        channel = Channel(channel_name, owner, private)
+        channel = Channel(channel_name, owner, private, datetime.now())
         channel.save()
         organization.update(push__channels = channel)
         return True
