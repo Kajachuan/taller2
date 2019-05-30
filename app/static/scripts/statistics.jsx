@@ -16,7 +16,8 @@ class Statistics extends React.Component {
       users: {},
       organizations: {},
       channels: {},
-      messages: {}
+      messages: {},
+      showMessage: false
     };
 
     this.changeToUsers = this.changeToUsers.bind(this);
@@ -71,7 +72,8 @@ class Statistics extends React.Component {
       count: this.state.users.count,
       typeSelected: true,
       type: 'usuarios',
-      periodSelected: false
+      periodSelected: false,
+      showMessage: false
     });
   }
 
@@ -80,7 +82,8 @@ class Statistics extends React.Component {
       count: this.state.organizations.count,
       typeSelected: true,
       type: 'organizaciones',
-      periodSelected: false
+      periodSelected: false,
+      showMessage: false
     });
   }
 
@@ -89,7 +92,8 @@ class Statistics extends React.Component {
       count: this.state.channels.count,
       typeSelected: true,
       type: 'canales',
-      periodSelected: false
+      periodSelected: false,
+      showMessage: false
     });
   }
 
@@ -98,7 +102,8 @@ class Statistics extends React.Component {
       count: this.state.messages.count,
       typeSelected: true,
       type: 'mensajes',
-      periodSelected: false
+      periodSelected: false,
+      showMessage: false
     });
   }
 
@@ -115,7 +120,11 @@ class Statistics extends React.Component {
     else
       this.setState({data: this.state.messages.week});
 
-    this.setState({period: 'la semana', periodSelected: true})
+    this.setState({
+      period: 'la semana',
+      periodSelected: this.state.typeSelected ? true : false,
+      showMessage: this.state.typeSelected ? false : true
+    });
   }
 
   changeToMonth() {
@@ -131,11 +140,15 @@ class Statistics extends React.Component {
     else
       this.setState({data: this.state.messages.month});
 
-    this.setState({period: 'el mes', periodSelected: true})
+    this.setState({
+      period: 'el mes',
+      periodSelected: this.state.typeSelected ? true : false,
+      showMessage: this.state.typeSelected ? false : true
+    });
   }
 
   render() {
-    let count, title, graph;
+    let count, title, graph, message;
 
     if(this.state.typeSelected) {
       count = <h2>La cantidad total de {this.state.type} es {this.state.count}</h2>
@@ -152,10 +165,17 @@ class Statistics extends React.Component {
                </AreaChart>)
     }
 
+    if(this.state.showMessage) {
+      message = <h3>Primero debe seleccionar la categoría</h3>
+    }
+
     return(
       <div class="statistics">
         <Menu/>
         <center>
+          <h1>Estadísticas</h1>
+          {!this.state.typeSelected && <h3>Elija la categoría de la que quiere ver las estadísticas</h3>}
+          {this.state.typeSelected && !this.state.periodSelected && <h3>Elija el período en el que quiere ver las estadísticas</h3>}
           <button class="statistics-button" onClick={this.changeToUsers}>Usuarios</button>
           <button class="statistics-button" onClick={this.changeToOrganizations}>Organizaciones</button>
           <button class="statistics-button" onClick={this.changeToChannels}>Canales</button>
@@ -163,6 +183,7 @@ class Statistics extends React.Component {
           <br/>
           <button class="period-button" onClick={this.changeToWeek}>Semana</button>
           <button class="period-button" onClick={this.changeToMonth}>Mes</button>
+          {message}
           {count}
           {title}
           {graph}

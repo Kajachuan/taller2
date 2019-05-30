@@ -37,8 +37,8 @@ class Menu extends React.Component {
                   />
         <MenuButton name="Administración de Usuarios"
                     img="/static/img/user.png"
-                    // Faltan method y url
-                  />
+                    method="get"
+                    url="/admin/users/" />
         <MenuButton name="Administración de Palabras Prohibidas"
                     img="/static/img/words.png"
                     // Faltan method y url

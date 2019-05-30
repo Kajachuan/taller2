@@ -11,6 +11,7 @@ img = b64encode(file.read()).decode()
 
 client.post('/register', data='{"username": "IronMan", "email": "tony@stark.com",\
                               "password": "mipass", "password_confirmation": "mipass"}')
+client.post('/login', data='{"username": "IronMan", "password": "mipass"}')
 
 class TestUsersController(object):
     def test_new_user(self):
@@ -72,6 +73,7 @@ class TestUsersController(object):
         assert response.status_code == HTTPStatus.OK
         assert response.get_json()['first_name'] == 'Tony'
         assert response.get_json()['last_name'] == 'Stark'
+        assert response.get_json()['email'] == 'tony@stark.com'
         assert response.get_json()['image'] == img
 
     def test_get_profile_invalid_user(self):
