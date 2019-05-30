@@ -83,7 +83,7 @@ class TestAdminsController(object):
                                data={"username": "banUser2", "ban_date": "2020-12-20",
                                      "ban_reason": "a reason"})
         client.post('/admin/logout/')
-        response = client.get('/profile/banUser2')
+        response = client.get('/profile/banUser2/invitations')
 
         assert response.status_code == HTTPStatus.UNAUTHORIZED
         assert response.get_json() == {'message': 'You are banned until 2020-12-20 00:00:00 because a reason'}

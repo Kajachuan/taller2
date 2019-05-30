@@ -63,7 +63,6 @@ def profile():
     return jsonify(message='The profile has been updated'), HTTPStatus.OK
 
 @users.route('/profile/<username>', methods=['GET'])
-@no_ban_required
 def get_profile(username):
     try:
         user = User.objects.get(username=username)
