@@ -174,6 +174,8 @@ class Statistics extends React.Component {
         <Menu/>
         <center>
           <h1>Estadísticas</h1>
+          {!this.state.typeSelected && <h3>Elija la categoría de la que quiere ver las estadísticas</h3>}
+          {this.state.typeSelected && !this.state.periodSelected && <h3>Elija el período en el que quiere ver las estadísticas</h3>}
           <button class="statistics-button" onClick={this.changeToUsers}>Usuarios</button>
           <button class="statistics-button" onClick={this.changeToOrganizations}>Organizaciones</button>
           <button class="statistics-button" onClick={this.changeToChannels}>Canales</button>
