@@ -55,3 +55,8 @@ def user_ban():
     reason = request.form['ban_reason']
     User.objects(username=username).update_one(ban_date=date, ban_reason=reason)
     return redirect('/admin/users/')
+
+@admins.route('/admin/organizations/', methods=['GET'])
+@admin_required
+def organizations_admin():
+    return render_template('organizations.html')

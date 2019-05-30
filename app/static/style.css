@@ -195,3 +195,43 @@ body {
   color: var(--accent-color);
   margin-left: 5px;
 }
+
+.organizations {
+  font-family: "Teko";
+  color: var(--accent-color);
+}
+
+.organizations p {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.organizations form label {
+  font-size: 18px;
+}
+
+.organization-search input[type=text] {
+  font-family: "Teko";
+  font-size: 20px;
+  color: var(--accent-color);
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.organization-search input[type=submit] {
+  font-family: "Teko";
+  font-size: 1.35vw;
+  font-weight: bold;
+  color: var(--accent-color);
+  width: 5%;
+}
+
+.organization-info h2 {
+  display: inline;
+}
+
+.organization-info p {
+  display: inline;
+  font-size: 24px;
+  font-weight: normal;
+}

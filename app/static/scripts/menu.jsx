@@ -33,8 +33,8 @@ class Menu extends React.Component {
         <h1>Hypechat Back Office</h1>
         <MenuButton name="Administración de Equipos"
                     img="/static/img/organization.png"
-                    // Faltan method y url
-                  />
+                    method="get"
+                    url="/admin/organizations/" />
         <MenuButton name="Administración de Usuarios"
                     img="/static/img/user.png"
                     method="get"

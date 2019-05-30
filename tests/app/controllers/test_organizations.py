@@ -1,7 +1,17 @@
+from base64 import b64encode
+from os import environ, path
 from http import HTTPStatus
 from taller2.app.app import app
 
 client = app.test_client()
+
+file_path = path.join(path.dirname(__file__), '../../../img/components.png')
+file = open(path.abspath(file_path), 'rb')
+img = b64encode(file.read()).decode()
+
+default_img_path = path.join(path.dirname(__file__), '../../../app/static/img/default_image.png')
+default_img_file = open(path.abspath(default_img_path), 'rb')
+default_img = b64encode(default_img_file.read()).decode()
 
 client.post('/register', data='{"username": "orgacreator", "email": "user@test.com",\
                                 "password": "mipass", "password_confirmation": "mipass"}')
@@ -19,13 +29,15 @@ class TestOrganizationsController(object):
         assert info['name'] == 'Taller2'
         assert info['owner'] == 'orgacreator'
         assert info['ubication'] == 'Not Specified'
-        assert info['image_link'] == None
+        assert info['image'] == default_img
         assert info['description'] == 'Organization Information'
         assert info['welcome_message'] == 'Welcome'
 
     def test_change_some_info_organization(self):
         response = client.post('/organization/Taller2',
-                                data = '{"ubication":"Argentina", "welcome_message" : "Hello everyone"}')
+                                data = '{"ubication":"Argentina",\
+                                         "welcome_message" : "Hello everyone",\
+                                         "image": "' + img + '"}')
         assert response.status_code == HTTPStatus.OK
         response = client.get('/organization/Taller2')
         assert response.status_code == HTTPStatus.OK
@@ -33,7 +45,7 @@ class TestOrganizationsController(object):
         assert info['name'] == 'Taller2'
         assert info['owner'] == 'orgacreator'
         assert info['ubication'] == 'Argentina'
-        assert info['image_link'] == None
+        assert info['image'] == img
         assert info['description'] == 'Organization Information'
         assert info['welcome_message'] == 'Hello everyone'
 

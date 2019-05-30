@@ -38,17 +38,16 @@ def create():
     return jsonify(message = 'Organization created'),HTTPStatus.CREATED
 
 @organizations.route('/organization/<organization_name>', methods = ['GET'])
-@no_ban_required
 def get_info(organization_name):
     organization = Organization.objects.get(organization_name = organization_name)
     name = organization.organization_name
     owner = organization.owner.username
     ubication = organization.ubication
-    image_link = organization.image_link
+    image = organization.encoded_image
     description = organization.description
     welcome_message = organization.welcome_message
-    return jsonify(organization = organization, name = name, owner = owner, ubication = ubication,
-                   image_link = image_link, description = description, welcome_message = welcome_message),HTTPStatus.OK
+    return jsonify(name = name, owner = owner, ubication = ubication, image = image,
+                   description = description, welcome_message = welcome_message), HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>', methods = ['POST'])
 @no_ban_required
@@ -59,11 +58,11 @@ def change_info(organization_name):
         return jsonify(message = 'You are not the owner'), HTTPStatus.FORBIDDEN
     data = request.get_json(force = True)
     ubication = data.get('ubication', organization.organization_name)
-    image_link = data.get('image_link', organization.image_link)
+    image = data.get('image', organization.encoded_image)
     description = data.get('description', organization.description)
     welcome_message = data.get('welcome_message', organization.welcome_message)
     organization.update(ubication = ubication)
-    organization.update(image_link = image_link)
+    organization.update(encoded_image = image)
     organization.update(description = description)
     organization.update(welcome_message = welcome_message)
     return jsonify(message = 'Information changed'), HTTPStatus.OK

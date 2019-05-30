@@ -1,8 +1,10 @@
+import uuid
+from base64 import b64encode
+from os import environ, path
+from datetime import datetime
 from ..app import db
 from .user import User
 from .channel import Channel
-import uuid
-from datetime import datetime
 
 class Organization(db.Document):
     organization_name = db.StringField(required = True, unique = True)
@@ -10,7 +12,15 @@ class Organization(db.Document):
     moderators = db.ListField(db.ReferenceField(User))
     members = db.ListField(db.ReferenceField(User))
     ubication = db.StringField(default = 'Not Specified')
-    image_link = db.URLField()
+    encoded_image = db.StringField(required=False,
+                                   default=b64encode(open(path
+                                                     .abspath(path
+                                                     .join(path
+                                                     .dirname(__file__),
+                                                     '../static/img/default_image.png')),
+                                                     'rb')
+                                                     .read())
+                                                     .decode())
     description = db.StringField(default = 'Organization Information')
     welcome_message = db.StringField(default = 'Welcome')
     pending_invitations = db.MapField(db.StringField())
