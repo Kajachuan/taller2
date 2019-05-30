@@ -34,6 +34,7 @@
     <string name="prompt_username">Nombre de usuario</string>
     <string name="prompt_token">Token</string>
     <string name="prompt_organization">Nombre de organización</string>
+    <string name="prompt_channel">Nombre del canal</string>
     <string name="prompt_password_confirm">Confirmar password</string>
     <string name="prompt_new_pw">Nueva password</string>
     <string name="prompt_new_password_confirm">Confirmar nueva password</string>
@@ -56,6 +57,7 @@
     <string name="action_create_only_organization">Crear organización</string>
     <string name="what_to_do_organization">► ¿Qué desea hacer? ◄</string>
     <string name="organizations">Organizaciones</string>
+    <string name="action_create_channel">Crear canal</string>
 
     <string name="no_invitations">Aún no hay invitaciones</string>
     <string name="invitations">Invitaciones</string>
@@ -67,4 +69,7 @@
     <string-array name="org_initial_array">
         <item>Inicio</item>
     </string-array>
+
+    <string name="new_channel">Añadir canal</string>
+    <string name="privado">Canal privado</string>
 </resources>

@@ -166,7 +166,6 @@ public class OrganizationFragment extends Fragment {
 
                 showProgressWhileLoadingCreation(false);
             }
-            Log.d("creacionorg","aca");
             showOrganizationError(error);
         } else {
             createGeneralChannelAndStartOrganization(organizationName);

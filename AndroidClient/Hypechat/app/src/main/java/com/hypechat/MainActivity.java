@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.SubMenu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -32,12 +33,11 @@ import com.hypechat.cookies.AddCookiesInterceptor;
 import com.hypechat.cookies.ReceivedCookiesInterceptor;
 import com.hypechat.fragments.ChatChannelFragment;
 import com.hypechat.fragments.JoinOrganizationFragment;
+import com.hypechat.fragments.NewChannelFragment;
 import com.hypechat.fragments.OrganizationFragment;
 import com.hypechat.models.ChannelListBody;
 import com.hypechat.prefs.SessionPrefs;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private HypechatRequest mHypechatRequest;
+    private Spinner mOrgsSpinner;
     Typeface tfteko;
 
     @Override
@@ -100,7 +101,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void initializeSpinner(List<String> list){
-        Spinner spinner = (Spinner) findViewById(R.id.spinner_header);
+        mOrgsSpinner = (Spinner) findViewById(R.id.spinner_header);
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, list) {
             @NonNull
@@ -121,7 +122,7 @@ public class MainActivity extends AppCompatActivity
             }
         };
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(dataAdapter);
+        mOrgsSpinner.setAdapter(dataAdapter);
     }
 
     public void setupChannels(List<String> organizations){
@@ -192,6 +193,14 @@ public class MainActivity extends AppCompatActivity
             }
             SubMenu addChannelMenu = menu.addSubMenu(null);
             addChannelMenu.add(Menu.NONE, Menu.NONE, 0,"+ Añadir canal");
+            addChannelMenu.getItem(0).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override public boolean onMenuItemClick(MenuItem item) {
+                    onBackPressed();
+                    Fragment fragment = NewChannelFragment.newInstance(mOrgsSpinner.getSelectedItem().toString());
+                    displaySelectedFragment(fragment);
+                    return true;
+                }
+            });
 
             //setear nuevo fragment
             if(channels.size() > 0){
@@ -330,13 +339,29 @@ public class MainActivity extends AppCompatActivity
         displaySelectedFragment(fragment);
     }
 
+    public void createNewChannelFragment(final String newChannelName){
+        NavigationView nvDrawer = (NavigationView) findViewById(R.id.nav_view);
+        SubMenu channels = nvDrawer.getMenu().getItem(0).getSubMenu();
+        channels.add(Menu.NONE, Menu.NONE, channels.size(), newChannelName);
+        channels.getItem(channels.size()-1).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override public boolean onMenuItemClick(MenuItem item) {
+                onBackPressed();
+                Fragment fragment = ChatChannelFragment.newInstance(newChannelName);
+                displaySelectedFragment(fragment);
+                return true;
+            }
+        });
+        Fragment fragment = ChatChannelFragment.newInstance(newChannelName);
+        displaySelectedFragment(fragment);
+    }
+
     /**
      * Loads the specified fragment to the frame
      *
      * @param fragment
      * fragmento que se rellena
      */
-    private void displaySelectedFragment(Fragment fragment) {
+    public void displaySelectedFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.flContent, fragment);
         fragmentTransaction.commit();
