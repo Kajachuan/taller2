@@ -44,6 +44,18 @@ def get_forbidden_words():
 def get_forbidden_words_get():
     return jsonify(list_of_words = ForbiddenWords.get_words()), HTTPStatus.OK
 
+@admins.route('/admin/forbidden-words/words', methods = ['POST'])
+def add_forbidden_word():
+    word = request.form['word']
+    ForbiddenWords.add_word(word)
+    return jsonify('Word added'),HTTPStatus.OK
+
+@admins.route('/admin/forbidden-words/words', methods=['DELETE'])
+def delete_forbidden_word():
+    word = request.form['word']
+    ForbiddenWords.delete_word(word)
+    return jsonify('Word deleted'),HTTPStatus.OK
+
 @admins.route('/admin/home/', methods=['GET'])
 def home():
     return render_template('home.html')
