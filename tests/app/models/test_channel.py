@@ -5,7 +5,7 @@ from taller2.app.models.message import Message
 
 class TestChannel(object):
     def setup_class(cls):
-        cls.channel = Channel(channel_name = 'MyChannel', public = True, owner = 'Creator', creation_date = datetime.now())
+        cls.channel = Channel(channel_name = 'MyChannel', private = False, owner = 'Creator', creation_date = datetime.now())
         cls.channel.save()
 
     def test_information(self):

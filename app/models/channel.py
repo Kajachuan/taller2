@@ -5,7 +5,7 @@ from datetime import datetime
 class Channel(db.Document):
     channel_name = db.StringField(required = True)
     owner = db.StringField(required = True)
-    public = db.BooleanField(required = True)
+    private = db.BooleanField(required = True)
     creation_date = db.DateTimeField(required=True)
     description = db.StringField(default = 'No description', max_length = 100)
     welcome_message = db.StringField(default = 'Welcome', max_length = 30)
