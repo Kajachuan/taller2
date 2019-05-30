@@ -257,7 +257,7 @@ public class RegistroActivity extends AppCompatActivity {
             if (response.errorBody()
                     .contentType()
                     .subtype()
-                    .equals("application/json")) {
+                    .equals("json")) {
                 APIError apiError = ErrorUtils.parseError(response);
                 assert apiError != null;
                 error = apiError.message();

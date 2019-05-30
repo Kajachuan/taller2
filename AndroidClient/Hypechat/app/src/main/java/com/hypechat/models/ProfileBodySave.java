@@ -5,11 +5,13 @@ public class ProfileBodySave {
     private String username;
     private String first_name;
     private String last_name;
+    private String image;
 
-    public ProfileBodySave(String username, String name, String lastName) {
+    public ProfileBodySave(String username, String name, String lastName, String image) {
         this.username = username;
         this.first_name = name;
         this.last_name = lastName;
+        this.image = image;
     }
 
     public String getUsername() {

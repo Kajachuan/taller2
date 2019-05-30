@@ -113,6 +113,17 @@
                 android:textColor="@color/colorAccentLight"
                 android:textSize="14sp" />
 
+            <TextView
+                android:id="@+id/link_password_restore"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:gravity="center"
+                android:onClick="openPwRestoreActivity"
+                android:text="@string/password_restore"
+                android:textColor="@color/colorAccentLight"
+                android:textSize="14sp" />
+
         </LinearLayout>
 
 

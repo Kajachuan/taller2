@@ -65,11 +65,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        /*
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_login);
-        toolbar.setTitle(R.string.action_sign_in);
-        setSupportActionBar(toolbar);*/
-
         View view = this.getWindow().getDecorView();
         view.setBackgroundColor(getResources().getColor(R.color.activity_background));
 
@@ -204,7 +199,7 @@ public class LoginActivity extends AppCompatActivity {
             if (response.errorBody()
                     .contentType()
                     .subtype()
-                    .equals("application/json")) {
+                    .equals("json")) {
                 APIError apiError = ErrorUtils.parseError(response);
                 assert apiError != null;
                 error = apiError.message();
@@ -234,6 +229,10 @@ public class LoginActivity extends AppCompatActivity {
 
     public void openRegisterActivity(View view) {
         startActivity(new Intent(this, RegistroActivity.class));
+    }
+
+    public void openPwRestoreActivity(View view) {
+        startActivity(new Intent(this, PasswordRestoreActivity.class));
     }
 
     private void showLoginError(String error) {

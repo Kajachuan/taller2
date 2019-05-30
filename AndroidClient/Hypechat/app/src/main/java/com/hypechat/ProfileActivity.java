@@ -4,12 +4,19 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -19,6 +26,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -31,6 +39,11 @@ import com.hypechat.API.HypechatRequest;
 import com.hypechat.models.ProfileBodySave;
 import com.hypechat.models.ProfileBodyLoad;
 import com.hypechat.prefs.SessionPrefs;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -45,11 +58,12 @@ public class ProfileActivity extends AppCompatActivity {
     private EditText mLastName;
     private View mNameLayout;
     private View mLastNameLayout;
-    private ImageView mProfileImage;
+    private ImageButton mProfileImage;
     private TextView mTextNameView;
     private ProgressBar mPb_name;
     private ProgressBar mPb_image;
     private ProgressBar mPb_last_name;
+    private String image;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,8 +80,17 @@ public class ProfileActivity extends AppCompatActivity {
 
         mNameLayout = (RelativeLayout) findViewById(R.id.rl_name);
         mLastNameLayout = (RelativeLayout) findViewById(R.id.rl_last_name);
-        mProfileImage = (ImageView) findViewById(R.id.profile_image);
+        mProfileImage = (ImageButton) findViewById(R.id.profile_image);
         mTextNameView = (TextView) findViewById(R.id.profile_text_name);
+
+        mProfileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_PICK,
+                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent, 0);
+            }
+        });
 
         mPb_name = (ProgressBar) findViewById(R.id.progressBar_name);
         mPb_image = (ProgressBar) findViewById(R.id.progressBar_profile_image);
@@ -75,6 +98,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         mName = (EditText) findViewById(R.id.name_text);
         mLastName = (EditText) findViewById(R.id.last_name_text);
+        image = null;
 
         // Show a progress spinner, and kick off a background task to
         // perform the user load profile attempt.
@@ -139,8 +163,10 @@ public class ProfileActivity extends AppCompatActivity {
         String name = mName.getText().toString();
         String lastName = mLastName.getText().toString();
         String username = SessionPrefs.get(ProfileActivity.this).getUsername();
-
-        final ProfileBodySave profileBody = new ProfileBodySave(username,name,lastName);
+        if(image == null){
+            image = "";
+        }
+        final ProfileBodySave profileBody = new ProfileBodySave(username,name,lastName,image);
 
         Call<Void> profileCall = mHypechatRequest.saveProfile(profileBody);
         profileCall.enqueue(new Callback<Void>() {
@@ -157,6 +183,48 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data != null && requestCode == 0) {
+            if (resultCode == RESULT_OK) {
+                Uri targetUri = data.getData();
+                Bitmap bitmap = null;
+                try {
+                    if (targetUri != null) {
+                        bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(targetUri));
+                        Bitmap resizedBitmap = null;
+                        resizedBitmap = Bitmap.createScaledBitmap(bitmap, 500, 500, false);
+                        Drawable icon = new BitmapDrawable(getResources(),bitmap);
+                        image = bitmapToString(resizedBitmap);
+                        mProfileImage.setImageBitmap(bitmap);
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public String bitmapToString(Bitmap bitmap){
+        ByteArrayOutputStream baos=new  ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);
+        byte [] b=baos.toByteArray();
+        return Base64.encodeToString(b, Base64.DEFAULT);
+    }
+
+    public Bitmap stringToBitmap(String encodedString){
+        try{
+            byte [] encodeByte = Base64.decode(encodedString,Base64.DEFAULT);
+            return BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+        }
+        catch(Exception e){
+            e.getMessage();
+            return null;
+        }
+    }
+
+
 
     private boolean isOnline() {
         ConnectivityManager cm =
@@ -194,7 +262,7 @@ public class ProfileActivity extends AppCompatActivity {
             if (response.errorBody()
                     .contentType()
                     .subtype()
-                    .equals("application/json")) {
+                    .equals("json")) {
                 APIError apiError = ErrorUtils.parseError(response);
                 assert apiError != null;
                 error = apiError.message();
@@ -211,6 +279,13 @@ public class ProfileActivity extends AppCompatActivity {
                 String fullName = nameSpace.concat(response.body().getLastName());
                 mTextNameView.setText(fullName);
             }
+            String imageString = response.body().getImage();
+            if(imageString != null){
+                Bitmap imageBitmap = stringToBitmap(imageString);
+                mProfileImage.setImageBitmap(imageBitmap);
+            }
+
+
         }
     }
 
@@ -224,7 +299,7 @@ public class ProfileActivity extends AppCompatActivity {
             if (response.errorBody()
                     .contentType()
                     .subtype()
-                    .equals("application/json")) {
+                    .equals("json")) {
                 APIError apiError = ErrorUtils.parseError(response);
                 assert apiError != null;
                 error = apiError.message();

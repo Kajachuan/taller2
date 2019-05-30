@@ -22,11 +22,13 @@
             android:minHeight="?attr/actionBarSize"
             android:theme="@style/AppToolbar"/>
 
-        <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+        <ImageButton
+            android:layout_width="125dp"
+            android:layout_height="125dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="45dp"
+            android:scaleType="centerInside"
+            android:background="@android:color/transparent"
+            android:layout_marginTop="10dp"
             android:id="@+id/profile_image"
             android:contentDescription="@string/usr_image_desc"
             android:src="@drawable/no_image" />
@@ -43,7 +45,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="5dp"
             android:id="@+id/profile_text_name"
             android:textColor="#fff"
             android:textSize="21sp"

@@ -1,12 +1,19 @@
 package com.hypechat;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
+import android.view.SubMenu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -17,6 +24,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hypechat.API.APIError;
@@ -24,9 +32,14 @@ import com.hypechat.API.ErrorUtils;
 import com.hypechat.API.HypechatRequest;
 import com.hypechat.cookies.AddCookiesInterceptor;
 import com.hypechat.cookies.ReceivedCookiesInterceptor;
+import com.hypechat.fragments.ChatChannelFragment;
+import com.hypechat.fragments.JoinOrganizationFragment;
+import com.hypechat.fragments.OrganizationFragment;
+import com.hypechat.models.ChannelListBody;
 import com.hypechat.models.LoginBody;
 import com.hypechat.prefs.SessionPrefs;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -60,8 +73,8 @@ public class MainActivity extends AppCompatActivity
             drawer.addDrawerListener(toggle);
             toggle.syncState();
 
-            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-            navigationView.setNavigationItemSelectedListener(this);
+            NavigationView nvDrawer = (NavigationView) findViewById(R.id.nav_view);
+            nvDrawer.setNavigationItemSelectedListener(this);
 
             OkHttpClient.Builder okHttpClient = new OkHttpClient().newBuilder()
                     .connectTimeout(60 * 5, TimeUnit.SECONDS)
@@ -79,6 +92,92 @@ public class MainActivity extends AppCompatActivity
 
             // Crear conexión a la API
             mHypechatRequest = mMainRestAdapter.create(HypechatRequest.class);
+
+            //Select Organizations by default
+            Fragment fragment = new OrganizationFragment();
+            displaySelectedFragment(fragment);
+        }
+    }
+
+    public void setupChannels(List<String> organizations){
+        final String primaryOrganization = organizations.get(0);
+        Call<ChannelListBody> channelsCall = mHypechatRequest.getOrganizationChannels(primaryOrganization);
+        channelsCall.enqueue(new Callback<ChannelListBody>() {
+            @Override
+            public void onResponse(Call<ChannelListBody> call, Response<ChannelListBody> response) {
+                processResponseChannels(response,primaryOrganization);
+            }
+
+            @Override
+            public void onFailure(Call<ChannelListBody> call, Throwable t) {
+                showMainError(t.getMessage());
+            }
+        });
+    }
+
+    public void setupChannels(final String organization){
+        Call<ChannelListBody> channelsCall = mHypechatRequest.getOrganizationChannels(organization);
+        channelsCall.enqueue(new Callback<ChannelListBody>() {
+            @Override
+            public void onResponse(Call<ChannelListBody> call, Response<ChannelListBody> response) {
+                processResponseChannels(response,organization);
+            }
+
+            @Override
+            public void onFailure(Call<ChannelListBody> call, Throwable t) {
+                showMainError(t.getMessage());
+            }
+        });
+    }
+
+    private void processResponseChannels(Response<ChannelListBody> response, String primaryOrganization) {
+        // Procesar errores
+        if (!response.isSuccessful()) {
+            String error;
+            if (response.errorBody()
+                    .contentType()
+                    .subtype()
+                    .equals("json")) {
+                APIError apiError = ErrorUtils.parseError(response);
+                assert apiError != null;
+                error = apiError.message();
+            } else {
+                error = response.message();
+            }
+            showMainError(error);
+        } else {
+            //setear navigation drawer channels
+            NavigationView nvDrawer = (NavigationView) findViewById(R.id.nav_view);
+            Menu menu = nvDrawer.getMenu();
+            menu.clear();
+            final SubMenu channelsMenu = menu.addSubMenu(R.string.channels);
+            final List<String> channels = response.body().getChannels();
+            for(int i = 0; i < channels.size(); i++){
+                channelsMenu.add(Menu.NONE, Menu.NONE, i, channels.get(i));
+                final int finalI = i;
+                channelsMenu.getItem(i).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override public boolean onMenuItemClick(MenuItem item) {
+                        onBackPressed();
+                        Fragment fragment = ChatChannelFragment.newInstance(channelsMenu.getItem(finalI).getTitle().toString());
+                        displaySelectedFragment(fragment);
+                        return true;
+                    }
+                });
+                //setear que pasa cuando se clickean
+                //TO DO
+            }
+            SubMenu addChannelMenu = menu.addSubMenu(null);
+            addChannelMenu.add(Menu.NONE, Menu.NONE, 0,"+ Añadir canal");
+
+            //setear nuevo fragment
+            TextView header_nav = findViewById(R.id.header_nav_text);
+            header_nav.setText(primaryOrganization);
+            if(channels.size() > 0){
+                Fragment fragment = ChatChannelFragment.newInstance(channels.get(0));
+                displaySelectedFragment(fragment);
+            } else {
+                //sino crashea pero siempre deberia haber un canal general en teoria
+            }
         }
     }
 
@@ -132,7 +231,7 @@ public class MainActivity extends AppCompatActivity
             if (response.errorBody()
                     .contentType()
                     .subtype()
-                    .equals("application/json")) {
+                    .equals("json")) {
                 APIError apiError = ErrorUtils.parseError(response);
                 assert apiError != null;
                 error = apiError.message();
@@ -142,6 +241,7 @@ public class MainActivity extends AppCompatActivity
             showMainError(error);
         } else {
             SessionPrefs.get(MainActivity.this).logOut();
+            finish();
             Intent login = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(login);
         }
@@ -154,7 +254,6 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_profile) {
             Intent profile = new Intent(this, ProfileActivity.class);
             startActivity(profile);
@@ -184,6 +283,10 @@ public class MainActivity extends AppCompatActivity
 
                 // show it
                 alertDialog.show();
+            }else
+            if(id == R.id.action_organization) {
+                Fragment fragment = new OrganizationFragment();
+                displaySelectedFragment(fragment);
             }
 
         return super.onOptionsItemSelected(item);
@@ -195,22 +298,25 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void createInvitationsFragment(){
+        Fragment fragment = new JoinOrganizationFragment();
+        displaySelectedFragment(fragment);
+    }
+
+    /**
+     * Loads the specified fragment to the frame
+     *
+     * @param fragment
+     * fragmento que se rellena
+     */
+    private void displaySelectedFragment(Fragment fragment) {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.flContent, fragment);
+        fragmentTransaction.commit();
     }
 }
