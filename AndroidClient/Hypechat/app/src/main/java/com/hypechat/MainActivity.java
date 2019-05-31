@@ -21,6 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -38,6 +39,7 @@ import com.hypechat.fragments.OrganizationFragment;
 import com.hypechat.models.ChannelListBody;
 import com.hypechat.prefs.SessionPrefs;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -53,6 +55,8 @@ public class MainActivity extends AppCompatActivity
 
     private HypechatRequest mHypechatRequest;
     private Spinner mOrgsSpinner;
+    private ArrayAdapter<String> dataAdapter;
+    private Menu mMainMenu;
     Typeface tfteko;
 
     @Override
@@ -95,14 +99,14 @@ public class MainActivity extends AppCompatActivity
             mHypechatRequest = mMainRestAdapter.create(HypechatRequest.class);
 
             //Select Organizations by default
-            Fragment fragment = new OrganizationFragment();
+            Fragment fragment = OrganizationFragment.newInstance(false);
             displaySelectedFragment(fragment);
         }
     }
 
     public void initializeSpinner(List<String> list){
         mOrgsSpinner = (Spinner) findViewById(R.id.spinner_header);
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
+        dataAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, list) {
             @NonNull
             public View getView(int position, View convertView, @NonNull android.view.ViewGroup parent) {
@@ -127,6 +131,10 @@ public class MainActivity extends AppCompatActivity
 
     public void setupChannels(List<String> organizations){
         final String primaryOrganization = organizations.get(0);
+        MenuItem organizationsItem = mMainMenu.getItem(0);
+        if(!organizationsItem.isVisible()){
+            organizationsItem.setVisible(true);
+        }
         initializeSpinner(organizations);
         Call<ChannelListBody> channelsCall = mHypechatRequest.getOrganizationChannels(primaryOrganization);
         channelsCall.enqueue(new Callback<ChannelListBody>() {
@@ -143,6 +151,19 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void setupChannels(final String organization){
+        List<String> auxList = new ArrayList<>();
+        auxList.add(organization);
+        if(!mOrgsSpinner.getSelectedItem().toString().equals("Inicio")){
+            dataAdapter.add(organization);
+            dataAdapter.notifyDataSetChanged();
+            mOrgsSpinner.setSelection(dataAdapter.getPosition(organization));
+        } else {
+            initializeSpinner(auxList);
+        }
+        MenuItem organizationsItem = mMainMenu.getItem(0);
+        if(!organizationsItem.isVisible()){
+            organizationsItem.setVisible(true);
+        }
         Call<ChannelListBody> channelsCall = mHypechatRequest.getOrganizationChannels(organization);
         channelsCall.enqueue(new Callback<ChannelListBody>() {
             @Override
@@ -225,6 +246,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        mMainMenu = menu;
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
@@ -316,8 +338,11 @@ public class MainActivity extends AppCompatActivity
                 alertDialog.show();
             }else
             if(id == R.id.action_organization) {
-                Fragment fragment = new OrganizationFragment();
-                displaySelectedFragment(fragment);
+                if(mOrgsSpinner.getAdapter().getCount() > 0 &&
+                        (!mOrgsSpinner.getSelectedItem().toString().equals("Inicio"))){
+                    Fragment fragment = OrganizationFragment.newInstance(true);
+                    displaySelectedFragment(fragment);
+                }
             }
 
         return super.onOptionsItemSelected(item);

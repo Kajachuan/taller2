@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.hypechat.API.APIError;
@@ -32,9 +30,7 @@ import com.hypechat.models.OrganizationListBody;
 import com.hypechat.prefs.SessionPrefs;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -54,6 +50,14 @@ public class OrganizationFragment extends Fragment {
     private ImageButton mCloseButton;
     private Button mCreateOnlyButton;
     private Button mCreateButton;
+
+    public static OrganizationFragment newInstance(Boolean alreadyHasOrganizations) {
+        OrganizationFragment orgFragment = new OrganizationFragment();
+        Bundle args = new Bundle();
+        args.putBoolean("alreadyHasOrganizations", alreadyHasOrganizations);
+        orgFragment.setArguments(args);
+        return orgFragment;
+    }
 
     @SuppressWarnings("ConstantConditions")
     @Override
@@ -113,7 +117,7 @@ public class OrganizationFragment extends Fragment {
         mCreateOnlyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                createOrganization();
+                createOrganizationWithGeneralChannel();
             }
         });
 
@@ -124,11 +128,16 @@ public class OrganizationFragment extends Fragment {
                 ((MainActivity) getActivity()).createInvitationsFragment();
             }
         });
-        getOrganizations();
+
+        if(getArguments().getBoolean("alreadyHasOrganizations",false)){
+            //show
+        } else {
+            getOrganizations();
+        }
         super.onActivityCreated(savedInstanceState);
     }
 
-    private void createOrganization() {
+    private void createOrganizationWithGeneralChannel() {
         showProgressWhileLoadingCreation(true);
         //noinspection ConstantConditions
         EditText mEditTextOrganization = getView().findViewById(R.id.organization_name);
