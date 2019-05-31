@@ -6,6 +6,7 @@ from cryptography.fernet import Fernet
 from ..models.user import User
 from ..models.validators.password_validator import PasswordValidator
 from ..exceptions.register_error import RegisterError
+from ..decorators.no_ban_required import no_ban_required
 
 users = Blueprint('users', __name__)
 
@@ -41,6 +42,7 @@ def register():
     return jsonify(message='The user has been created'), HTTPStatus.CREATED
 
 @users.route('/profile', methods=['POST'])
+@no_ban_required
 def profile():
     data = request.get_json(force=True)
     username = data['username']
@@ -49,15 +51,16 @@ def profile():
     current_app.logger.debug('The first name is: ' + first_name)
     last_name = data['last_name']
     current_app.logger.debug('The last name is: ' + last_name)
+    encoded_image = data['image']
 
     user = User.objects(username=username)
     if not user.count():
         current_app.logger.info('The user does not exist')
         abort(HTTPStatus.BAD_REQUEST)
 
-    user.update_one(first_name=first_name, last_name=last_name)
+    user.update_one(first_name=first_name, last_name=last_name, encoded_image=encoded_image)
     current_app.logger.info('The profile has been updated')
-    return '', HTTPStatus.OK
+    return jsonify(message='The profile has been updated'), HTTPStatus.OK
 
 @users.route('/profile/<username>', methods=['GET'])
 def get_profile(username):
@@ -67,9 +70,12 @@ def get_profile(username):
         current_app.logger.info('The user does not exist')
         abort(HTTPStatus.BAD_REQUEST)
 
-    return jsonify(first_name=user.first_name, last_name=user.last_name), HTTPStatus.OK
+    return jsonify(first_name=user.first_name, last_name=user.last_name,
+                   image=user.encoded_image, email=user.email,
+                   ban_date=user.ban_date, ban_reason=user.ban_reason), HTTPStatus.OK
 
 @users.route('/profile/<username>/invitations', methods=['GET'])
+@no_ban_required
 def get_invitations(username):
     if session['username'] != username:
         return jsonify(msg = 'You are not allowed to see other user invitations'), HTTPStatus.FORBIDDEN
@@ -77,6 +83,7 @@ def get_invitations(username):
     return jsonify(invitations = user.invitations), HTTPStatus.OK
 
 @users.route('/profile/<username>/organizations', methods=['GET'])
+@no_ban_required
 def get_organizations(username):
     user = User.objects.get(username = username)
     return jsonify(organizations = user.organizations), HTTPStatus.OK

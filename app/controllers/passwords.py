@@ -8,6 +8,7 @@ from ..models.user import User
 from ..models.mailer import Mailer
 from ..models.validators.password_validator import PasswordValidator
 from ..exceptions.register_error import RegisterError
+from ..decorators.no_ban_required import no_ban_required
 
 passwords = Blueprint('passwords', __name__)
 
@@ -30,11 +31,11 @@ def password_recovery():
     mail = Mail(
         from_email='no-reply@hypechat.com',
         to_emails='%s' % user.get(username=username).email,
-        subject='Password Recovery',
-        html_content='<h1>Password Recovery</h1>\
-                      <p><b>Your username is:</b> %s</p>\
-                      <p><b>Your token is:</b> %s</p>\
-                      <p><b>This token will expire in 30 minutes</b></p>' % (username, token.decode()))
+        subject='Recuperación de contraseña',
+        html_content='<h1>Recuperación de contraseña</h1>\
+                      <p><b>Tu nombre de usuario es:</b> %s</p>\
+                      <p><b>El token de recuperación es:</b> %s</p>\
+                      <p><b>Este token expirará en 30 minutos</b></p>' % (username, token.decode()))
     mailer = Mailer()
     mailer.send(mail)
 

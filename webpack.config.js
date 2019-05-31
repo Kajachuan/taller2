@@ -6,7 +6,8 @@ const config = {
     login: './app/static/scripts/login.jsx',
     forbidden_words: './app/static/scripts/forbidden_words.jsx',
     home: './app/static/scripts/home.jsx',
-    statistics: './app/static/scripts/statistics.jsx'
+    statistics: './app/static/scripts/statistics.jsx',
+    users: './app/static/scripts/users.jsx'
   },
   output: {
     path: resolve('app/static/js'),

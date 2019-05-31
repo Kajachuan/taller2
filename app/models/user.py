@@ -1,4 +1,5 @@
-from os import environ
+from base64 import b64encode
+from os import environ, path
 from cryptography.fernet import Fernet
 from ..app import db
 from ..exceptions.register_error import BlankUsernameError, InvalidEmailError, DuplicateUsernameError
@@ -9,10 +10,21 @@ class User(db.Document):
     crypted_password = db.StringField(required=True)
     first_name = db.StringField(required=False)
     last_name = db.StringField(required=False)
+    encoded_image = db.StringField(required=False,
+                                   default=b64encode(open(path
+                                                     .abspath(path
+                                                     .join(path
+                                                     .dirname(__file__),
+                                                     '../static/img/default_image.png')),
+                                                     'rb')
+                                                     .read())
+                                                     .decode())
     invitations = db.DictField()
     organizations = db.ListField(db.StringField())
     recovery_code = db.StringField(required=False)
     creation_date = db.DateTimeField(required=True)
+    ban_date = db.DateTimeField(required=False)
+    ban_reason = db.StringField(required=False)
     meta = {'strict': False}
 
     def clean(self):

@@ -1,7 +1,9 @@
 from http import HTTPStatus
 from flask import Blueprint, request, session, current_app, render_template, redirect, flash, jsonify
 from ..models.admin import Admin
+from ..models.user import User
 from ..models.forbidden_words import ForbiddenWords
+from ..decorators.admin_required import admin_required
 
 admins = Blueprint('admins', __name__)
 
@@ -25,6 +27,7 @@ def admin_login():
     return redirect('/admin/home/')
 
 @admins.route('/admin/logout/', methods=['POST'])
+@admin_required
 def admin_logout():
     name = session.pop('admin')
     current_app.logger.info('The admin ' + name + ' was logged out')
@@ -57,9 +60,25 @@ def delete_forbidden_word():
     return redirect('/admin/forbidden-words/')
 
 @admins.route('/admin/home/', methods=['GET'])
+@admin_required
 def home():
     return render_template('home.html')
 
 @admins.route('/admin/statistics/', methods=['GET'])
+@admin_required
 def statistics():
     return render_template('statistics.html')
+
+@admins.route('/admin/users/', methods=['GET'])
+@admin_required
+def users_admin():
+    return render_template('users.html')
+
+@admins.route('/admin/ban', methods=['POST'])
+@admin_required
+def user_ban():
+    username = request.form['username']
+    date = request.form['ban_date']
+    reason = request.form['ban_reason']
+    User.objects(username=username).update_one(ban_date=date, ban_reason=reason)
+    return redirect('/admin/users/')
