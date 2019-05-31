@@ -48,13 +48,13 @@ def get_forbidden_words_get():
 def add_forbidden_word():
     word = request.form['word']
     ForbiddenWords.add_word(word)
-    return jsonify('Word added'),HTTPStatus.OK
+    return redirect('/admin/forbidden-words/')
 
-@admins.route('/admin/forbidden-words/words', methods=['DELETE'])
+@admins.route('/admin/forbidden-words/word-delete', methods=['POST'])
 def delete_forbidden_word():
     word = request.form['word']
     ForbiddenWords.delete_word(word)
-    return jsonify('Word deleted'),HTTPStatus.OK
+    return redirect('/admin/forbidden-words/')
 
 @admins.route('/admin/home/', methods=['GET'])
 def home():
