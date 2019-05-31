@@ -194,27 +194,22 @@ body {
   font-size: 20px;
   color: var(--accent-color);
   margin-left: 5px;
-.list{
-  text-align: center;
+}
+
+.list {
   font-family: "Teko";
-  font-size: 20px;
   color: var(--accent-color);
-  margin-top: auto;
-  margin-bottom: auto;
-  margin-left: auto;
-  margin-right: auto;
 }
 
-.list h1{
-  margin-top: auto;
-  margin-bottom: auto;
+.list button {
+  font-family: "Teko";
+  font-size: 1.35vw;
+  font-weight: bold;
+  color: var(--accent-color);
+  margin: 0px 20px 20px;
 }
 
-.list button{
-  margin: 0px 20px;
-}
-
-.list li{
+.list li {
   background: #6A8DAE;
   padding: 5px;
   list-style-type: none;
@@ -223,6 +218,25 @@ body {
   text-align: center;
   margin-left: auto;
   margin-right: auto;
+}
+
+.word-form label {
+  font-size: 18px;
+}
+
+.word-form input[type=text] {
+  font-family: "Teko";
+  font-size: 20px;
+  color: var(--accent-color);
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.word-form input[type=submit] {
+  font-family: "Teko";
+  font-size: 1.35vw;
+  font-weight: bold;
+  color: var(--accent-color);
 }
 
 .organizations {
