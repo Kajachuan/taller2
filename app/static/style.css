@@ -194,6 +194,35 @@ body {
   font-size: 20px;
   color: var(--accent-color);
   margin-left: 5px;
+.list{
+  text-align: center;
+  font-family: "Teko";
+  font-size: 20px;
+  color: var(--accent-color);
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.list h1{
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.list button{
+  margin: 0px 20px;
+}
+
+.list li{
+  background: #6A8DAE;
+  padding: 5px;
+  list-style-type: none;
+  margin: 10px;
+  width: 15%;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .organizations {
