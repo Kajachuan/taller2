@@ -32,23 +32,27 @@ def admin_logout():
     name = session.pop('admin')
     current_app.logger.info('The admin ' + name + ' was logged out')
     return redirect('/admin/')
-    
+
 @admins.route('/admin/forbidden-words/', methods =['GET'])
+@admin_required
 def get_forbidden_words():
     current_app.logger.info('Viewing forbidden words')
     return render_template('forbidden_words.html')
 
 @admins.route('/admin/forbidden-words/words', methods = ['GET'])
+@admin_required
 def get_forbidden_words_get():
     return jsonify(list_of_words = ForbiddenWords.get_words()), HTTPStatus.OK
 
 @admins.route('/admin/forbidden-words/words', methods = ['POST'])
+@admin_required
 def add_forbidden_word():
     word = request.form['word']
     ForbiddenWords.add_word(word)
     return redirect('/admin/forbidden-words/')
 
 @admins.route('/admin/forbidden-words/word-delete', methods=['POST'])
+@admin_required
 def delete_forbidden_word():
     word = request.form['word']
     ForbiddenWords.delete_word(word)

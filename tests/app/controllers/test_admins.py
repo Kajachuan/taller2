@@ -35,10 +35,12 @@ class TestAdminsController(object):
         assert response.status_code == HTTPStatus.FOUND
 
     def test_get_forbidden_words_page(self):
+        client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
         response = client.get('/admin/forbidden-words/')
         assert response.status_code == HTTPStatus.OK
 
     def test_add_forbidden_word(self):
+        client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
         response = client.post('/admin/forbidden-words/words', data={"word":"ptm"})
         assert response.status_code == HTTPStatus.FOUND
         response = client.get('/admin/forbidden-words/words')
@@ -46,10 +48,12 @@ class TestAdminsController(object):
         assert response.get_json()['list_of_words'] == ['ptm']
 
     def test_delete_forbidden_word(self):
+        client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
         response = client.post('/admin/forbidden-words/word-delete', data={"word":"ptm"})
         assert response.status_code == HTTPStatus.FOUND
         response = client.get('/admin/forbidden-words/words')
         assert response.get_json()['list_of_words'] == []
+
     def test_get_login_page(self):
         response = client.get('/admin/')
         assert response.status_code == HTTPStatus.OK

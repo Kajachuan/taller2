@@ -65,7 +65,6 @@ class ForbiddenWords extends React.Component{
           <h1>Lista de palabras prohibidas</h1>
           <button onClick={this.changeStateAdd}>Agregar palabra</button>
           <button onClick={this.changeStateDelete}>Eliminar palabra</button>
-          <br/>
           {form}
           {listWords}
         </center>
