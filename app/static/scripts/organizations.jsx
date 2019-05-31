@@ -15,6 +15,8 @@ class Organizations extends React.Component {
       image: '',
       description: '',
       welcomeMessage: '',
+      members: [],
+      channels: [],
       banDate: '',
       banReason: '',
       showDate: false
@@ -54,6 +56,27 @@ class Organizations extends React.Component {
           });
         }
       )
+
+    fetch("organization/" + this.state.organizationName + "/members")
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            members: result.members
+          });
+        }
+      )
+
+    fetch("organization/" + this.state.organizationName + "/channels")
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            channels: result.channels
+          });
+        }
+      )
+
     event.preventDefault();
   }
 

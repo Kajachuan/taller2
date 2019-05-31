@@ -100,7 +100,6 @@ def accept(organization_name):
     return jsonify(message = 'Invalid Token'),HTTPStatus.BAD_REQUEST
 
 @organizations.route('/organization/<organization_name>/members', methods=['GET'])
-@no_ban_required
 def return_members(organization_name):
     organization = Organization.objects.get(organization_name = organization_name)
     usernames = [member.username for member in organization.members]
@@ -154,7 +153,6 @@ def delete_moderator(organization_name):
 #channels
 
 @organizations.route('/organization/<organization_name>/channels', methods=['GET'])
-@no_ban_required
 def get_channels(organization_name):
     organization = Organization.objects.get(organization_name = organization_name)
     channels = [channel.channel_name for channel in organization.channels if session['username'] in channel.members]
