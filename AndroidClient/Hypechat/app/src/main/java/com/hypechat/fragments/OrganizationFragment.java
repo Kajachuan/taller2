@@ -15,6 +15,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.hypechat.API.APIError;
@@ -25,6 +27,7 @@ import com.hypechat.R;
 import com.hypechat.cookies.AddCookiesInterceptor;
 import com.hypechat.cookies.ReceivedCookiesInterceptor;
 import com.hypechat.models.ChannelCreateBody;
+import com.hypechat.models.InvitationsBody;
 import com.hypechat.models.OrganizationCreateBody;
 import com.hypechat.models.OrganizationListBody;
 import com.hypechat.prefs.SessionPrefs;
@@ -50,6 +53,10 @@ public class OrganizationFragment extends Fragment {
     private ImageButton mCloseButton;
     private Button mCreateOnlyButton;
     private Button mCreateButton;
+    private Button mSendAnInviteButton;
+    private Button mSendInviteButton;
+    private TextInputLayout mTiUsername;
+    private Spinner mCurrentOrganizationsSpìnner;
 
     public static OrganizationFragment newInstance(Boolean alreadyHasOrganizations) {
         OrganizationFragment orgFragment = new OrganizationFragment();
@@ -87,15 +94,21 @@ public class OrganizationFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         mProgressOrganizationView = getView().findViewById(R.id.organization_progress);
+        mSendAnInviteButton = getView().findViewById(R.id.organizations_send_invite_button);
+        mSendInviteButton = getView().findViewById(R.id.invite_username_only_button);
         mOrganizationImage = getView().findViewById(R.id.organizations_image);
         mTiOrganizationName = getView().findViewById(R.id.organization_name_ti_layout);
+        mTiUsername = getView().findViewById(R.id.invite_username_ti_layout);
         mJoinButton = getView().findViewById(R.id.organizations_join_button);
         mCloseButton =  getView().findViewById(R.id.organizations_creation_close);
         mCreateOnlyButton =  getView().findViewById(R.id.organizations_create_only_button);
         mCreateButton =  getView().findViewById(R.id.organizations_create_button);
+        mCurrentOrganizationsSpìnner = getView().findViewById(R.id.spinner_invitations);
+
         mCreateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mSendAnInviteButton.setVisibility(View.GONE);
                 mCreateButton.setVisibility(View.GONE);
                 mCreateOnlyButton.setVisibility(View.VISIBLE);
                 mTiOrganizationName.setVisibility(View.VISIBLE);
@@ -103,14 +116,36 @@ public class OrganizationFragment extends Fragment {
                 mCloseButton.setVisibility(View.VISIBLE);
             }
         });
+
         mCloseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mCreateButton.setVisibility(View.VISIBLE);
                 mCreateOnlyButton.setVisibility(View.GONE);
                 mTiOrganizationName.setVisibility(View.GONE);
+                if(getArguments().getBoolean("alreadyHasOrganizations",false)) {
+                    mSendAnInviteButton.setVisibility(View.VISIBLE);
+                    mCurrentOrganizationsSpìnner.setVisibility(View.GONE);
+                }
+                mSendInviteButton.setVisibility(View.GONE);
+                mTiUsername.setVisibility(View.GONE);
                 mJoinButton.setVisibility(View.VISIBLE);
                 mCloseButton.setVisibility(View.INVISIBLE);
+            }
+        });
+
+        mSendAnInviteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mCreateButton.setVisibility(View.GONE);
+                mSendAnInviteButton.setVisibility(View.GONE);
+                mSendInviteButton.setVisibility(View.VISIBLE);
+                mCurrentOrganizationsSpìnner.setVisibility(View.VISIBLE);
+                //noinspection ConstantConditions
+                ((MainActivity) getActivity()).setupInvitationsSpinner(mCurrentOrganizationsSpìnner);
+                mTiUsername.setVisibility(View.VISIBLE);
+                mJoinButton.setVisibility(View.GONE);
+                mCloseButton.setVisibility(View.VISIBLE);
             }
         });
 
@@ -118,6 +153,13 @@ public class OrganizationFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 createOrganizationWithGeneralChannel();
+            }
+        });
+
+        mSendInviteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendInvitation();
             }
         });
 
@@ -130,11 +172,52 @@ public class OrganizationFragment extends Fragment {
         });
 
         if(getArguments().getBoolean("alreadyHasOrganizations",false)){
-            //show
+            mSendAnInviteButton.setVisibility(View.VISIBLE);
         } else {
             getOrganizations();
         }
         super.onActivityCreated(savedInstanceState);
+    }
+
+    private void sendInvitation() {
+        //noinspection ConstantConditions
+        EditText mEditTextOrganization = getView().findViewById(R.id.invite_username_et);
+        final String usernameToInvite = mEditTextOrganization.getText().toString();
+
+        InvitationsBody usernameToSendInvitation = new InvitationsBody(usernameToInvite);
+        Call<Void> sendInvitationCall = mHypechatRequest.sendInvitation(mCurrentOrganizationsSpìnner.getSelectedItem().toString(),usernameToSendInvitation);
+        sendInvitationCall.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                processResponseSendInvitation(response);
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                showOrganizationError(t.getMessage());
+            }
+        });
+
+    }
+
+    private void processResponseSendInvitation(Response<Void> response) {
+        // Procesar errores
+        if (!response.isSuccessful()) {
+            String error;
+            if (response.errorBody()
+                    .contentType()
+                    .subtype()
+                    .equals("json")) {
+                APIError apiError = ErrorUtils.parseError(response);
+                assert apiError != null;
+                error = apiError.message();
+            } else {
+                error = response.message();
+            }
+            showOrganizationError(error);
+        } else {
+            showOrganizationError("invitation sent");
+        }
     }
 
     private void createOrganizationWithGeneralChannel() {
@@ -155,7 +238,6 @@ public class OrganizationFragment extends Fragment {
                 showOrganizationError(t.getMessage());
             }
         });
-
     }
 
     private void processResponseOrganizationCreation(Response<Void> response, String organizationName) {

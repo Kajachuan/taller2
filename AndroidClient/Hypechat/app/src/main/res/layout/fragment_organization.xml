@@ -3,100 +3,158 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".fragments.OrganizationFragment">
 
-    <LinearLayout
-        android:id="@+id/organization_layout"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:focusableInTouchMode="true"
-        android:gravity="center_vertical"
-        android:orientation="vertical"
-        android:paddingLeft="24dp"
-        android:paddingTop="56dp"
-        android:paddingRight="24dp">
+        android:layout_height="match_parent">
 
-        <ImageButton
-            android:id="@+id/organizations_creation_close"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:visibility="invisible"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/hypechat_desc"
-            android:src="@android:drawable/ic_menu_close_clear_cancel" />
-
-        <ProgressBar
-            android:id="@+id/organization_progress"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:visibility="gone" />
-
-        <ImageView
-            android:id="@+id/organizations_image"
-            android:layout_width="wrap_content"
-            android:layout_height="200dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="24dp"
-            android:contentDescription="@string/hypechat_desc"
-            android:src="@drawable/organizaciones" />
-
-        <Button
-            android:id="@+id/organizations_join_button"
-            style="?android:textAppearanceSmall"
-            android:layout_width="match_parent"
-            android:layout_height="36dp"
-            android:layout_marginTop="24dp"
-            android:background="@color/colorAccent"
-            android:text="@string/action_join_organization"
-            android:textColor="@android:color/white"
-            android:textStyle="bold" />
-
-        <Button
-            android:id="@+id/organizations_create_button"
-            style="?android:textAppearanceSmall"
-            android:layout_width="match_parent"
-            android:layout_height="36dp"
-            android:layout_marginTop="24dp"
-            android:background="@color/colorAccent"
-            android:text="@string/action_create_organization"
-            android:textColor="@android:color/white"
-            android:textStyle="bold" />
-
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/organization_name_ti_layout"
+        <LinearLayout
+            android:id="@+id/organization_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:textColorHint="@color/colorAccent">
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:paddingLeft="24dp"
+            android:paddingTop="56dp"
+            android:paddingRight="24dp">
 
-            <AutoCompleteTextView
-                android:id="@+id/organization_name"
+            <ImageButton
+                android:id="@+id/organizations_creation_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/hypechat_desc"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:visibility="invisible" />
+
+            <ProgressBar
+                android:id="@+id/organization_progress"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/organizations_image"
+                android:layout_width="wrap_content"
+                android:layout_height="200dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="24dp"
+                android:contentDescription="@string/hypechat_desc"
+                android:src="@drawable/organizaciones" />
+
+            <Button
+                android:id="@+id/organizations_join_button"
+                style="?android:textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_marginTop="24dp"
+                android:background="@color/colorAccent"
+                android:text="@string/action_join_organization"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/organizations_send_invite_button"
+                style="?android:textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_marginTop="24dp"
+                android:background="@color/colorAccent"
+                android:text="@string/send_an_invite"
+                android:visibility="gone"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/organizations_create_button"
+                style="?android:textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_marginTop="24dp"
+                android:background="@color/colorAccent"
+                android:text="@string/action_create_organization"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/organization_name_ti_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/prompt_organization"
-                android:imeOptions="actionDone"
-                android:inputType="text|textPersonName"
-                android:maxLines="1"
-                android:singleLine="true" />
+                android:textColorHint="@color/colorAccent"
+                android:visibility="gone">
 
-        </android.support.design.widget.TextInputLayout>
+                <AutoCompleteTextView
+                    android:id="@+id/organization_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_organization"
+                    android:imeOptions="actionDone"
+                    android:inputType="text|textPersonName"
+                    android:maxLines="1"
+                    android:singleLine="true" />
 
-        <Button
-            android:id="@+id/organizations_create_only_button"
-            style="?android:textAppearanceSmall"
-            android:layout_width="match_parent"
-            android:layout_height="36dp"
-            android:layout_marginTop="24dp"
-            android:visibility="gone"
-            android:background="@color/colorAccent"
-            android:text="@string/action_create_only_organization"
-            android:textColor="@android:color/white"
-            android:textStyle="bold" />
+            </android.support.design.widget.TextInputLayout>
 
-    </LinearLayout>
+            <Button
+                android:id="@+id/organizations_create_only_button"
+                style="?android:textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_marginTop="24dp"
+                android:background="@color/colorAccent"
+                android:text="@string/action_create_only_organization"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/invite_username_ti_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/colorAccent"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone">
+
+                <AutoCompleteTextView
+                    android:id="@+id/invite_username_et"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_username"
+                    android:imeOptions="actionDone"
+                    android:inputType="text|textPersonName"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <Spinner
+                android:id="@+id/spinner_invitations"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:padding="1dp"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/invite_username_only_button"
+                style="?android:textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_marginTop="24dp"
+                android:background="@color/colorAccent"
+                android:text="@string/send_invite"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+        </LinearLayout>
+    </ScrollView>
 
 </FrameLayout>

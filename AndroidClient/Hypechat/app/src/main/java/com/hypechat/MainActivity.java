@@ -391,4 +391,35 @@ public class MainActivity extends AppCompatActivity
         fragmentTransaction.replace(R.id.flContent, fragment);
         fragmentTransaction.commit();
     }
+
+    public void setupInvitationsSpinner(Spinner invitations_spinner) {
+        List<String> list = new ArrayList<>();
+        for(int i=0 ; i< dataAdapter.getCount() ; i++){
+            list.add(dataAdapter.getItem(i));
+        }
+        ArrayAdapter<String> auxAdapter = new ArrayAdapter<String>(this,
+                R.layout.spinner_invitations_item, list) {
+            @NonNull
+            public View getView(int position, View convertView, @NonNull android.view.ViewGroup parent) {
+                tfteko = Typeface.createFromAsset(getAssets(), "fonts/tekoregular.otf");
+                TextView v = (TextView) super.getView(position, convertView, parent);
+                v.setTypeface(tfteko);
+                v.setTextColor(getResources().getColor(R.color.colorAccent));
+                v.setBackgroundResource(R.drawable.spinner_border);
+                v.setTextSize(30);
+                v.setPadding(30,0,0,0);
+                return v;
+            }
+
+            public View getDropDownView(int position, View convertView, @NonNull android.view.ViewGroup parent) {
+                TextView v = (TextView) super.getView(position, convertView, parent);
+                v.setTypeface(tfteko);
+                v.setTextColor(getResources().getColor(R.color.colorAccent));
+                v.setTextSize(30);
+                return v;
+            }
+        };
+        auxAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        invitations_spinner.setAdapter(auxAdapter);
+    }
 }

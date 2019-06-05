@@ -5,6 +5,12 @@
     android:layout_height="match_parent"
     tools:context=".fragments.JoinOrganizationFragment">
 
+    <ListView
+        android:id="@+id/join_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+
     <LinearLayout
         android:id="@+id/organization_join_layout"
         android:layout_width="match_parent"
@@ -29,6 +35,7 @@
             android:id="@+id/organizations_join_image"
             android:layout_width="wrap_content"
             android:layout_height="200dp"
+            android:tint="@android:color/darker_gray"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="24dp"
             android:contentDescription="@string/hypechat_desc"

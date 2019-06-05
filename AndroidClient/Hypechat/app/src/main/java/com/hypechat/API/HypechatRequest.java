@@ -1,9 +1,11 @@
 package com.hypechat.API;
 
+import com.hypechat.models.AcceptInvitationBody;
 import com.hypechat.models.ChangePasswordBody;
 import com.hypechat.models.ChannelCreateBody;
 import com.hypechat.models.ChannelListBody;
 import com.hypechat.models.InvitationsBody;
+import com.hypechat.models.InvitationsListBody;
 import com.hypechat.models.LoginBody;
 import com.hypechat.models.OrganizationCreateBody;
 import com.hypechat.models.OrganizationListBody;
@@ -51,11 +53,17 @@ public interface HypechatRequest {
     Call<ChannelListBody> getOrganizationChannels(@Path("organization_name") String organization);
 
     @GET("profile/{username}/invitations")
-    Call<Void> getUserInvitations(@Path("username") String username);
+    Call<InvitationsListBody> getUserInvitations(@Path("username") String username);
 
     @POST("recovery")
     Call<InvitationsBody> passwordRecovery(@Body InvitationsBody passwordRestoreBody);
 
     @POST("password")
     Call<ChangePasswordBody> changePassword(@Header("Authorization") String token, @Body ChangePasswordBody changePasswordBody);
+
+    @POST("organization/{organization_name}/invite")
+    Call<Void> sendInvitation(@Path("organization_name") String name, @Body InvitationsBody passwordRestoreBody);
+
+    @POST("organization/{organization_name}/accept-invitation")
+    Call<Void>  acceptInvitation(@Path("organization_name") String name, @Body AcceptInvitationBody acceptInvitationBody);
 }

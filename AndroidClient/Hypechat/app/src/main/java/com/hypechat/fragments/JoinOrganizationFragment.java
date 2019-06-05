@@ -11,7 +11,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,15 +21,22 @@ import android.widget.Toast;
 import com.hypechat.API.APIError;
 import com.hypechat.API.ErrorUtils;
 import com.hypechat.API.HypechatRequest;
-import com.hypechat.MainActivity;
 import com.hypechat.R;
-import com.hypechat.models.InvitationsBody;
-import com.hypechat.models.OrganizationCreateBody;
+import com.hypechat.cookies.AddCookiesInterceptor;
+import com.hypechat.cookies.ReceivedCookiesInterceptor;
+import com.hypechat.models.AcceptInvitationBody;
+import com.hypechat.models.CustomAdapter;
+import com.hypechat.models.InvitationsListBody;
 import com.hypechat.models.OrganizationListBody;
 import com.hypechat.prefs.SessionPrefs;
 
+import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -40,6 +49,7 @@ public class JoinOrganizationFragment extends Fragment {
     private ImageView mInvitationsImageView;
     private TextView mInvitationsTextView;
     private ProgressBar mProgressInvitations;
+    ListView listView;
 
     @SuppressWarnings("ConstantConditions")
     @Override
@@ -47,14 +57,22 @@ public class JoinOrganizationFragment extends Fragment {
         super.onCreate(savedInstanceState);
         getActivity().setTitle(R.string.invitations);
 
+        OkHttpClient.Builder okHttpClient = new OkHttpClient().newBuilder()
+                .connectTimeout(60 * 5, TimeUnit.SECONDS)
+                .readTimeout(60 * 5, TimeUnit.SECONDS)
+                .writeTimeout(60 * 5, TimeUnit.SECONDS);
+        okHttpClient.interceptors().add(new AddCookiesInterceptor());
+        okHttpClient.interceptors().add(new ReceivedCookiesInterceptor());
+
         // Crear conexión al servicio REST
-        Retrofit mOrganizationsRestAdapter = new Retrofit.Builder()
+        Retrofit mMainRestAdapter = new Retrofit.Builder()
                 .baseUrl(HypechatRequest.BASE_URL)
+                .client(okHttpClient.build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         // Crear conexión a la API
-        mHypechatRequest = mOrganizationsRestAdapter.create(HypechatRequest.class);
+        mHypechatRequest = mMainRestAdapter.create(HypechatRequest.class);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -63,6 +81,7 @@ public class JoinOrganizationFragment extends Fragment {
         mInvitationsImageView =  getView().findViewById(R.id.organizations_join_image);
         mInvitationsTextView =  getView().findViewById(R.id.tv_invitations);
         mProgressInvitations =  getView().findViewById(R.id.organization_join_progress);
+        listView = getView().findViewById(R.id.join_list);
         getInvitations();
         super.onActivityCreated(savedInstanceState);
     }
@@ -74,22 +93,23 @@ public class JoinOrganizationFragment extends Fragment {
 
         String username = SessionPrefs.get(getContext()).getUsername();
 
-        Call<Void> getInvitationsCall = mHypechatRequest.getUserInvitations(username);
-        getInvitationsCall.enqueue(new Callback<Void>() {
+        Call<InvitationsListBody> getInvitationsCall = mHypechatRequest.getUserInvitations(username);
+        getInvitationsCall.enqueue(new Callback<InvitationsListBody>() {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(Call<InvitationsListBody> call, Response<InvitationsListBody> response) {
                 processResponse(response);
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(Call<InvitationsListBody> call, Throwable t) {
+                showProgress(false);
                 showInvitationsError(t.getMessage());
             }
         });
     }
 
-    private void processResponse(Response<Void> response) {
-        showProgress(false);
+    private void processResponse(Response<InvitationsListBody> response) {
+
         // Procesar errores
         if (!response.isSuccessful()) {
             String error;
@@ -103,8 +123,17 @@ public class JoinOrganizationFragment extends Fragment {
             } else {
                 error = response.message();
             }
+            showProgress(false);
             showInvitationsError(error);
         } else {
+            Map<String, String> invitationsList = response.body().getInvitations();
+            if (invitationsList.size() > 0){
+                mProgressInvitations.setVisibility(View.GONE);
+                CustomAdapter adapter = new CustomAdapter(invitationsList, getContext(),this);
+                listView.setAdapter(adapter);
+            } else {
+                showProgress(false);
+            }
 
         }
     }
@@ -149,6 +178,48 @@ public class JoinOrganizationFragment extends Fragment {
                 mInvitationsTextView.setVisibility(show ? View.GONE : View.VISIBLE);
             }
         });
+    }
+
+    public void acceptInvitation(String token, String organization){
+        // Show a progress spinner, and kick off a background task to
+        // perform the attempt.
+        //showProgress(true);
+        AcceptInvitationBody acceptBody = new AcceptInvitationBody(token);
+        Call<Void> acceptInvitationCall = mHypechatRequest.acceptInvitation(organization,acceptBody);
+        acceptInvitationCall.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                processResponseAccept(response);
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                //showProgress(false);
+                showInvitationsError(t.getMessage());
+            }
+        });
+
+    }
+
+    private void processResponseAccept(Response<Void> response) {
+        // Procesar errores
+        if (!response.isSuccessful()) {
+            String error;
+            if (response.errorBody()
+                    .contentType()
+                    .subtype()
+                    .equals("json")) {
+                APIError apiError = ErrorUtils.parseError(response);
+                assert apiError != null;
+                error = apiError.message();
+            } else {
+                error = response.message();
+            }
+            //showProgress(false);
+            showInvitationsError(error);
+        } else {
+            showInvitationsError("Se aceptó la invitación correctamente");
+        }
     }
 
     @Override
