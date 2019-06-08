@@ -7,7 +7,7 @@ from ..exceptions.register_error import BlankUsernameError, InvalidEmailError, D
 class User(db.Document):
     username = db.StringField(required=True, unique=True, min_length=1)
     email = db.EmailField(required=True)
-    crypted_password = db.StringField(required=True)
+    crypted_password = db.StringField(required=False)
     first_name = db.StringField(required=False)
     last_name = db.StringField(required=False)
     encoded_image = db.StringField(required=False,
@@ -25,6 +25,7 @@ class User(db.Document):
     creation_date = db.DateTimeField(required=True)
     ban_date = db.DateTimeField(required=False)
     ban_reason = db.StringField(required=False)
+    facebook_id = db.StringField(required=False)
     meta = {'strict': False}
 
     def clean(self):
