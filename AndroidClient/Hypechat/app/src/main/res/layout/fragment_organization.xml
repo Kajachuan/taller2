@@ -31,15 +31,6 @@
                 android:src="@android:drawable/ic_menu_close_clear_cancel"
                 android:visibility="invisible" />
 
-            <ProgressBar
-                android:id="@+id/organization_progress"
-                style="?android:attr/progressBarStyleLarge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="16dp"
-                android:visibility="gone" />
-
             <ImageView
                 android:id="@+id/organizations_image"
                 android:layout_width="wrap_content"
@@ -48,6 +39,15 @@
                 android:layout_marginBottom="24dp"
                 android:contentDescription="@string/hypechat_desc"
                 android:src="@drawable/organizaciones" />
+
+            <ProgressBar
+                android:id="@+id/organization_progress"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/organizations_join_button"

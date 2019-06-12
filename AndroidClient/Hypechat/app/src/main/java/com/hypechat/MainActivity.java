@@ -104,6 +104,12 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    public void returnToOrganizations(){
+        //Select Organizations by default
+        Fragment fragment = OrganizationFragment.newInstance(false);
+        displaySelectedFragment(fragment);
+    }
+
     public void initializeSpinner(List<String> list){
         mOrgsSpinner = (Spinner) findViewById(R.id.spinner_header);
         dataAdapter = new ArrayAdapter<String>(this,
@@ -360,7 +366,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void createInvitationsFragment(){
-        Fragment fragment = new JoinOrganizationFragment();
+        ArrayList<String> organizationsList = new ArrayList<>();
+        for(int i=0 ; i< dataAdapter.getCount() ; i++){
+            organizationsList.add(dataAdapter.getItem(i));
+        }
+        Fragment fragment = JoinOrganizationFragment.newInstance(organizationsList);
         displaySelectedFragment(fragment);
     }
 
@@ -378,6 +388,11 @@ public class MainActivity extends AppCompatActivity
         });
         Fragment fragment = ChatChannelFragment.newInstance(newChannelName);
         displaySelectedFragment(fragment);
+    }
+
+    public void addOrganizationToAdapter(String organization){
+        dataAdapter.add(organization);
+        dataAdapter.notifyDataSetChanged();
     }
 
     /**

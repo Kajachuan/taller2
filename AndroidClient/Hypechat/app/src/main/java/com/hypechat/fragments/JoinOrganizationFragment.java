@@ -6,34 +6,37 @@ import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.widget.Adapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hypechat.API.APIError;
 import com.hypechat.API.ErrorUtils;
 import com.hypechat.API.HypechatRequest;
+import com.hypechat.MainActivity;
 import com.hypechat.R;
 import com.hypechat.cookies.AddCookiesInterceptor;
 import com.hypechat.cookies.ReceivedCookiesInterceptor;
 import com.hypechat.models.AcceptInvitationBody;
 import com.hypechat.models.CustomAdapter;
 import com.hypechat.models.InvitationsListBody;
-import com.hypechat.models.OrganizationListBody;
 import com.hypechat.prefs.SessionPrefs;
 
 import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -49,7 +52,17 @@ public class JoinOrganizationFragment extends Fragment {
     private ImageView mInvitationsImageView;
     private TextView mInvitationsTextView;
     private ProgressBar mProgressInvitations;
+    private CustomAdapter mAdapter;
+    private FloatingActionButton mFloatingButton;
     ListView listView;
+
+    public static JoinOrganizationFragment newInstance(ArrayList<String> invitations) {
+        JoinOrganizationFragment orgFragment = new JoinOrganizationFragment();
+        Bundle args = new Bundle();
+        args.putStringArrayList("invitations", invitations);
+        orgFragment.setArguments(args);
+        return orgFragment;
+    }
 
     @SuppressWarnings("ConstantConditions")
     @Override
@@ -81,7 +94,25 @@ public class JoinOrganizationFragment extends Fragment {
         mInvitationsImageView =  getView().findViewById(R.id.organizations_join_image);
         mInvitationsTextView =  getView().findViewById(R.id.tv_invitations);
         mProgressInvitations =  getView().findViewById(R.id.organization_join_progress);
+        mFloatingButton = getView().findViewById(R.id.floating_join_organization);
         listView = getView().findViewById(R.id.join_list);
+
+        if (getArguments() != null) {
+            ArrayList<String> invitations = getArguments().getStringArrayList("invitations");
+            if(invitations.contains("Inicio")){
+                mFloatingButton.show();
+                mFloatingButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ((MainActivity) getActivity()).returnToOrganizations();
+                    }
+                });
+            } else {
+                mFloatingButton.hide();
+            }
+        }
+
+
         getInvitations();
         super.onActivityCreated(savedInstanceState);
     }
@@ -109,7 +140,6 @@ public class JoinOrganizationFragment extends Fragment {
     }
 
     private void processResponse(Response<InvitationsListBody> response) {
-
         // Procesar errores
         if (!response.isSuccessful()) {
             String error;
@@ -129,13 +159,31 @@ public class JoinOrganizationFragment extends Fragment {
             Map<String, String> invitationsList = response.body().getInvitations();
             if (invitationsList.size() > 0){
                 mProgressInvitations.setVisibility(View.GONE);
-                CustomAdapter adapter = new CustomAdapter(invitationsList, getContext(),this);
-                listView.setAdapter(adapter);
+                invitationsList = removeAcceptedInvitations(invitationsList);
+                if(invitationsList.size() > 0){
+                    mAdapter = new CustomAdapter(invitationsList, getContext(),this);
+                    listView.setAdapter(mAdapter);
+                } else {
+                    showProgress(false);
+                }
             } else {
                 showProgress(false);
             }
 
         }
+    }
+
+    private Map<String, String> removeAcceptedInvitations(Map<String, String> invitationsList) {
+        if (getArguments() != null) {
+            ArrayList<String> invitations = getArguments().getStringArrayList("invitations");
+            for(Iterator<Map.Entry<String, String>> it = invitationsList.entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry<String, String> entry = it.next();
+                if (invitations != null && invitations.contains(entry.getValue())) {
+                    it.remove();
+                }
+            }
+        }
+        return invitationsList;
     }
 
     private void showInvitationsError(String error) {
@@ -180,28 +228,28 @@ public class JoinOrganizationFragment extends Fragment {
         });
     }
 
-    public void acceptInvitation(String token, String organization){
+    public void acceptInvitation(final String token, final String organization){
         // Show a progress spinner, and kick off a background task to
         // perform the attempt.
-        //showProgress(true);
+        showProgressAccept(true);
         AcceptInvitationBody acceptBody = new AcceptInvitationBody(token);
         Call<Void> acceptInvitationCall = mHypechatRequest.acceptInvitation(organization,acceptBody);
         acceptInvitationCall.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
-                processResponseAccept(response);
+                processResponseAccept(response,organization);
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                //showProgress(false);
+                showProgressAccept(false);
                 showInvitationsError(t.getMessage());
             }
         });
-
     }
 
-    private void processResponseAccept(Response<Void> response) {
+    private void processResponseAccept(Response<Void> response, String organization) {
+        showProgressAccept(false);
         // Procesar errores
         if (!response.isSuccessful()) {
             String error;
@@ -215,11 +263,44 @@ public class JoinOrganizationFragment extends Fragment {
             } else {
                 error = response.message();
             }
-            //showProgress(false);
             showInvitationsError(error);
         } else {
+            //noinspection ConstantConditions
+            ((MainActivity) getActivity()).addOrganizationToAdapter(organization);
+            mAdapter.remove(organization);
+            mAdapter.notifyDataSetChanged();
             showInvitationsError("Se aceptó la invitación correctamente");
         }
+    }
+
+    /**
+     * Shows the progress UI and hides the login form.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgressAccept(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+        listView.setVisibility(show ? View.VISIBLE : View.GONE);
+        listView.animate().setDuration(shortAnimTime).alpha(
+                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                listView.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
+        });
+
+        mProgressInvitations.setVisibility(show ? View.GONE : View.VISIBLE);
+        mProgressInvitations.animate().setDuration(shortAnimTime).alpha(
+                show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mProgressInvitations.setVisibility(show ? View.VISIBLE : View.GONE);
+            }
+        });
+
     }
 
     @Override

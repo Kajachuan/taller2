@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -56,7 +56,7 @@ public class OrganizationFragment extends Fragment {
     private Button mSendAnInviteButton;
     private Button mSendInviteButton;
     private TextInputLayout mTiUsername;
-    private Spinner mCurrentOrganizationsSpìnner;
+    private Spinner mCurrentOrganizationsSpinner;
 
     public static OrganizationFragment newInstance(Boolean alreadyHasOrganizations) {
         OrganizationFragment orgFragment = new OrganizationFragment();
@@ -103,7 +103,7 @@ public class OrganizationFragment extends Fragment {
         mCloseButton =  getView().findViewById(R.id.organizations_creation_close);
         mCreateOnlyButton =  getView().findViewById(R.id.organizations_create_only_button);
         mCreateButton =  getView().findViewById(R.id.organizations_create_button);
-        mCurrentOrganizationsSpìnner = getView().findViewById(R.id.spinner_invitations);
+        mCurrentOrganizationsSpinner = getView().findViewById(R.id.spinner_invitations);
 
         mCreateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -125,7 +125,7 @@ public class OrganizationFragment extends Fragment {
                 mTiOrganizationName.setVisibility(View.GONE);
                 if(getArguments().getBoolean("alreadyHasOrganizations",false)) {
                     mSendAnInviteButton.setVisibility(View.VISIBLE);
-                    mCurrentOrganizationsSpìnner.setVisibility(View.GONE);
+                    mCurrentOrganizationsSpinner.setVisibility(View.GONE);
                 }
                 mSendInviteButton.setVisibility(View.GONE);
                 mTiUsername.setVisibility(View.GONE);
@@ -140,9 +140,9 @@ public class OrganizationFragment extends Fragment {
                 mCreateButton.setVisibility(View.GONE);
                 mSendAnInviteButton.setVisibility(View.GONE);
                 mSendInviteButton.setVisibility(View.VISIBLE);
-                mCurrentOrganizationsSpìnner.setVisibility(View.VISIBLE);
+                mCurrentOrganizationsSpinner.setVisibility(View.VISIBLE);
                 //noinspection ConstantConditions
-                ((MainActivity) getActivity()).setupInvitationsSpinner(mCurrentOrganizationsSpìnner);
+                ((MainActivity) getActivity()).setupInvitationsSpinner(mCurrentOrganizationsSpinner);
                 mTiUsername.setVisibility(View.VISIBLE);
                 mJoinButton.setVisibility(View.GONE);
                 mCloseButton.setVisibility(View.VISIBLE);
@@ -180,12 +180,13 @@ public class OrganizationFragment extends Fragment {
     }
 
     private void sendInvitation() {
+        showProgressSendInvite(true);
         //noinspection ConstantConditions
         EditText mEditTextOrganization = getView().findViewById(R.id.invite_username_et);
         final String usernameToInvite = mEditTextOrganization.getText().toString();
 
         InvitationsBody usernameToSendInvitation = new InvitationsBody(usernameToInvite);
-        Call<Void> sendInvitationCall = mHypechatRequest.sendInvitation(mCurrentOrganizationsSpìnner.getSelectedItem().toString(),usernameToSendInvitation);
+        Call<Void> sendInvitationCall = mHypechatRequest.sendInvitation(mCurrentOrganizationsSpinner.getSelectedItem().toString(),usernameToSendInvitation);
         sendInvitationCall.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
@@ -194,6 +195,7 @@ public class OrganizationFragment extends Fragment {
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
+                showProgressSendInvite(false);
                 showOrganizationError(t.getMessage());
             }
         });
@@ -201,6 +203,7 @@ public class OrganizationFragment extends Fragment {
     }
 
     private void processResponseSendInvitation(Response<Void> response) {
+        showProgressSendInvite(false);
         // Procesar errores
         if (!response.isSuccessful()) {
             String error;
@@ -216,7 +219,7 @@ public class OrganizationFragment extends Fragment {
             }
             showOrganizationError(error);
         } else {
-            showOrganizationError("invitation sent");
+            showOrganizationError("La invitación fue enviada correctamente");
         }
     }
 
@@ -457,6 +460,63 @@ public class OrganizationFragment extends Fragment {
 
     private void showOrganizationError(String error) {
         Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
+    }
+
+
+    /**
+     * Shows the progress UI and hides the login form.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgressSendInvite(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+        mProgressOrganizationView.setVisibility(show ? View.GONE : View.VISIBLE);
+        mProgressOrganizationView.animate().setDuration(shortAnimTime).alpha(
+                show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mProgressOrganizationView.setVisibility(show ? View.VISIBLE : View.GONE);
+            }
+        });
+
+        mCurrentOrganizationsSpinner.setVisibility(show ? View.VISIBLE : View.GONE);
+        mCurrentOrganizationsSpinner.animate().setDuration(shortAnimTime).alpha(
+                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mCurrentOrganizationsSpinner.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
+        });
+
+        mTiUsername.setVisibility(show ? View.VISIBLE : View.GONE);
+        mTiUsername.animate().setDuration(shortAnimTime).alpha(
+                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mTiUsername.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
+        });
+
+        mSendInviteButton.setVisibility(show ? View.VISIBLE : View.GONE);
+        mSendInviteButton.animate().setDuration(shortAnimTime).alpha(
+                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mSendInviteButton.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
+        });
+
+        mCloseButton.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
+        mCloseButton.animate().setDuration(shortAnimTime).alpha(
+                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mCloseButton.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
+            }
+        });
     }
 
     @Override
