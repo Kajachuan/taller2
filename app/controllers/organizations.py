@@ -188,7 +188,7 @@ def add_member_to_channel(organization_name, channel_name):
     Organization.add_member_to_channel(organization_name, channel_name, member)
     return '', HTTPStatus.OK
 
-@organizations.route('/organization/<organization_name>/<channel_name>/messages', methods=['GET'])
+@organizations.route('/organization/<organization_name>/<channel_name>/messages', methods=['POST'])
 @no_ban_required
 def get_n_channel_messages(organization_name, channel_name):
     data = request.get_json(force = True)
