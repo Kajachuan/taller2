@@ -202,8 +202,7 @@ def get_n_channel_messages(organization_name, channel_name):
 def send_message(organization_name, channel_name):
     data = request.get_json(force = True)
     channel = Organization.get_channel(organization_name,channel_name)
-    now = datetime.now()
-    message = Message(message = data['message'], sender = data['sender'], timestamp = now.strftime("%H:%M:%S"), creation_date = now)
+    message = Message(message = data['message'], sender = data['sender'], timestamp = data['timestamp'], creation_date = datetime.now())
     message.save()
     channel.update(push__messages = message)
     return '',HTTPStatus.OK
