@@ -194,7 +194,7 @@ def get_n_channel_messages(organization_name, channel_name):
     data = request.get_json(force = True)
     channel = Organization.get_channel(organization_name, channel_name)
     messages = channel.get_messages(int(data['init']), int(data['end']))
-    list_of_msg = [(message.timestamp,message.sender,message.message) for message in messages]
+    list_of_msg = [message for message in messages]
     return jsonify(messages = list_of_msg), HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/<channel_name>/message', methods=['POST'])
