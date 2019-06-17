@@ -66,7 +66,7 @@ class TestChannelsControllers(object):
         assert response.get_json()['members'] == ['IronMan', 'Thor']
 
     def test_get_channels_messages_empty(self):
-        response = client.post('/organization/Avengers/EndGame/messages', data = '{"init":"1", "end":"5"}')
+        response = client.get('/organization/Avengers/EndGame/messages?init=1&end=5')
         assert response.status_code == HTTPStatus.OK
         assert response.get_json()['messages'] == []
 
@@ -76,7 +76,7 @@ class TestChannelsControllers(object):
         assert response.status_code == HTTPStatus.OK
 
     def test_get_channels_messages(self):
-        response = client.post('/organization/Avengers/EndGame/messages', data = '{"init":"1", "end":"5"}')
+        response = client.get('/organization/Avengers/EndGame/messages?init=1&end=5')
         assert response.status_code == HTTPStatus.OK
         message_wout_tstamp = [(message[1], message[2]) for message in response.get_json()['messages']]
         assert message_wout_tstamp == [('IronMan','Hello1')]
@@ -88,10 +88,10 @@ class TestChannelsControllers(object):
                 '{"sender":"Thor","message":"Hello5"}']
         for msg in data:
             client.post('/organization/Avengers/EndGame/message', data = msg)
-        response = client.post('/organization/Avengers/EndGame/messages', data = '{"init":"1", "end":"2"}')
+        response = client.get('/organization/Avengers/EndGame/messages?init=1&end=2')
         message_wout_tstamp = [(message[1], message[2]) for message in response.get_json()['messages']]
         assert message_wout_tstamp == [('Thor','Hello4'),('Thor','Hello5')]
-        response = client.post('/organization/Avengers/EndGame/messages', data = '{"init":"3", "end":"5"}')
+        response = client.get('/organization/Avengers/EndGame/messages?init=3&end=5')
         message_wout_tstamp = [(message[1], message[2]) for message in response.get_json()['messages']]
         print(message_wout_tstamp)
         assert message_wout_tstamp == [('IronMan','Hello1'),('IronMan','Hello2'),('IronMan','Hello3')]
