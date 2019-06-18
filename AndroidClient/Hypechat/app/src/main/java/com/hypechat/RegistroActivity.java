@@ -26,7 +26,7 @@ import android.widget.Toast;
 import com.hypechat.API.APIError;
 import com.hypechat.API.ErrorUtils;
 import com.hypechat.API.HypechatRequest;
-import com.hypechat.models.RegisterBody;
+import com.hypechat.models.auth.RegisterBody;
 
 import retrofit2.Call;
 import retrofit2.Callback;

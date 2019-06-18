@@ -8,15 +8,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,16 +24,14 @@ import com.hypechat.MainActivity;
 import com.hypechat.R;
 import com.hypechat.cookies.AddCookiesInterceptor;
 import com.hypechat.cookies.ReceivedCookiesInterceptor;
-import com.hypechat.models.AcceptInvitationBody;
-import com.hypechat.models.CustomAdapter;
-import com.hypechat.models.InvitationsListBody;
+import com.hypechat.models.invitations.AcceptInvitationBody;
+import com.hypechat.models.organizations.CustomAdapter;
+import com.hypechat.models.invitations.InvitationsListBody;
 import com.hypechat.prefs.SessionPrefs;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;

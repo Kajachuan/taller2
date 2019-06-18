@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -25,9 +24,7 @@ import com.hypechat.MainActivity;
 import com.hypechat.R;
 import com.hypechat.cookies.AddCookiesInterceptor;
 import com.hypechat.cookies.ReceivedCookiesInterceptor;
-import com.hypechat.models.ChannelCreateBody;
-import com.hypechat.models.OrganizationListBody;
-import com.hypechat.prefs.SessionPrefs;
+import com.hypechat.models.channels.ChannelCreateBody;
 
 import java.util.concurrent.TimeUnit;
 
@@ -113,10 +110,11 @@ public class NewChannelFragment extends Fragment {
         if(!channelName.equals("")){
             ChannelCreateBody channelCreateBody = new ChannelCreateBody(channelName, privadoString);
             Call<Void> createOrganizationsCall = mHypechatRequest.createChannel(organizationName, channelCreateBody);
+            final String finalOrganizationName = organizationName;
             createOrganizationsCall.enqueue(new Callback<Void>() {
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
-                    processResponseNewChannelCreation(response, channelName);
+                    processResponseNewChannelCreation(response, finalOrganizationName, channelName);
                 }
 
                 @Override
@@ -129,7 +127,7 @@ public class NewChannelFragment extends Fragment {
         }
     }
 
-    private void processResponseNewChannelCreation(Response<Void> response, String channelName) {
+    private void processResponseNewChannelCreation(Response<Void> response, String organizationName, String channelName) {
         showProgress(false);
         // Procesar errores
         if (!response.isSuccessful()) {
@@ -147,7 +145,7 @@ public class NewChannelFragment extends Fragment {
             showNewChannelError(error);
         } else {
             //noinspection ConstantConditions
-            ((MainActivity) getActivity()).createNewChannelFragment(channelName);
+            ((MainActivity) getActivity()).createNewChannelFragment(organizationName,channelName);
         }
     }
 
