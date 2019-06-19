@@ -39,7 +39,6 @@ def create():
     return jsonify(message = 'Organization created'),HTTPStatus.CREATED
 
 @organizations.route('/organization/<organization_name>', methods = ['GET'])
-@organization_no_banned_required
 def get_info(organization_name):
     try:
         organization = Organization.objects.get(organization_name = organization_name)

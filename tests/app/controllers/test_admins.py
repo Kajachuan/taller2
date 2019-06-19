@@ -123,6 +123,6 @@ class TestAdminsController(object):
         assert response.status_code == HTTPStatus.FOUND
         client.post('/admin/logout/')
 
-        response = client.get('/organization/BanOrganization')
+        response = client.get('/organization/BanOrganization/moderators')
         assert response.status_code == HTTPStatus.FORBIDDEN
         assert response.get_json() == {'message': 'This organization is banned until 2020-12-20 00:00:00 because a reason'}
