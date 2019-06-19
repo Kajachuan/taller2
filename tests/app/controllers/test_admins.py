@@ -84,7 +84,7 @@ class TestAdminsController(object):
                      data='{"username": "banUser", "email": "user@test.com",\
                             "password": "mipass", "password_confirmation": "mipass"}')
         client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
-        response = client.post('/admin/ban',
+        response = client.post('/admin/ban/user',
                                data={"username": "banUser", "ban_date": "2020-12-20",
                                      "ban_reason": "a reason"})
         assert response.status_code == HTTPStatus.FOUND
@@ -101,7 +101,7 @@ class TestAdminsController(object):
         client.post('/login', data='{"username": "banUser2", "password": "mipass"}')
 
         client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
-        response = client.post('/admin/ban',
+        response = client.post('/admin/ban/user',
                                data={"username": "banUser2", "ban_date": "2020-12-20",
                                      "ban_reason": "a reason"})
         client.post('/admin/logout/')

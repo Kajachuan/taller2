@@ -31,7 +31,7 @@ class Menu extends React.Component {
     return(
       <div class="menu">
         <h1>Hypechat Back Office</h1>
-        <MenuButton name="Administración de Equipos"
+        <MenuButton name="Administración de Organizaciones"
                     img="/static/img/organization.png"
                     method="get"
                     url="/admin/organizations/" />

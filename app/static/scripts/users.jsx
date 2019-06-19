@@ -123,7 +123,7 @@ class Users extends React.Component {
     }
 
     if(this.state.showDate) {
-      selectDate = (<form class="ban-form" method="post" action="/admin/ban">
+      selectDate = (<form class="ban-form" method="post" action="/admin/ban/user">
                       <input type="hidden" name="username" value={this.state.username}/>
                       <label>
                         Suspender hasta

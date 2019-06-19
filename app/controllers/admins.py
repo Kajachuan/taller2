@@ -2,6 +2,7 @@ from http import HTTPStatus
 from flask import Blueprint, request, session, current_app, render_template, redirect, flash, jsonify
 from ..models.admin import Admin
 from ..models.user import User
+from ..models.organization import Organization
 from ..models.forbidden_words import ForbiddenWords
 from ..decorators.admin_required import admin_required
 
@@ -73,7 +74,7 @@ def statistics():
 def users_admin():
     return render_template('users.html')
 
-@admins.route('/admin/ban', methods=['POST'])
+@admins.route('/admin/ban/user', methods=['POST'])
 @admin_required
 def user_ban():
     username = request.form['username']
@@ -86,3 +87,12 @@ def user_ban():
 @admin_required
 def organizations_admin():
     return render_template('organizations.html')
+
+@admins.route('/admin/ban/organization', methods=['POST'])
+@admin_required
+def organization_ban():
+    organization_name = request.form['organization_name']
+    date = request.form['ban_date']
+    reason = request.form['ban_reason']
+    Organization.objects(organization_name=organization_name).update_one(ban_date=date, ban_reason=reason)
+    return redirect('/admin/organizations/')

@@ -120,7 +120,7 @@ class Organizations extends React.Component {
     }
 
     if(this.state.banDate != null) {
-      dateField = (<div><h2>Suspendido hasta: </h2><p>{dateString}</p></div>);
+      dateField = (<div><h2>Suspendida hasta: </h2><p>{dateString}</p></div>);
     }
 
     if(this.state.banReason != null) {
@@ -150,8 +150,8 @@ class Organizations extends React.Component {
     }
 
     if(this.state.showDate) {
-      selectDate = (<form class="ban-form" method="post" action="/admin/ban">
-                      <input type="hidden" name="username" value={this.state.username}/>
+      selectDate = (<form class="ban-form" method="post" action="/admin/ban/organization">
+                      <input type="hidden" name="organization_name" value={this.state.organizationName}/>
                       <label>
                         Suspender hasta
                         <input type="date" name="ban_date" min={todayString} required/>

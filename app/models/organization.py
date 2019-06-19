@@ -26,6 +26,8 @@ class Organization(db.Document):
     pending_invitations = db.MapField(db.StringField())
     channels = db.ListField(db.ReferenceField('Channel'))
     creation_date = db.DateTimeField(required=True)
+    ban_date = db.DateTimeField(required=False)
+    ban_reason = db.StringField(required=False)
     #map_of_active_users ?
     meta = {'strict': False}
 

@@ -39,15 +39,23 @@ def create():
 
 @organizations.route('/organization/<organization_name>', methods = ['GET'])
 def get_info(organization_name):
-    organization = Organization.objects.get(organization_name = organization_name)
+    try:
+        organization = Organization.objects.get(organization_name = organization_name)
+    except:
+        current_app.logger.info('The organization does not exist')
+        abort(HTTPStatus.BAD_REQUEST)
+
     name = organization.organization_name
     owner = organization.owner.username
     ubication = organization.ubication
     image = organization.encoded_image
     description = organization.description
     welcome_message = organization.welcome_message
-    return jsonify(name = name, owner = owner, ubication = ubication, image = image,
-                   description = description, welcome_message = welcome_message), HTTPStatus.OK
+    ban_date = organization.ban_date
+    ban_reason = organization.ban_reason
+    return jsonify(name=name, owner=owner, ubication=ubication, image=image,
+                   description=description, welcome_message=welcome_message,
+                   ban_date=ban_date, ban_reason=ban_reason), HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>', methods = ['POST'])
 @no_ban_required

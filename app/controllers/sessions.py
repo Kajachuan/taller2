@@ -23,6 +23,8 @@ def login():
                                              + str(user.ban_date)
                                              + ' because '
                                              + user.ban_reason), HTTPStatus.UNAUTHORIZED))
+    elif user.ban_date:
+        User.objects(username=username).update_one(ban_date=None)
 
     session['username'] = user.username
     current_app.logger.info('The user ' + username + ' is logged in')
