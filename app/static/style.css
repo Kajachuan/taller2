@@ -6,6 +6,7 @@
 
 body {
   background-color: var(--background-color);
+  scroll-behavior: auto;
 }
 
 .login-form {

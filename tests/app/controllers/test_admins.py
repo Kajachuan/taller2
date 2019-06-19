@@ -79,7 +79,7 @@ class TestAdminsController(object):
         response = client.get('/admin/users/')
         assert response.status_code == HTTPStatus.FOUND
 
-    def test_ban(self):
+    def test_ban_user(self):
         client.post('/register',
                      data='{"username": "banUser", "email": "user@test.com",\
                             "password": "mipass", "password_confirmation": "mipass"}')
@@ -91,10 +91,10 @@ class TestAdminsController(object):
         client.post('/admin/logout/')
 
         response = client.post('/login', data='{"username": "banUser", "password": "mipass"}')
-        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert response.status_code == HTTPStatus.FORBIDDEN
         assert response.get_json() == {'message': 'You are banned until 2020-12-20 00:00:00 because a reason'}
 
-    def test_ban_while_logged_in(self):
+    def test_ban_user_while_logged_in(self):
         client.post('/register',
                     data='{"username": "banUser2", "email": "user@test.com",\
                            "password": "mipass", "password_confirmation": "mipass"}')
@@ -107,5 +107,22 @@ class TestAdminsController(object):
         client.post('/admin/logout/')
         response = client.get('/profile/banUser2/invitations')
 
-        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert response.status_code == HTTPStatus.FORBIDDEN
         assert response.get_json() == {'message': 'You are banned until 2020-12-20 00:00:00 because a reason'}
+
+    def test_ban_organization(self):
+        client.post('/register',
+                     data='{"username": "ownerBanOrganization", "email": "user@test.com",\
+                            "password": "mipass", "password_confirmation": "mipass"}')
+        client.post('/login', data='{"username": "ownerBanOrganization", "password": "mipass"}')
+        client.post('/organization', data = '{"name" : "BanOrganization"}')
+        client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
+        response = client.post('/admin/ban/organization',
+                               data={"organization_name": "BanOrganization", "ban_date": "2020-12-20",
+                                     "ban_reason": "a reason"})
+        assert response.status_code == HTTPStatus.FOUND
+        client.post('/admin/logout/')
+
+        response = client.get('/organization/BanOrganization')
+        assert response.status_code == HTTPStatus.FORBIDDEN
+        assert response.get_json() == {'message': 'This organization is banned until 2020-12-20 00:00:00 because a reason'}

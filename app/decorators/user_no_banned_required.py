@@ -4,7 +4,7 @@ from datetime import datetime
 from flask import redirect, session, jsonify
 from ..models.user import User
 
-def no_ban_required(f):
+def user_no_banned_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not session.get('username'):
@@ -15,6 +15,6 @@ def no_ban_required(f):
                 return jsonify(message='You are banned until '
                                         + str(user.ban_date)
                                         + ' because '
-                                        + user.ban_reason), HTTPStatus.UNAUTHORIZED
+                                        + user.ban_reason), HTTPStatus.FORBIDDEN
         return f(*args, **kwargs)
     return decorated_function

@@ -2,7 +2,7 @@ from http import HTTPStatus
 from datetime import datetime
 from flask import Blueprint, request, abort, session, current_app, make_response, jsonify
 from ..models.user import User
-from ..decorators.no_ban_required import no_ban_required
+from ..decorators.user_no_banned_required import user_no_banned_required
 
 sessions = Blueprint('sessions', __name__)
 
@@ -22,16 +22,14 @@ def login():
         abort(make_response(jsonify(message='You are banned until '
                                              + str(user.ban_date)
                                              + ' because '
-                                             + user.ban_reason), HTTPStatus.UNAUTHORIZED))
-    elif user.ban_date:
-        User.objects(username=username).update_one(ban_date=None)
+                                             + user.ban_reason), HTTPStatus.FORBIDDEN))
 
     session['username'] = user.username
     current_app.logger.info('The user ' + username + ' is logged in')
     return jsonify(message='The user ' + username + ' is logged in'), HTTPStatus.OK
 
 @sessions.route('/logout', methods=['DELETE'])
-@no_ban_required
+@user_no_banned_required
 def logout():
     username = session.pop('username')
     current_app.logger.info('The user ' + username + ' was logged out')

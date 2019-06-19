@@ -8,7 +8,6 @@ from ..models.user import User
 from ..models.mailer import Mailer
 from ..models.validators.password_validator import PasswordValidator
 from ..exceptions.register_error import RegisterError
-from ..decorators.no_ban_required import no_ban_required
 
 passwords = Blueprint('passwords', __name__)
 

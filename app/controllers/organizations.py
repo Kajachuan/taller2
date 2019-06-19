@@ -5,7 +5,8 @@ from flask import Blueprint, request, abort, session, current_app, jsonify
 from ..models.organization import Organization
 from ..models.user import User
 from ..models.message import Message
-from ..decorators.no_ban_required import no_ban_required
+from ..decorators.user_no_banned_required import user_no_banned_required
+from ..decorators.organization_no_banned_required import organization_no_banned_required
 
 organizations = Blueprint('organizations', __name__)
 
@@ -18,7 +19,7 @@ def inexistent_organization_handler(e):
     return jsonify(message = error_messages[e.args[0]]), HTTPStatus.BAD_REQUEST
 
 @organizations.route('/organization', methods=['POST'])
-@no_ban_required
+@user_no_banned_required
 def create():
     data = request.get_json(force=True)
     organization_name = data['name']
@@ -38,6 +39,7 @@ def create():
     return jsonify(message = 'Organization created'),HTTPStatus.CREATED
 
 @organizations.route('/organization/<organization_name>', methods = ['GET'])
+@organization_no_banned_required
 def get_info(organization_name):
     try:
         organization = Organization.objects.get(organization_name = organization_name)
@@ -58,7 +60,8 @@ def get_info(organization_name):
                    ban_date=ban_date, ban_reason=ban_reason), HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>', methods = ['POST'])
-@no_ban_required
+@user_no_banned_required
+@organization_no_banned_required
 def change_info(organization_name):
     organization = Organization.objects.get(organization_name = organization_name)
     username = session['username']
@@ -76,7 +79,8 @@ def change_info(organization_name):
     return jsonify(message = 'Information changed'), HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/invite', methods=['POST'])
-@no_ban_required
+@user_no_banned_required
+@organization_no_banned_required
 def send_invitation(organization_name):
     data = request.get_json(force = True)
     username = data['username']
@@ -91,7 +95,8 @@ def send_invitation(organization_name):
     return jsonify(message = 'Sent invitation'),HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/accept-invitation', methods=['POST'])
-@no_ban_required
+@user_no_banned_required
+@organization_no_banned_required
 def accept(organization_name):
     data = request.get_json(force = True)
     token = data['token']
@@ -108,13 +113,15 @@ def accept(organization_name):
     return jsonify(message = 'Invalid Token'),HTTPStatus.BAD_REQUEST
 
 @organizations.route('/organization/<organization_name>/members', methods=['GET'])
+@organization_no_banned_required
 def return_members(organization_name):
     organization = Organization.objects.get(organization_name = organization_name)
     usernames = [member.username for member in organization.members]
     return jsonify(members = usernames),HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/members', methods=['DELETE'])
-@no_ban_required
+@user_no_banned_required
+@organization_no_banned_required
 def delete_member(organization_name):
     username = request.get_json(force = True)['username']
     organization = Organization.objects.get(organization_name = organization_name)
@@ -130,14 +137,16 @@ def delete_member(organization_name):
     return jsonify(message = 'Member deleted'), HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/moderators', methods=['GET'])
-@no_ban_required
+@user_no_banned_required
+@organization_no_banned_required
 def get_moderators(organization_name):
     organization = Organization.objects.get(organization_name = organization_name)
     usernames = [member.username for member in organization.moderators]
     return jsonify(moderators = usernames),HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/moderators', methods=['POST'])
-@no_ban_required
+@user_no_banned_required
+@organization_no_banned_required
 def upgrade_to_moderator(organization_name):
     organization = Organization.objects.get(organization_name = organization_name)
     username = request.get_json(force = True)['username']
@@ -148,7 +157,8 @@ def upgrade_to_moderator(organization_name):
     return jsonify(message = 'member is now a moderator'), HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/moderators', methods=['DELETE'])
-@no_ban_required
+@user_no_banned_required
+@organization_no_banned_required
 def delete_moderator(organization_name):
     organization = Organization.objects.get(organization_name = organization_name)
     username = request.get_json(force = True)['username']
@@ -161,13 +171,15 @@ def delete_moderator(organization_name):
 #channels
 
 @organizations.route('/organization/<organization_name>/channels', methods=['GET'])
+@organization_no_banned_required
 def get_channels(organization_name):
     organization = Organization.objects.get(organization_name = organization_name)
     channels = [channel.channel_name for channel in organization.channels if session['username'] in channel.members]
     return jsonify(channels = channels), HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/channels', methods=['POST'])
-@no_ban_required
+@user_no_banned_required
+@organization_no_banned_required
 def create_channel(organization_name):
     data = request.get_json(force = True)
     channel_name = data['name']
@@ -178,13 +190,15 @@ def create_channel(organization_name):
     return '',HTTPStatus.BAD_REQUEST
 
 @organizations.route('/organization/<organization_name>/<channel_name>/members', methods=['GET'])
-@no_ban_required
+@user_no_banned_required
+@organization_no_banned_required
 def get_channel_members(organization_name, channel_name):
     members = Organization.get_channel_members(organization_name, channel_name)
     return jsonify(members = members), HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/<channel_name>/members', methods=['POST'])
-@no_ban_required
+@user_no_banned_required
+@organization_no_banned_required
 def add_member_to_channel(organization_name, channel_name):
     data = request.get_json(force = True)
     member = data['name']
@@ -194,7 +208,8 @@ def add_member_to_channel(organization_name, channel_name):
     return '', HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/<channel_name>/messages', methods=['GET'])
-@no_ban_required
+@user_no_banned_required
+@organization_no_banned_required
 def get_n_channel_messages(organization_name, channel_name):
     data = request.get_json(force = True)
     channel = Organization.get_channel(organization_name, channel_name)
@@ -203,7 +218,8 @@ def get_n_channel_messages(organization_name, channel_name):
     return jsonify(messages = list_of_msg), HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/<channel_name>/messages', methods=['POST'])
-@no_ban_required
+@user_no_banned_required
+@organization_no_banned_required
 def send_message(organization_name, channel_name):
     data = request.get_json(force = True)
     channel = Organization.get_channel(organization_name,channel_name)
