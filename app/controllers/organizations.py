@@ -207,3 +207,22 @@ def send_message(organization_name, channel_name):
     message.save()
     channel.update(push__messages = message)
     return '',HTTPStatus.OK
+
+@organizations.route('/organization/<organization_name>/<channel_name>/bot', methods=['POST'])
+def create_bot(organization_name, channel_name):
+    data = request.get_json(force = True)
+    bot_name = data['name']
+    if User.objects(username=bot_name).count():
+        return jsonify(message='Bot cannot have the same name than a user'), HTTPStatus.BAD_REQUEST
+    bot_url = data['url']
+    channel = Organization.get_channel(organization_name, channel_name)
+    channel.update(**{'set__bots__' + bot_name: bot_url})
+    return jsonify(message='Bot created'), HTTPStatus.CREATED
+
+@organizations.route('/organization/<organization_name>/<channel_name>/bot', methods=['DELETE'])
+def delete_bot(organization_name, channel_name):
+    data = request.get_json(force = True)
+    bot_name = data['name']
+    channel = Organization.get_channel(organization_name, channel_name)
+    channel.update(**{'unset__bots__' + bot_name: 1})
+    return jsonify(message='Bot deleted'), HTTPStatus.OK

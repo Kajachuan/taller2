@@ -12,6 +12,7 @@ class Channel(db.Document):
 
     members = db.ListField(db.StringField())
     messages = db.ListField(db.ReferenceField('Message'))
+    bots = db.DictField(default={'tito':'url_de_tito'})
     meta = {'strict': False}
 
     def clean(self):
