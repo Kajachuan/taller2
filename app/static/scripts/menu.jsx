@@ -31,10 +31,10 @@ class Menu extends React.Component {
     return(
       <div class="menu">
         <h1>Hypechat Back Office</h1>
-        <MenuButton name="Administración de Equipos"
+        <MenuButton name="Administración de Organizaciones"
                     img="/static/img/organization.png"
-                    // Faltan method y url
-                  />
+                    method="get"
+                    url="/admin/organizations/" />
         <MenuButton name="Administración de Usuarios"
                     img="/static/img/user.png"
                     method="get"

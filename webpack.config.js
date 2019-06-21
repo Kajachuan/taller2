@@ -7,7 +7,8 @@ const config = {
     forbidden_words: './app/static/scripts/forbidden_words.jsx',
     home: './app/static/scripts/home.jsx',
     statistics: './app/static/scripts/statistics.jsx',
-    users: './app/static/scripts/users.jsx'
+    users: './app/static/scripts/users.jsx',
+    organizations: './app/static/scripts/organizations.jsx'
   },
   output: {
     path: resolve('app/static/js'),

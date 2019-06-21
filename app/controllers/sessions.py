@@ -2,8 +2,8 @@ from http import HTTPStatus
 from datetime import datetime
 from flask import Blueprint, request, abort, session, current_app, make_response, jsonify
 from ..models.user import User
+from ..decorators.user_no_banned_required import user_no_banned_required
 from ..models.facebook_api import FacebookAPI
-from ..decorators.no_ban_required import no_ban_required
 
 sessions = Blueprint('sessions', __name__)
 
@@ -23,7 +23,7 @@ def login():
         abort(make_response(jsonify(message='You are banned until '
                                              + str(user.ban_date)
                                              + ' because '
-                                             + user.ban_reason), HTTPStatus.UNAUTHORIZED))
+                                             + user.ban_reason), HTTPStatus.FORBIDDEN))
 
     session['username'] = user.username
     current_app.logger.info('The user ' + username + ' is logged in')
@@ -56,7 +56,7 @@ def login_facebook():
     return jsonify(message='The user ' + session['username'] + ' is logged in'), HTTPStatus.OK
 
 @sessions.route('/logout', methods=['DELETE'])
-@no_ban_required
+@user_no_banned_required
 def logout():
     username = session.pop('username')
     current_app.logger.info('The user ' + username + ' was logged out')

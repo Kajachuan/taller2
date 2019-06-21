@@ -2,18 +2,21 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Menu from './menu'
 
-class Users extends React.Component {
+class Organizations extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       errorMessage: '',
       showForm: true,
-      showProfile: false,
-      username: '',
-      firstName: '',
-      lastName: '',
-      email: '',
+      showInfo: false,
+      organizationName: '',
+      owner: '',
+      ubication: '',
       image: '',
+      description: '',
+      welcomeMessage: '',
+      members: [],
+      channels: [],
       banDate: '',
       banReason: '',
       showDate: false
@@ -26,39 +29,41 @@ class Users extends React.Component {
   }
 
   handleChange(event) {
-    this.setState({username: event.target.value});
+    this.setState({organizationName: event.target.value});
   }
 
   handleSubmit(event) {
-    fetch("/profile/" + this.state.username)
+    fetch("/organization/" + this.state.organizationName)
       .then(res => res.json())
       .then(
         (result) => {
           this.setState({
-            firstName: result.first_name,
-            lastName: result.last_name,
-            email: result.email,
+            owner: result.owner,
+            ubication: result.ubication,
             image: result.image,
+            description: result.description,
+            welcomeMessage: result.welcome_message,
             banDate: result.ban_date,
             banReason: result.ban_reason,
             showForm: false,
-            showProfile: true,
+            showInfo: true,
             errorMessage: ''
           });
         },
         (error) => {
           this.setState({
-            errorMessage: 'El usuario no existe'
+            errorMessage: 'La organización no existe'
           });
         }
       )
+
     event.preventDefault();
   }
 
   searchAgain() {
     this.setState({
       showForm: true,
-      showProfile: false,
+      showInfo: false,
       showDate: false
     });
   }
@@ -70,7 +75,7 @@ class Users extends React.Component {
   }
 
   render() {
-    let form, profile, selectDate, dateField, reason;
+    let form, info, selectDate, dateField, reason;
     let today = new Date();
     let month = today.getMonth() + 1;
     let day = today.getDate();
@@ -85,46 +90,48 @@ class Users extends React.Component {
                       (dateDay > 9 ? '' : '0') + dateDay].join('-');
 
     if(this.state.showForm) {
-      form = (<form class="user-search" onSubmit={this.handleSubmit}>
+      form = (<form class="organization-search" onSubmit={this.handleSubmit}>
                 <label>
-                  Nombre de usuario:
-                  <input type="text" value={this.state.username} onChange={this.handleChange} />
+                  Nombre de organización:
+                  <input type="text" value={this.state.organizationName} onChange={this.handleChange} />
                 </label>
                 <input type="submit" value="Buscar"/>
               </form>)
     }
 
     if(this.state.banDate != null) {
-      dateField = (<div><h2>Suspendido hasta: </h2><p>{dateString}</p></div>);
+      dateField = (<div><h2>Suspendida hasta: </h2><p>{dateString}</p></div>);
     }
 
     if(this.state.banReason != null) {
       reason = (<div><h2>Motivo de la suspensión: </h2><p>{this.state.banReason}</p></div>);
     }
 
-    if(this.state.showProfile) {
-      profile = (<div class="user-profile">
-                   <img src={"data:image/png;base64," + this.state.image} height="150" />
-                   <br/>
-                   <h2>Nombre de usuario: </h2><p>{this.state.username}</p>
-                   <br/>
-                   <h2>Email: </h2><p>{this.state.email}</p>
-                   <br/>
-                   <h2>Nombre: </h2><p>{this.state.firstName}</p>
-                   <br/>
-                   <h2>Apellido: </h2><p>{this.state.lastName}</p>
-                   <br/>
-                   <br/>
-                   {dateField}
-                   {reason}
-                   <button class="back-button" onClick={this.searchAgain}>Volver</button>
-                   <button class="ban-button" onClick={this.showBanDate}>Suspender</button>
-                 </div>)
+    if(this.state.showInfo) {
+      info = (<div class="organization-info">
+                <img src={"data:image/png;base64," + this.state.image} height="150" />
+                <br/>
+                <h2>Nombre de la organización: </h2><p>{this.state.organizationName}</p>
+                <br/>
+                <h2>Creador: </h2><p>{this.state.owner}</p>
+                <br/>
+                <h2>Ubicación: </h2><p>{this.state.ubication}</p>
+                <br/>
+                <h2>Descripción: </h2><p>{this.state.description}</p>
+                <br/>
+                <h2>Mensaje de bienvenida: </h2><p>{this.state.welcomeMessage}</p>
+                <br/>
+                <br/>
+                {dateField}
+                {reason}
+                <button class="back-button" onClick={this.searchAgain}>Volver</button>
+                <button class="ban-button" onClick={this.showBanDate}>Suspender</button>
+              </div>)
     }
 
     if(this.state.showDate) {
-      selectDate = (<form class="ban-form" method="post" action="/admin/ban/user">
-                      <input type="hidden" name="username" value={this.state.username}/>
+      selectDate = (<form class="ban-form" method="post" action="/admin/ban/organization">
+                      <input type="hidden" name="organization_name" value={this.state.organizationName}/>
                       <label>
                         Suspender hasta
                         <input type="date" name="ban_date" min={todayString} required/>
@@ -139,13 +146,13 @@ class Users extends React.Component {
     }
 
     return(
-      <div class="users">
+      <div class="organizations">
         <Menu/>
         <center>
-          <h1>Administración de Usuarios</h1>
+          <h1>Administración de Organizaciones</h1>
           {form}
           <p>{this.state.errorMessage}</p>
-          {profile}
+          {info}
           <br/>
           {selectDate}
         </center>
@@ -155,6 +162,6 @@ class Users extends React.Component {
 }
 
 ReactDOM.render(
-  <Users/>,
+  <Organizations/>,
   document.getElementById('content')
 );
