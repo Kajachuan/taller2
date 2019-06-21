@@ -109,7 +109,7 @@ def get_organizations(username):
     return jsonify(organizations = user.organizations), HTTPStatus.OK
 
 @users.route('/firebase-token/<username>', methods=['POST'])
-@no_ban_required
+@user_no_banned_required
 def test_set_firebase_token(username):
     token = request.get_json(force = True)['token']
     User.set_firebase_token(username, token)
