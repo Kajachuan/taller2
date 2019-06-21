@@ -1,4 +1,4 @@
-package com.hypechat.models;
+package com.hypechat.models.channels;
 
 import java.util.List;
 

@@ -7,12 +7,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,6 +27,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.hypechat.API.APIError;
 import com.hypechat.API.ErrorUtils;
 import com.hypechat.API.HypechatRequest;
@@ -33,6 +45,10 @@ import com.hypechat.cookies.ReceivedCookiesInterceptor;
 import com.hypechat.models.auth.LoginBody;
 import com.hypechat.prefs.SessionPrefs;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -42,11 +58,14 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.facebook.Profile.getCurrentProfile;
+
 /**
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity {
 
+    private static final String TAG = "LOGIN";
     // UI references.
     private AutoCompleteTextView mUserView;
     private EditText mPasswordView;
@@ -54,6 +73,8 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputLayout mFloatLabelPassword;
     private View mProgressView;
     private View mLoginFormView;
+    private LoginButton loginFbButton;
+    private CallbackManager mCallbackManager;
 
     private HypechatRequest mHypechatRequest;
 
@@ -102,6 +123,48 @@ public class LoginActivity extends AppCompatActivity {
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
+        mCallbackManager = CallbackManager.Factory.create();
+        loginFbButton = (LoginButton) findViewById(R.id.login_fb_button);
+
+        loginFbButton.setReadPermissions(Arrays.asList("email", "public_profile"));
+
+        LoginManager.getInstance().registerCallback(mCallbackManager,
+                new FacebookCallback<LoginResult>() {
+                    @Override
+                    public void onSuccess(final LoginResult loginResult) {
+                        // Show a progress spinner, and kick off a background task to
+                        // perform the user login attempt.
+                        showProgress(true);
+                        GraphRequest request = GraphRequest.newMeRequest(
+                                loginResult.getAccessToken(),
+                                new GraphRequest.GraphJSONObjectCallback() {
+                                    @Override
+                                    public void onCompleted(JSONObject jsonObject,
+                                                            GraphResponse response) {
+                                        // Getting FB User Data
+                                        Bundle facebookData = getFacebookData(jsonObject);
+                                        String username = facebookData.getString("first_name") + facebookData.getString("last_name");
+                                        attemptLoginToServerWithFacebook(AccessToken.getCurrentAccessToken().getToken(),username);
+                                    }
+                                });
+                        Bundle parameters = new Bundle();
+                        parameters.putString("fields", "first_name,last_name");
+                        request.setParameters(parameters);
+                        request.executeAsync();
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        Log.d(TAG, "Login attempt cancelled.");
+                    }
+
+                    @Override
+                    public void onError(FacebookException error) {
+                        Log.d(TAG, "Login attempt failed.");
+                        deleteAccessToken();
+                    }
+                });
+
         OkHttpClient.Builder okHttpClient = new OkHttpClient().newBuilder()
                 .connectTimeout(60 * 5, TimeUnit.SECONDS)
                 .readTimeout(60 * 5, TimeUnit.SECONDS)
@@ -118,6 +181,58 @@ public class LoginActivity extends AppCompatActivity {
 
         // Crear conexión a la API
         mHypechatRequest = mLoginRestAdapter.create(HypechatRequest.class);
+    }
+
+    private void deleteAccessToken() {
+        AccessTokenTracker accessTokenTracker = new AccessTokenTracker() {
+            @Override
+            protected void onCurrentAccessTokenChanged(
+                    AccessToken oldAccessToken,
+                    AccessToken currentAccessToken) {
+
+                if (currentAccessToken == null){
+                    //User logged out
+                    SessionPrefs.get(LoginActivity.this).clearToken();
+                    LoginManager.getInstance().logOut();
+                }
+            }
+        };
+    }
+
+    private Bundle getFacebookData(JSONObject object) {
+        Bundle bundle = new Bundle();
+        try {
+            if (object.has("first_name"))
+                bundle.putString("first_name", object.getString("first_name"));
+            if (object.has("last_name"))
+                bundle.putString("last_name", object.getString("last_name"));
+        } catch (Exception e) {
+            Log.d(TAG, "BUNDLE Exception : "+e.toString());
+        }
+        return bundle;
+    }
+
+    private void attemptLoginToServerWithFacebook(final String token, final String username) {
+        Call<Void> loginWithFbCall = mHypechatRequest.logInWithFacebook(token);
+        loginWithFbCall.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                processResponseLoginFb(response,token,username);
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                showProgress(false);
+                showLoginError(t.getMessage());
+            }
+        });
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     /**
@@ -210,6 +325,34 @@ public class LoginActivity extends AppCompatActivity {
         } else {
             // Guardar usuario en preferencias
             SessionPrefs.get(LoginActivity.this).saveUser(userLoginBody);
+            Toast.makeText(this, R.string.successful_login, Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+        }
+    }
+
+    private void processResponseLoginFb(Response<Void> response, String token, String username) {
+        // Mostrar progreso
+        showProgress(false);
+
+        // Procesar errores
+        if (!response.isSuccessful()) {
+            String error;
+            if (response.errorBody()
+                    .contentType()
+                    .subtype()
+                    .equals("json")) {
+                APIError apiError = ErrorUtils.parseError(response);
+                assert apiError != null;
+                error = apiError.message();
+            } else {
+                error = response.message();
+            }
+            showLoginError(error);
+        } else {
+            // Guardar usuario en preferencias
+            SessionPrefs.get(LoginActivity.this).saveUserToken(token);
+            SessionPrefs.get(LoginActivity.this).saveUser(username);
             Toast.makeText(this, R.string.successful_login, Toast.LENGTH_SHORT).show();
             startActivity(new Intent(this, MainActivity.class));
             finish();

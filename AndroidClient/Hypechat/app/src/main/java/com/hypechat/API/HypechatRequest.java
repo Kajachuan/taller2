@@ -1,5 +1,6 @@
 package com.hypechat.API;
 
+import com.facebook.AccessToken;
 import com.hypechat.models.invitations.AcceptInvitationBody;
 import com.hypechat.models.auth.ChangePasswordBody;
 import com.hypechat.models.channels.ChannelCreateBody;
@@ -83,4 +84,7 @@ public interface HypechatRequest {
     Call<Void> sendMessage(@Path("organization_name") String organization_name,
                                       @Path("channel_name") String channel_name,
                                       @Body MessageBodyPost messageBody);
+
+    @POST("/login/facebook")
+    Call<Void> logInWithFacebook(@Header("Authorization") String token);
 }

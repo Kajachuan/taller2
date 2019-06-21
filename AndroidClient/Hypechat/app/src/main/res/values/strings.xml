@@ -6,7 +6,7 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Cabecera del panel de navegación</string>
     <string name="action_settings">Ajustes</string>
-    <string name="action_profile">Perfil</string>
+    <string name="action_profile">Mi perfil</string>
     <string name="action_logout">Cerrar sesión</string>
     <string name="enter_message">Escriba un mensaje</string>
     <string name="create_account"><b>Aún no tienes una cuenta?</b> <u>Crea una</u></string>
@@ -16,7 +16,12 @@
     <string name="inicio">Inicio</string>
     <string name="channels">Canales</string>
 
+    <string name="action_search_profile">Buscar un perfil</string>
+
+    <string name="action_about_channel">Acerca del canal</string>
+
     <string name="title_activity_login">Iniciar sesión</string>
+    <string name="login_with_facebook">INICIAR SESIÓN CON FACEBOOK</string>
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
@@ -75,5 +80,11 @@
 
     <string name="new_channel">Añadir canal</string>
     <string name="privado">Canal privado</string>
-    <string name="load_msg">Cargando mensajes...</string>
+    <string name="load_msg">Cargando mensajes…</string>
+
+    <string name="facebook_app_id">2286595768249304</string>
+    <string name="fb_login_protocol_scheme">fb2286595768249304</string>
+
+    <string name="search_one_profile">Buscar perfil de usuario</string>
+    <string name="search">Buscar</string>
 </resources>

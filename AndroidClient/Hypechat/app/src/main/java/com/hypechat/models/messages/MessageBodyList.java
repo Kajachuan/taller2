@@ -2,15 +2,15 @@ package com.hypechat.models.messages;
 
 import java.util.List;
 
-public class MessageBody {
+public class MessageBodyList {
 
-    private List<Message> messageList;
+    private List<List<String>> messages;
 
-    public MessageBody(List<Message> messages) {
-        this.messageList = messages;
+    public MessageBodyList(List<List<String>> messages) {
+        this.messages = messages;
     }
 
-    public List<Message> getMessageList() {
-        return this.messageList;
+    public List<List<String>> getMessageList() {
+        return this.messages;
     }
 }

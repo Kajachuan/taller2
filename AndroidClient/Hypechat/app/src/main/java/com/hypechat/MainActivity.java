@@ -26,6 +26,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.login.LoginManager;
 import com.hypechat.API.APIError;
 import com.hypechat.API.ErrorUtils;
 import com.hypechat.API.HypechatRequest;
@@ -307,6 +308,7 @@ public class MainActivity extends AppCompatActivity
             showMainError(error);
         } else {
             SessionPrefs.get(MainActivity.this).logOut();
+            LoginManager.getInstance().logOut();
             finish();
             Intent login = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(login);
@@ -349,13 +351,16 @@ public class MainActivity extends AppCompatActivity
 
                 // show it
                 alertDialog.show();
-            }else
+            } else
             if(id == R.id.action_organization) {
                 if(mOrgsSpinner.getAdapter().getCount() > 0 &&
                         (!mOrgsSpinner.getSelectedItem().toString().equals("Inicio"))){
                     Fragment fragment = OrganizationFragment.newInstance(true);
                     displaySelectedFragment(fragment);
                 }
+            } else if(id == R.id.action_search_profile) {
+                Intent search_profile = new Intent(this, SearchProfileActivity.class);
+                startActivity(search_profile);
             }
 
         return super.onOptionsItemSelected(item);

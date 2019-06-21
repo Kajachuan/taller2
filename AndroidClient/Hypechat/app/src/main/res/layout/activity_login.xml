@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-
+    android:fadeScrollbars="false"
     android:fitsSystemWindows="true"
     tools:context=".LoginActivity"
     >
@@ -100,6 +100,19 @@
                 android:text="@string/action_sign_in"
                 android:textColor="@android:color/white"
                 android:textStyle="bold" />
+
+            <com.facebook.login.widget.LoginButton
+                xmlns:facebook="http://schemas.android.com/apk/res-auto"
+                facebook:com_facebook_login_text="@string/login_with_facebook"
+                android:id="@+id/login_fb_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="11dp"
+                android:paddingBottom="11dp"
+                android:textStyle="bold"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="16dp"
+                style="@style/FacebookLoginButton"/>
 
             <TextView
                 android:id="@+id/link_signup"

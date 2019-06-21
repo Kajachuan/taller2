@@ -13,7 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".PasswordRestoreActivity"></activity>
+        <activity android:name=".SearchProfileActivity"></activity>
+        <activity android:name=".PasswordRestoreActivity" />
         <activity android:name=".ProfileActivity" />
         <activity
             android:name=".RegistroActivity"
@@ -23,6 +24,10 @@
             android:label="@string/title_activity_login"
             android:parentActivityName=".MainActivity"
             android:windowSoftInputMode="stateUnchanged">
+            <intent-filter>
+                <data android:scheme="@string/fb_login_protocol_scheme" />
+            </intent-filter>
+
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.hypechat.MainActivity" />
@@ -37,6 +42,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
     </application>
 
 </manifest>

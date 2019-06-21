@@ -1,4 +1,4 @@
-package com.hypechat.models;
+package com.hypechat.models.invitations;
 
 import java.util.Dictionary;
 import java.util.List;

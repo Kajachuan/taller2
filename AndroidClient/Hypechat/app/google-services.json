@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "2141311389",
+    "firebase_url": "https://hypechat-647c1.firebaseio.com",
+    "project_id": "hypechat-647c1",
+    "storage_bucket": "hypechat-647c1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:2141311389:android:48fb2973b851312d",
+        "android_client_info": {
+          "package_name": "com.hypechat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "2141311389-bo3ouqq0l7j82dembk5dbcvu3j82gc92.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hypechat",
+            "certificate_hash": "3e715cf2d620cc454537c55bd86c1024600f834b"
+          }
+        },
+        {
+          "client_id": "2141311389-0gomlsulr27ms8npk77t9f6s7920smud.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHfOJC1FHaa5d0dEocHKGPZiuA2SFJlX0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "2141311389-0gomlsulr27ms8npk77t9f6s7920smud.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

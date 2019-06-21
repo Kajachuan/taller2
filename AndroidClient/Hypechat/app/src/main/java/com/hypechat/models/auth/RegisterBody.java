@@ -1,4 +1,4 @@
-package com.hypechat.models;
+package com.hypechat.models.auth;
 
 import com.google.gson.annotations.SerializedName;
 

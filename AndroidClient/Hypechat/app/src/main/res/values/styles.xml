@@ -9,6 +9,11 @@
         <item name="colorError">@color/error</item>
     </style>
 
+    <style name="FacebookLoginButton">
+        <item name="android:color">@color/white</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="AppToolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="android:textColorPrimary">@android:color/white</item>
         <item name="android:textColorSecondary">@android:color/white</item>
