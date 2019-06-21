@@ -132,7 +132,7 @@ class TestOrganizationsController(object):
         client.post('/login', data = '{"username" : "testlogin", "password" : "mipass"}')
         response = client.delete('/organization/Taller2/members', data = '{"username" : "orgacreator"}')
         assert response.status_code == HTTPStatus.FORBIDDEN
-        assert response.get_json()['message'] == 'Only owner can delete a member'
+        assert response.get_json()['message'] == 'Only owner and moderators can delete a member'
 
     def test_delete_member_inexistent_organization(self):
         response = client.delete('/organization/OrgaDatos/members', data = '{"username" : "orgacreator"}')
@@ -165,6 +165,9 @@ class TestOrganizationsController(object):
         response = client.get('/organization/Taller2/members')
         assert 'IronMan' in response.get_json()['members']
         response = client.post('/organization/Taller2/moderators', data = '{"username":"IronMan"}')
+        assert response.status_code == HTTPStatus.FORBIDDEN
+        client.post('/login', data = '{"username" : "orgacreator", "password" : "mipass"}')
+        response = client.post('/organization/Taller2/moderators', data = '{"username":"IronMan"}')
         assert response.status_code == HTTPStatus.OK
         response = client.get('/organization/Taller2/moderators')
         assert response.status_code == HTTPStatus.OK
@@ -172,6 +175,9 @@ class TestOrganizationsController(object):
         assert "IronMan" in response.get_json()['moderators']
 
     def test_delete_moderator(self):
+        client.post('/login', data = '{"username" : "IronMan", "password" : "mipass"}')
+        response = client.delete('/organization/Taller2/moderators', data = '{"username" : "IronMan" }')
+        assert response.status_code == HTTPStatus.FORBIDDEN
         client.post('/login', data = '{"username" : "orgacreator", "password" : "mipass"}')
         response = client.delete('/organization/Taller2/moderators', data = '{"username" : "IronMan" }')
         assert response.status_code == HTTPStatus.OK

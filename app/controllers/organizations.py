@@ -126,9 +126,10 @@ def delete_member(organization_name):
     username = request.get_json(force = True)['username']
     organization = Organization.objects.get(organization_name = organization_name)
     user = User.objects.get(username = username)
-    if not organization.is_owner(User.objects.get(username = session['username'])):
-        current_app.logger.debug('Not owner tried to delete a member from %s',organization_name)
-        return jsonify(message = 'Only owner can delete a member'), HTTPStatus.FORBIDDEN
+    current_user = User.objects.get(username = session['username'])
+    if not organization.is_owner(current_user) and not organization.is_moderator(current_user):
+        current_app.logger.debug('Not owner nor moderator tried to delete a member from %s',organization_name)
+        return jsonify(message = 'Only owner and moderators can delete a member'), HTTPStatus.FORBIDDEN
     if not organization.is_member(user):
         current_app.logger.debug('Tried to remove not a member from %s',organization_name)
         return jsonify(message = 'User is not member'), HTTPStatus.BAD_REQUEST
@@ -149,6 +150,9 @@ def get_moderators(organization_name):
 @organization_no_banned_required
 def upgrade_to_moderator(organization_name):
     organization = Organization.objects.get(organization_name = organization_name)
+    current_user = User.objects.get(username = session['username'])
+    if not organization.is_owner(current_user):
+        return jsonify(message = 'You are not the owner'), HTTPStatus.FORBIDDEN
     username = request.get_json(force = True)['username']
     user = User.objects.get(username = username)
     if not organization.is_member(user):
@@ -161,6 +165,9 @@ def upgrade_to_moderator(organization_name):
 @organization_no_banned_required
 def delete_moderator(organization_name):
     organization = Organization.objects.get(organization_name = organization_name)
+    current_user = User.objects.get(username = session['username'])
+    if not organization.is_owner(current_user):
+        return jsonify(message = 'You are not the owner'), HTTPStatus.FORBIDDEN
     username = request.get_json(force = True)['username']
     user = User.objects.get(username = username)
     if not organization.is_moderator(user):
@@ -202,8 +209,7 @@ def get_channel(organization_name, channel_name):
 @organization_no_banned_required
 def change_channel_info(organization_name, channel_name):
     channel = Organization.get_channel(organization_name,channel_name)
-    username = session['username']
-    if not channel.is_owner(User.objects.get(username = username).username):
+    if not channel.is_owner(session['username']):
         return jsonify(message = 'You are not the owner'), HTTPStatus.FORBIDDEN
     data = request.get_json(force = True)
     private = data.get('privado', channel.private)
