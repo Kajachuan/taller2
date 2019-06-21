@@ -118,3 +118,7 @@ class TestUsersController(object):
         response = client.get('/profile/MiNombre/organizations')
         assert response.status_code == HTTPStatus.OK
         assert 'Avengers' in response.get_json()['organizations']
+
+    def test_set_firebase_token(self):
+        response = client.post('/firebase-token/IronMan', data = '{"token" : "validFirebaseToken"}')
+        assert response.status_code == HTTPStatus.OK

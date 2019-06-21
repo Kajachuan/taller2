@@ -87,3 +87,10 @@ def get_invitations(username):
 def get_organizations(username):
     user = User.objects.get(username = username)
     return jsonify(organizations = user.organizations), HTTPStatus.OK
+
+@users.route('/firebase-token/<username>', methods=['POST'])
+@no_ban_required
+def test_set_firebase_token(username):
+    token = request.get_json(force = True)['token']
+    User.set_firebase_token(username, token)
+    return jsonify(message = 'Saved token'), HTTPStatus.OK
