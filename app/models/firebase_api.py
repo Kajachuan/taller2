@@ -4,7 +4,7 @@ from firebase_admin import messaging
 from os import environ
 
 PRODUCTION = 'production'
-CREDENTIALS_PATH = 'fbexample-1633e-firebase-adminsdk-q9ga2-2e3cbe2925.json' #example
+CREDENTIALS_PATH = '../config/hypechat-647c1-firebase-adminsdk-bo1d5-77d6497801.json' #example
 SENDER = 'sender'
 MESSAGE = 'message'
 TIMESTAMP = 'timestamp'
