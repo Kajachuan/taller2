@@ -36,6 +36,31 @@ class TestChannelsControllers(object):
         assert 'EndGame' in response.get_json()['channels']
         assert len(response.get_json()['channels']) == 1
 
+    def test_get_channel(self):
+        response = client.get('/organization/Avengers/EndGame')
+        assert response.status_code == HTTPStatus.OK
+        assert response.get_json()['owner'] == 'IronMan'
+        assert response.get_json()['is_private'] == True
+        assert response.get_json()['description'] == 'No description'
+        assert response.get_json()['welcome_message'] == 'Welcome'
+
+    def test_change_channel_info(self):
+        response = client.post('/organization/Avengers/EndGame', data='{"welcome_message":"Custom message"}')
+        assert response.status_code == HTTPStatus.OK
+        assert response.get_json()['message'] == 'Information changed'
+        response = client.get('/organization/Avengers/EndGame')
+        assert response.status_code == HTTPStatus.OK
+        assert response.get_json()['welcome_message'] == 'Custom message'
+
+    def test_fail_change_channel_info_not_owner(self):
+        client.delete('/logout')
+        response = client.post('/organization/Avengers/EndGame', data='{"description":"Custom description"}')
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        client.post('/login', data='{"username" : "Thor", "password" : "mipass"}')
+        response = client.post('/organization/Avengers/EndGame', data='{"description":"Custom description"}')
+        assert response.status_code == HTTPStatus.FORBIDDEN
+        client.post('/login', data='{"username": "IronMan", "password": "mipass"}')
+
     def test_cant_create_same_channel_in_organization(self):
         response = client.post('/organization/Avengers/channels', data = '{"name" : "EndGame", "privado" : "True"}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
