@@ -189,6 +189,31 @@ def create_channel(organization_name):
         return '',HTTPStatus.CREATED
     return '',HTTPStatus.BAD_REQUEST
 
+@organizations.route('/organization/<organization_name>/<channel_name>', methods=['GET'])
+@user_no_banned_required
+def get_channel(organization_name, channel_name):
+    channel = Organization.get_channel(organization_name,channel_name)
+    return jsonify(owner=channel.owner, is_private=channel.private,
+                   description=channel.description, welcome_message=channel.welcome_message,
+                   messages=len(channel.messages), members=len(channel.members)), HTTPStatus.OK
+
+@organizations.route('/organization/<organization_name>/<channel_name>', methods=['POST'])
+@user_no_banned_required
+@organization_no_banned_required
+def change_channel_info(organization_name, channel_name):
+    channel = Organization.get_channel(organization_name,channel_name)
+    username = session['username']
+    if not channel.is_owner(User.objects.get(username = username).username):
+        return jsonify(message = 'You are not the owner'), HTTPStatus.FORBIDDEN
+    data = request.get_json(force = True)
+    private = data.get('privado', channel.private)
+    description = data.get('description', channel.description)
+    welcome_message = data.get('welcome_message', channel.welcome_message)
+    channel.update(private = private)
+    channel.update(description = description)
+    channel.update(welcome_message = welcome_message)
+    return jsonify(message = 'Information changed'), HTTPStatus.OK
+
 @organizations.route('/organization/<organization_name>/<channel_name>/members', methods=['GET'])
 @user_no_banned_required
 @organization_no_banned_required
