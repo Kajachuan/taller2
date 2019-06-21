@@ -240,7 +240,7 @@ def get_n_channel_messages(organization_name, channel_name):
     end = request.args.get('end', '')
     channel = Organization.get_channel(organization_name, channel_name)
     messages = channel.get_messages(int(init), int(end))
-    list_of_msg = [(message.timestamp,message.sender,message.message) for message in messages]
+    list_of_msg = [(message.timestamp,message.sender,message.message,message.type) for message in messages]
     return jsonify(messages = list_of_msg), HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/<channel_name>/message', methods=['POST'])
@@ -250,7 +250,11 @@ def send_message(organization_name, channel_name):
     data = request.get_json(force = True)
     sender = data['sender']
     channel = Organization.get_channel(organization_name,channel_name)
-    message = Message(message = data['message'], sender = sender, timestamp = datetime.now(), creation_date = datetime.now())
+    try:
+        type = data['type']
+        message = Message(message = data['message'], sender = sender, timestamp = datetime.now(), creation_date = datetime.now(), type = type)
+    except KeyError:
+        message = Message(message = data['message'], sender = sender, timestamp = datetime.now(), creation_date = datetime.now())
     message.save()
     channel.update(push__messages = message)
     User.objects.get(username=sender).update(inc__sent_messages=1)

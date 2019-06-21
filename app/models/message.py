@@ -5,4 +5,5 @@ class Message(db.Document):
     sender = db.StringField(required = True)
     message = db.StringField(required = True)
     creation_date = db.DateTimeField(required=True)
+    type = db.StringField(required = True, default = 'message')
     meta = {'strict': False}

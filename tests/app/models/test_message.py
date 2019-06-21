@@ -13,3 +13,9 @@ class TestMessage(object):
         assert self.message.timestamp.day == datetime.today().day
         assert self.message.timestamp.month == datetime.today().month
         assert self.message.timestamp.year == datetime.today().year
+        assert self.message.type == 'message'
+
+    def test_type_message(self):
+        snippet_message = Message(timestamp=datetime.now(), sender='User', message='some code', creation_date=datetime.now(),type='snippet')
+        assert snippet_message.type == 'snippet'
+        assert snippet_message.type 

@@ -133,3 +133,14 @@ class TestChannelsControllers(object):
         assert message_wout_tstamp == ['Hello1','Hello2','Hello3']
         response = client.get('/organization/Avengers/EndGame/messages?init=6&end=10')
         assert response.get_json()['messages'] == []
+
+    def test_types_of_messages(self):
+        data = ['{"sender":"IronMan","message":"normal message"}',
+                '{"sender":"IronMan","message":"some code", "type":"snippet"}',
+                '{"sender":"Thor","message":"encoded image","type":"image"}',
+                '{"sender":"Thor","message":"encoded file","type":"file"}']
+        for msg in data:
+            client.post('/organization/Avengers/EndGame/message', data = msg)
+        response = client.get('/organization/Avengers/EndGame/messages?init=1&end=4')
+        message_types = [message[3] for message in response.get_json()['messages']]
+        assert message_types == ['message', 'snippet', 'image', 'file']
