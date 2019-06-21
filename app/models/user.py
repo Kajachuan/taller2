@@ -26,6 +26,8 @@ class User(db.Document):
     ban_date = db.DateTimeField(required=False)
     ban_reason = db.StringField(required=False)
     facebook_id = db.StringField(required=False)
+    firebase_token = db.StringField(required=False)
+    sent_messages = db.IntField(default=0)
     meta = {'strict': False}
 
     def clean(self):
@@ -58,6 +60,11 @@ class User(db.Document):
     def add_to_organization(cls, username, organization_name):
         user = cls.objects.get(username = username)
         user.update(push__organizations = organization_name)
+
+    @classmethod
+    def set_firebase_token(cls, username, token):
+        user = cls.objects.get(username = username)
+        user.update(firebase_token = token)
 
     def has_password(self, password):
         cipher_suite = Fernet(environ['CRYPT_KEY'].encode())

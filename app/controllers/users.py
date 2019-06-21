@@ -4,6 +4,7 @@ from datetime import datetime
 from flask import Blueprint, request, session, abort, jsonify, current_app, make_response
 from cryptography.fernet import Fernet
 from ..models.user import User
+from ..models.organization import Organization
 from ..models.validators.password_validator import PasswordValidator
 from ..exceptions.register_error import RegisterError
 from ..decorators.user_no_banned_required import user_no_banned_required
@@ -70,8 +71,27 @@ def get_profile(username):
         current_app.logger.info('The user does not exist')
         abort(HTTPStatus.BAD_REQUEST)
 
+    organizations = {}
+    for organization_name in user.organizations:
+        organization = Organization.objects.get(organization_name=organization_name)
+        if user == organization.owner:
+            organizations[organization_name] = {'rol': 'owner'}
+        elif user in organization.moderators:
+            organizations[organization_name] = {'rol': 'moderator'}
+        else:
+            organizations[organization_name] = {'rol': 'member'}
+
+        for channel in organization.channels:
+            if user.username == channel.owner:
+                organizations[organization_name]['channels'] = organizations[organization_name].get('channels', {})
+                organizations[organization_name]['channels'][channel.channel_name] = "owner"
+            elif user.username in channel.members:
+                organizations[organization_name]['channels'] = organizations[organization_name].get('channels', {})
+                organizations[organization_name]['channels'][channel.channel_name] = "member"
+
     return jsonify(first_name=user.first_name, last_name=user.last_name,
                    image=user.encoded_image, email=user.email,
+                   organizations=organizations, messages=user.sent_messages,
                    ban_date=user.ban_date, ban_reason=user.ban_reason), HTTPStatus.OK
 
 @users.route('/profile/<username>/invitations', methods=['GET'])
@@ -87,3 +107,10 @@ def get_invitations(username):
 def get_organizations(username):
     user = User.objects.get(username = username)
     return jsonify(organizations = user.organizations), HTTPStatus.OK
+
+@users.route('/firebase-token/<username>', methods=['POST'])
+@no_ban_required
+def test_set_firebase_token(username):
+    token = request.get_json(force = True)['token']
+    User.set_firebase_token(username, token)
+    return jsonify(message = 'Saved token'), HTTPStatus.OK

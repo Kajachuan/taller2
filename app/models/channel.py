@@ -32,7 +32,9 @@ class Channel(db.Document):
     def get_messages(self, since = 1, to = 1):
         start = len(self.messages) - to
         end = len(self.messages) - since + 1
+        start = 0 if start < 0 else start
         return self.messages[start: end]
+
 
     @classmethod
     def add_member(cls, channel_name, requester, username):
