@@ -5,6 +5,7 @@ from flask import Blueprint, request, abort, session, current_app, jsonify
 from ..models.organization import Organization
 from ..models.user import User
 from ..models.message import Message
+from ..models.firebase_api import FirebaseApi
 from ..decorators.no_ban_required import no_ban_required
 
 organizations = Blueprint('organizations', __name__)
@@ -206,4 +207,7 @@ def send_message(organization_name, channel_name):
     message = Message(message = data['message'], sender = data['sender'], timestamp = datetime.now(), creation_date = datetime.now())
     message.save()
     channel.update(push__messages = message)
+    response = FirebaseApi().send_message_to_users(channel.members, message, organization_name, channel_name)
+    if not response:
+        return jsonify(message = 'Firebase error'), HTTPStatus.SERVICE_UNAVAILABLE
     return '',HTTPStatus.OK

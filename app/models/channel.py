@@ -33,7 +33,6 @@ class Channel(db.Document):
         start = len(self.messages) - to
         end = len(self.messages) - since + 1
         start = 0 if start < 0 else start
-        print(start, end)
         return self.messages[start: end]
 
 
