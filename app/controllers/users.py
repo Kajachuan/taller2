@@ -91,7 +91,7 @@ def get_profile(username):
 
     return jsonify(first_name=user.first_name, last_name=user.last_name,
                    image=user.encoded_image, email=user.email,
-                   organizations=organizations,
+                   organizations=organizations, messages=user.sent_messages,
                    ban_date=user.ban_date, ban_reason=user.ban_reason), HTTPStatus.OK
 
 @users.route('/profile/<username>/invitations', methods=['GET'])

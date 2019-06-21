@@ -203,10 +203,12 @@ def get_n_channel_messages(organization_name, channel_name):
 @no_ban_required
 def send_message(organization_name, channel_name):
     data = request.get_json(force = True)
+    sender = data['sender']
     channel = Organization.get_channel(organization_name,channel_name)
-    message = Message(message = data['message'], sender = data['sender'], timestamp = datetime.now(), creation_date = datetime.now())
+    message = Message(message = data['message'], sender = sender, timestamp = datetime.now(), creation_date = datetime.now())
     message.save()
     channel.update(push__messages = message)
+    User.objects.get(username=sender).update(inc__sent_messages=1)
     response = FirebaseApi().send_message_to_users(channel.members, message, organization_name, channel_name)
     if not response:
         return jsonify(message = 'Firebase error'), HTTPStatus.SERVICE_UNAVAILABLE
