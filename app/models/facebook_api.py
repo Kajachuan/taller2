@@ -22,10 +22,10 @@ class MockFacebookAPI(object):
 
 class FacebookAPI(object):
     def __init__(self, token):
-        # if environ['FLASK_ENV'] == 'production':
-        self.api = GraphAPI(access_token=token, version='3.1')
-        #else:
-        #    self.api = MockFacebookAPI(access_token=token)
+        if environ['FLASK_ENV'] == 'production':
+            self.api = GraphAPI(access_token=token, version='3.1')
+        else:
+            self.api = MockFacebookAPI(access_token=token)
 
     def get_id(self):
         profile = self.api.get_object(id='me', fields='id')
