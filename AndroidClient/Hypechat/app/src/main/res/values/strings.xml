@@ -87,4 +87,15 @@
 
     <string name="search_one_profile">Buscar perfil de usuario</string>
     <string name="search">Buscar</string>
+    <string name="reload_no_info">No se pudo cargar la información \n Por favor presione para recargar</string>
+    <string name="privacy">Privacidad</string>
+
+    <string name="publico_2">Público</string>
+    <string name="privado_2">Privado</string>
+    <string name="description">Descripción</string>
+    <string name="welcome_message">Mensaje de bienvenida</string>
+    <string name="msg_quantity">Cantidad de mensajes</string>
+    <string name="members_quantity">Cantidad de miembros</string>
+    <string name="owner_name">Nombre del propietario</string>
+    <string name="channel_name">Nombre del canal</string>
 </resources>

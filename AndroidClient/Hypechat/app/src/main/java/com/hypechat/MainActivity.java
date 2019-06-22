@@ -32,6 +32,7 @@ import com.hypechat.API.ErrorUtils;
 import com.hypechat.API.HypechatRequest;
 import com.hypechat.cookies.AddCookiesInterceptor;
 import com.hypechat.cookies.ReceivedCookiesInterceptor;
+import com.hypechat.fragments.AboutChannelFragment;
 import com.hypechat.fragments.ChatChannelFragment;
 import com.hypechat.fragments.JoinOrganizationFragment;
 import com.hypechat.fragments.NewChannelFragment;
@@ -361,6 +362,10 @@ public class MainActivity extends AppCompatActivity
             } else if(id == R.id.action_search_profile) {
                 Intent search_profile = new Intent(this, SearchProfileActivity.class);
                 startActivity(search_profile);
+            } else if(id == R.id.action_about_channel){
+                Fragment fragment = AboutChannelFragment.newInstance(mOrgsSpinner.getSelectedItem().toString(),
+                        String.valueOf(getTitle()));
+                displaySelectedFragment(fragment);
             }
 
         return super.onOptionsItemSelected(item);
