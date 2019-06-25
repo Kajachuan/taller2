@@ -2,6 +2,7 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import messaging
 from os import environ
+from .user import User
 
 PRODUCTION = 'production'
 CREDENTIALS_PATH = '../config/hypechat-647c1-firebase-adminsdk-bo1d5-77d6497801.json' #example
@@ -34,6 +35,19 @@ class FirebaseApi(object):
             )
             response = messaging.send(message)
         return True
+
+    def send_notification_to_user(self, username, organization_name, channel_name):
+        user = User.objects.get(username = username)
+        token = user.firebase_token
+        if environ['FLASK_ENV'] == PRODUCTION:
+            message = messaging.Message(
+            notification=messaging.Notification(
+            title='Te mencionaron en %s'%channel_name,
+            body='Fuiste mencionado en %s en el canal %s'%(organization_name, channel_name),
+            ),
+            token = token,
+            )
+            messaging.send(message)
 
     def get_users_tokens(list_username):
         tokens = []
