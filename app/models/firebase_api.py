@@ -5,7 +5,7 @@ from os import environ
 from .user import User
 
 PRODUCTION = 'production'
-CREDENTIALS_PATH = '../config/hypechat-647c1-firebase-adminsdk-bo1d5-77d6497801.json' #example
+CREDENTIALS_PATH = '../config/hypechat-647c1-firebase-adminsdk-bo1d5-77d6497801.json'
 SENDER = 'sender'
 MESSAGE = 'message'
 TIMESTAMP = 'timestamp'
@@ -51,7 +51,8 @@ class FirebaseApi(object):
 
     def get_users_tokens(list_username):
         tokens = []
-        for user in list_username:
+        users = [User.objects.get(username) for username in list_username]
+        for user in users:
             token = user.firebase_token
             if token:
                 tokens.append(token)
