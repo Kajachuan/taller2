@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,31 +7,36 @@
     android:orientation="vertical"
     tools:context=".SearchProfileActivity">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar_search_profile"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme" />
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:padding="20dp"
-            android:orientation="vertical" >
+            android:orientation="vertical">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar_search_profile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorPrimary"
+                android:minHeight="?attr/actionBarSize"
+                android:theme="@style/Base.ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+            <ProgressBar
+                android:id="@+id/progressBar_profile_searched"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="match_parent"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:layout_height="wrap_content" />
 
             <LinearLayout
+                android:id="@+id/search_user_prompt"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/search_user_prompt"
-                android:orientation="vertical"
-                >
+                android:padding="20dp"
+                android:layout_gravity="center"
+                android:orientation="vertical">
 
                 <ImageView
                     android:id="@+id/imageView_search_user"
@@ -86,16 +91,18 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/user_statistics"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="gone"
-                android:id="@+id/user_statistics"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:layout_gravity="center"
+                android:visibility="gone">
 
                 <ImageView
-                    android:id="@+id/imageView_user"
+                    android:id="@+id/imageView_user_searched"
                     android:layout_width="wrap_content"
-                    android:layout_height="150dp"
+                    android:layout_height="100dp"
                     android:layout_gravity="center"
                     android:tint="@color/colorPrimary"
                     app:srcCompat="@drawable/one_profile" />
@@ -105,55 +112,171 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:gravity="center"
-                    android:text="username" />
+                    android:textStyle="bold"
+                    android:textSize="24sp"
+                    android:gravity="center" />
 
                 <TextView
-                    android:id="@+id/textView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="Estadisticas" />
-
-                <TextView
-                    android:id="@+id/textView3"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="ASDASDASDADS" />
-
-                <TextView
-                    android:id="@+id/textView6"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="ASDASDASDADS" />
-
-                <TextView
-                    android:id="@+id/textView2"
+                    android:id="@+id/title1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="25dp"
                     android:gravity="center"
-                    android:text="TITULO 1" />
+                    android:text="@string/name"
+                    android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/textView5"
+                    android:id="@+id/name_searched"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="ASDASDASDADS" />
+                    android:text="" />
 
                 <TextView
-                    android:id="@+id/textView4"
+                    android:id="@+id/title2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="25dp"
                     android:gravity="center"
-                    android:text="TITULO 2" />
+                    android:text="@string/last_name"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/last_name_searched"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="" />
+
+                <TextView
+                    android:id="@+id/title3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="25dp"
+                    android:gravity="center"
+                    android:text="@string/prompt_email"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/email_searched"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="" />
+
+                <TextView
+                    android:id="@+id/title4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="25dp"
+                    android:gravity="center"
+                    android:text="@string/organizations"
+                    android:textStyle="bold" />
+
+                <Spinner
+                    android:id="@+id/organizations_searched"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="8dp"
+                    android:paddingLeft="8dp"
+                    android:paddingEnd="0dp"
+                    android:paddingRight="0dp"
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:text=""
+                     />
+
+                <TextView
+                    android:id="@+id/titlechannels"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="25dp"
+                    android:gravity="center"
+                    android:text="@string/channels_in_org"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/channels_searched"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="" />
+
+                <TextView
+                    android:id="@+id/title5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="25dp"
+                    android:gravity="center"
+                    android:text="@string/msg_quantity"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/messages_searched"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="" />
+
+                <TextView
+                    android:id="@+id/title_rol"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="25dp"
+                    android:gravity="center"
+                    android:text="@string/rol"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/rol_searched"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="" />
+
+                <LinearLayout
+                    android:id="@+id/ban_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/title7"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="25dp"
+                        android:gravity="center"
+                        android:text="@string/raz_n_de_ban"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/ban_date_searched"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="" />
+
+                    <TextView
+                        android:id="@+id/title6"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="25dp"
+                        android:gravity="center"
+                        android:text="@string/fecha_de_ban"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/ban_reason_searched"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="" />
+
+
+                </LinearLayout>
+
             </LinearLayout>
 
         </LinearLayout>
-    </ScrollView>
 
-</LinearLayout>
+</ScrollView>

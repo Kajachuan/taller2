@@ -43,41 +43,105 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"/>
 
-    <LinearLayout
-        android:id="@+id/layout_chatbox"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:minHeight="48dp"
-        android:background="#ffffff"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent">
-
-        <EditText
-            android:id="@+id/edittext_chatbox"
-            android:hint="@string/enter_message"
-            android:background="@android:color/transparent"
-            android:layout_gravity="center"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
+        <LinearLayout
+            android:id="@+id/layout_chatbox"
+            android:orientation="vertical"
             android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:background="#ffffff"
+            android:minHeight="48dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent">
 
-        <ImageButton
-            android:id="@+id/button_chatbox_send"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_gravity="center"
-            android:scaleType="fitCenter"
-            android:layout_marginRight="10dp"
-            android:padding="20dp"
-            android:background="@drawable/send"
-            android:tint="@color/colorAccentLight"
-            android:layout_marginEnd="10dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/attachments_layout"
+                android:minHeight="48dp"
+                android:visibility="gone"
+                android:background="@drawable/border"
+                android:orientation="horizontal">
 
-    </LinearLayout>
+                <ImageButton
+                    android:id="@+id/imageButton_snippet"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:scaleType="fitCenter"
+                    android:background="@android:color/transparent"
+                    android:layout_weight="1"
+                    android:padding="2dp"
+                    android:tint="@color/colorAccentLight"
+                    android:src="@drawable/code_snippet" />
+
+                <ImageButton
+                    android:id="@+id/imageButton_image"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:scaleType="fitCenter"
+                    android:background="@android:color/transparent"
+                    android:layout_weight="1"
+                    android:padding="5dp"
+                    android:tint="@color/colorAccentLight"
+                    android:src="@drawable/upload_image" />
+
+                <ImageButton
+                    android:id="@+id/imageButton_file"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:scaleType="fitCenter"
+                    android:background="@android:color/transparent"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+                    android:tint="@color/colorAccentLight"
+                    android:src="@drawable/upload_file" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_chatbox_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#ffffff"
+                android:minHeight="48dp"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/edittext_chatbox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_weight="1"
+                    android:tint="@color/colorAccentLight"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/enter_message" />
+
+                <ImageButton
+                    android:id="@+id/button_attach"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginRight="20dp"
+                    android:background="@drawable/attach"
+                    android:scaleType="fitCenter"
+                    android:tint="@color/colorAccentLight" />
+
+                <ImageButton
+                    android:id="@+id/button_chatbox_send"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/send"
+                    android:padding="20dp"
+                    android:scaleType="fitCenter"
+                    android:tint="@color/colorAccentLight" />
+
+            </LinearLayout>
+        </LinearLayout>
 
     </android.support.constraint.ConstraintLayout>
 

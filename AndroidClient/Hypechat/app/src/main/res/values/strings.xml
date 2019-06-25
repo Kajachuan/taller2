@@ -14,7 +14,7 @@
     <string name="hypechat_desc">Logo de hypechat</string>
     <string name="back">Go back</string>
     <string name="inicio">Inicio</string>
-    <string name="channels">Canales</string>
+    <string name="channels_in_org">Canales en la organización seleccionada</string>
 
     <string name="action_search_profile">Buscar un perfil</string>
 
@@ -98,4 +98,8 @@
     <string name="members_quantity">Cantidad de miembros</string>
     <string name="owner_name">Nombre del propietario</string>
     <string name="channel_name">Nombre del canal</string>
+    <string name="fecha_de_ban">Fecha de ban</string>
+    <string name="raz_n_de_ban">Razón de ban</string>
+    <string name="rol">Rol en la organización seleccionada</string>
+    <string name="channels">Canales</string>
 </resources>

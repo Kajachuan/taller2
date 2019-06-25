@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.hypechat.API.APIError;
@@ -105,6 +106,8 @@ public class ChatChannelFragment extends Fragment {
         swipeContainer.setColorSchemeResources(android.R.color.white);
         swipeContainer.setProgressBackgroundColorSchemeResource(R.color.colorPrimary);
 
+        final LinearLayout attachments = getView().findViewById(R.id.attachments_layout);
+
         ImageButton mSendButton = (ImageButton) getView().findViewById(R.id.button_chatbox_send);
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,6 +133,15 @@ public class ChatChannelFragment extends Fragment {
                         }
                     }, 50);
                 }
+            }
+        });
+
+        ImageButton mAttachButton = (ImageButton) getView().findViewById(R.id.button_attach);
+        mAttachButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean visible = (attachments.getVisibility() == View.VISIBLE);
+                attachments.setVisibility(visible ? View.GONE : View.VISIBLE);
             }
         });
 
