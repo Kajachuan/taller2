@@ -75,11 +75,11 @@ def get_profile(username):
     for organization_name in user.organizations:
         organization = Organization.objects.get(organization_name=organization_name)
         if user == organization.owner:
-            organizations[organization_name]['rol']['owner'] = 'owner'
+            organizations[organization_name] = {'rol': 'owner'}
         elif user in organization.moderators:
-            organizations[organization_name]['rol']['moderator'] = 'moderator'
+            organizations[organization_name] = {'rol': 'moderator'}
         else:
-            organizations[organization_name]['rol']['member'] = 'member'
+            organizations[organization_name] = {'rol': 'member'}
 
         for channel in organization.channels:
             if user.username == channel.owner:
