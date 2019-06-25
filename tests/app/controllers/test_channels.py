@@ -144,3 +144,15 @@ class TestChannelsControllers(object):
         response = client.get('/organization/Avengers/EndGame/messages?init=1&end=4')
         message_types = [message[3] for message in response.get_json()['messages']]
         assert message_types == ['message', 'snippet', 'image', 'file']
+
+    def test_mention_in_message_ok(self):
+        msg = '{"sender":"Thor","message":"Hola @IronMan"}'
+        response = client.post('/organization/Avengers/EndGame/message', data = msg)
+        assert response.get_json()['message'] == 'Message sent'
+        assert response.status_code == HTTPStatus.OK
+
+    def test_mention_user_not_in_channel_not_mentioned(self):
+        msg = '{"sender":"Thor","message":"Hola @NotExisting"}'
+        response = client.post('/organization/Avengers/EndGame/message', data = msg)
+        assert response.get_json()['message'] == 'User not in channel'
+        assert response.status_code == HTTPStatus.OK

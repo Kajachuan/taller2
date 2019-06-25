@@ -267,4 +267,9 @@ def send_message(organization_name, channel_name):
     response = FirebaseApi().send_message_to_users(channel.members, message, organization_name, channel_name)
     if not response:
         return jsonify(message = 'Firebase error'), HTTPStatus.SERVICE_UNAVAILABLE
-    return '',HTTPStatus.OK
+    if message.has_mention():
+        mentioned = message.get_mentioned()
+        if mentioned not in channel.members:
+            return jsonify(message = 'User not in channel'), HTTPStatus.OK
+        FirebaseApi().send_notification_to_user(mentioned, organization_name, channel_name)
+    return jsonify(message = 'Message sent'),HTTPStatus.OK

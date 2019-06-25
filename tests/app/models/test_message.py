@@ -18,4 +18,9 @@ class TestMessage(object):
     def test_type_message(self):
         snippet_message = Message(timestamp=datetime.now(), sender='User', message='some code', creation_date=datetime.now(),type='snippet')
         assert snippet_message.type == 'snippet'
-        assert snippet_message.type 
+        assert snippet_message.type
+
+    def test_mention(self):
+        mention_message = Message(timestamp = datetime.now(), sender = 'UserName', message = 'hola @tuvieja', creation_date = datetime.now())
+        assert mention_message.has_mention() == True
+        assert mention_message.get_mentioned() == 'tuvieja'
