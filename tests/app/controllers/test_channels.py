@@ -36,6 +36,31 @@ class TestChannelsControllers(object):
         assert 'EndGame' in response.get_json()['channels']
         assert len(response.get_json()['channels']) == 1
 
+    def test_get_channel(self):
+        response = client.get('/organization/Avengers/EndGame')
+        assert response.status_code == HTTPStatus.OK
+        assert response.get_json()['owner'] == 'IronMan'
+        assert response.get_json()['is_private'] == True
+        assert response.get_json()['description'] == 'No description'
+        assert response.get_json()['welcome_message'] == 'Welcome'
+
+    def test_change_channel_info(self):
+        response = client.post('/organization/Avengers/EndGame', data='{"welcome_message":"Custom message"}')
+        assert response.status_code == HTTPStatus.OK
+        assert response.get_json()['message'] == 'Information changed'
+        response = client.get('/organization/Avengers/EndGame')
+        assert response.status_code == HTTPStatus.OK
+        assert response.get_json()['welcome_message'] == 'Custom message'
+
+    def test_fail_change_channel_info_not_owner(self):
+        client.delete('/logout')
+        response = client.post('/organization/Avengers/EndGame', data='{"description":"Custom description"}')
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        client.post('/login', data='{"username" : "Thor", "password" : "mipass"}')
+        response = client.post('/organization/Avengers/EndGame', data='{"description":"Custom description"}')
+        assert response.status_code == HTTPStatus.FORBIDDEN
+        client.post('/login', data='{"username": "IronMan", "password": "mipass"}')
+
     def test_cant_create_same_channel_in_organization(self):
         response = client.post('/organization/Avengers/channels', data = '{"name" : "EndGame", "privado" : "True"}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
@@ -95,3 +120,39 @@ class TestChannelsControllers(object):
         message_wout_tstamp = [(message[1], message[2]) for message in response.get_json()['messages']]
         print(message_wout_tstamp)
         assert message_wout_tstamp == [('IronMan','Hello1'),('IronMan','Hello2'),('IronMan','Hello3')]
+
+    def test_get_slices_out_of_range(self):
+        response = client.get('/organization/Avengers/EndGame/messages?init=1&end=6')
+        message_wout_tstamp = [message[2] for message in response.get_json()['messages']]
+        assert message_wout_tstamp == ['Hello1','Hello2','Hello3','Hello4','Hello5']
+        response = client.get('/organization/Avengers/EndGame/messages?init=1&end=8')
+        message_wout_tstamp = [message[2] for message in response.get_json()['messages']]
+        assert message_wout_tstamp == ['Hello1','Hello2','Hello3','Hello4','Hello5']
+        response = client.get('/organization/Avengers/EndGame/messages?init=3&end=500')
+        message_wout_tstamp = [message[2] for message in response.get_json()['messages']]
+        assert message_wout_tstamp == ['Hello1','Hello2','Hello3']
+        response = client.get('/organization/Avengers/EndGame/messages?init=6&end=10')
+        assert response.get_json()['messages'] == []
+
+    def test_types_of_messages(self):
+        data = ['{"sender":"IronMan","message":"normal message"}',
+                '{"sender":"IronMan","message":"some code", "type":"snippet"}',
+                '{"sender":"Thor","message":"encoded image","type":"image"}',
+                '{"sender":"Thor","message":"encoded file","type":"file"}']
+        for msg in data:
+            client.post('/organization/Avengers/EndGame/message', data = msg)
+        response = client.get('/organization/Avengers/EndGame/messages?init=1&end=4')
+        message_types = [message[3] for message in response.get_json()['messages']]
+        assert message_types == ['message', 'snippet', 'image', 'file']
+
+    def test_mention_in_message_ok(self):
+        msg = '{"sender":"Thor","message":"Hola @IronMan"}'
+        response = client.post('/organization/Avengers/EndGame/message', data = msg)
+        assert response.get_json()['message'] == 'Message sent'
+        assert response.status_code == HTTPStatus.OK
+
+    def test_mention_user_not_in_channel_not_mentioned(self):
+        msg = '{"sender":"Thor","message":"Hola @NotExisting"}'
+        response = client.post('/organization/Avengers/EndGame/message', data = msg)
+        assert response.get_json()['message'] == 'User not in channel'
+        assert response.status_code == HTTPStatus.OK

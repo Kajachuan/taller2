@@ -2,6 +2,7 @@ from http import HTTPStatus
 from flask import Blueprint, request, session, current_app, render_template, redirect, flash, jsonify
 from ..models.admin import Admin
 from ..models.user import User
+from ..models.organization import Organization
 from ..models.forbidden_words import ForbiddenWords
 from ..decorators.admin_required import admin_required
 
@@ -33,27 +34,26 @@ def admin_logout():
     current_app.logger.info('The admin ' + name + ' was logged out')
     return redirect('/admin/')
 
-@admins.route('/admin/menu/', methods=['GET'])
-def menu():
-    current_app.logger.info('Viewing menu')
-    return render_template('menu.html')
-
 @admins.route('/admin/forbidden-words/', methods =['GET'])
+@admin_required
 def get_forbidden_words():
     current_app.logger.info('Viewing forbidden words')
     return render_template('forbidden_words.html')
 
 @admins.route('/admin/forbidden-words/words', methods = ['GET'])
+@admin_required
 def get_forbidden_words_get():
     return jsonify(list_of_words = ForbiddenWords.get_words()), HTTPStatus.OK
 
 @admins.route('/admin/forbidden-words/words', methods = ['POST'])
+@admin_required
 def add_forbidden_word():
     word = request.form['word']
     ForbiddenWords.add_word(word)
     return redirect('/admin/forbidden-words/')
 
 @admins.route('/admin/forbidden-words/word-delete', methods=['POST'])
+@admin_required
 def delete_forbidden_word():
     word = request.form['word']
     ForbiddenWords.delete_word(word)
@@ -74,7 +74,7 @@ def statistics():
 def users_admin():
     return render_template('users.html')
 
-@admins.route('/admin/ban', methods=['POST'])
+@admins.route('/admin/ban/user', methods=['POST'])
 @admin_required
 def user_ban():
     username = request.form['username']
@@ -82,3 +82,17 @@ def user_ban():
     reason = request.form['ban_reason']
     User.objects(username=username).update_one(ban_date=date, ban_reason=reason)
     return redirect('/admin/users/')
+
+@admins.route('/admin/organizations/', methods=['GET'])
+@admin_required
+def organizations_admin():
+    return render_template('organizations.html')
+
+@admins.route('/admin/ban/organization', methods=['POST'])
+@admin_required
+def organization_ban():
+    organization_name = request.form['organization_name']
+    date = request.form['ban_date']
+    reason = request.form['ban_reason']
+    Organization.objects(organization_name=organization_name).update_one(ban_date=date, ban_reason=reason)
+    return redirect('/admin/organizations/')
