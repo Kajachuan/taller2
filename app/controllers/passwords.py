@@ -38,8 +38,8 @@ def password_recovery():
     mailer = Mailer()
     mailer.send(mail)
 
-    current_app.logger.info('The token was sended')
-    return jsonify(message='The token was sended'), HTTPStatus.OK
+    current_app.logger.info('The token was sent')
+    return jsonify(message='The token was sent'), HTTPStatus.OK
 
 @passwords.route('/password', methods=['POST'])
 def password_settings():

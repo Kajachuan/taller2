@@ -1,3 +1,4 @@
+import requests
 from os import environ
 from http import HTTPStatus
 from datetime import datetime
@@ -268,14 +269,19 @@ def send_message(organization_name, channel_name):
     if not response:
         return jsonify(message = 'Firebase error'), HTTPStatus.SERVICE_UNAVAILABLE
     if message.has_mention():
-        mentioned = message.get_mentioned()
-        if mentioned not in channel.members:
+        (mentioned, command) = message.get_mentioned_and_command()
+        if mentioned == 'tito':
+            response = requests.get(str(channel.bots['tito'] + command + '?user=' + session['username'] + '&org=' + organization_name))
+        elif mentioned in channel.bots.keys():
+            pass
+        elif mentioned not in channel.members:
             return jsonify(message = 'User not in channel'), HTTPStatus.OK
         FirebaseApi().send_notification_to_user(mentioned, organization_name, channel_name)
     return jsonify(message = 'Message sent'),HTTPStatus.OK
-    return '',HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/<channel_name>/bot', methods=['POST'])
+@user_no_banned_required
+@organization_no_banned_required
 def create_bot(organization_name, channel_name):
     data = request.get_json(force = True)
     bot_name = data['name']
@@ -287,6 +293,8 @@ def create_bot(organization_name, channel_name):
     return jsonify(message='Bot created'), HTTPStatus.CREATED
 
 @organizations.route('/organization/<organization_name>/<channel_name>/bot', methods=['DELETE'])
+@user_no_banned_required
+@organization_no_banned_required
 def delete_bot(organization_name, channel_name):
     data = request.get_json(force = True)
     bot_name = data['name']

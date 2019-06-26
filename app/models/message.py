@@ -13,8 +13,13 @@ class Message(db.Document):
     def has_mention(self):
         return True if MENTION_SYMBOL in self.message else False
 
-    def get_mentioned(self):
+    def get_mentioned_and_command(self):
         parsed = self.message.split(' ')
-        for word in parsed:
-            if MENTION_SYMBOL in word:
-                return word[1:]
+        mentioned = ''
+        command = ''
+        for index in range(len(parsed)):
+            if MENTION_SYMBOL in parsed[index]:
+                mentioned = parsed[index][1:]
+                if index != len(parsed) - 1:
+                    command = parsed[index + 1]
+                return (mentioned, command)

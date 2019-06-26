@@ -12,7 +12,7 @@ class Channel(db.Document):
 
     members = db.ListField(db.StringField())
     messages = db.ListField(db.ReferenceField('Message'))
-    bots = db.DictField(default={'tito':'url_de_tito'})
+    bots = db.DictField(default={'tito':'https://hypechat-bot.herokuapp.com/'})
     meta = {'strict': False}
 
     def clean(self):
