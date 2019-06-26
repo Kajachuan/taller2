@@ -271,7 +271,8 @@ def send_message(organization_name, channel_name):
     if message.has_mention():
         (mentioned, command) = message.get_mentioned_and_command()
         if mentioned == 'tito':
-            response = requests.get(str(channel.bots['tito'] + command + '?user=' + session['username'] + '&org=' + organization_name))
+            response = requests.get(channel.bots['tito'] + command + '?user=' + session['username'] + '&org=' + organization_name)
+            return jsonify(response.json()), HTTPStatus.OK
         elif mentioned in channel.bots.keys():
             pass
         elif mentioned not in channel.members:
