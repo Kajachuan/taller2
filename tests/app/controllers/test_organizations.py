@@ -15,6 +15,8 @@ default_img = b64encode(default_img_file.read()).decode()
 
 client.post('/register', data='{"username": "orgacreator", "email": "user@test.com",\
                                 "password": "mipass", "password_confirmation": "mipass"}')
+client.post('/register', data='{"username": "BlackWidow", "email": "user@test.com",\
+                                "password": "mipass", "password_confirmation": "mipass"}')
 client.post('/login', data='{"username": "orgacreator", "password": "mipass"}')
 
 class TestOrganizationsController(object):
@@ -193,3 +195,22 @@ class TestOrganizationsController(object):
         response = client.get('/organization/Taller2/moderators')
         assert response.status_code == HTTPStatus.OK
         assert response.get_json()['moderators'] == []
+
+    def test_new_member_is_in_public_channels(self):
+        #create public channels
+        client.post('/organization/Taller2/channels', data = '{"name" : "Publico1", "privado" : "False"}')
+        client.post('/organization/Taller2/channels', data = '{"name" : "Publico2", "privado" : "False"}')
+        #invite new user
+        response = client.post('/organization/Taller2/invite', data = '{"username" : "BlackWidow" }')
+        assert response.status_code == HTTPStatus.OK
+        client.post('/login', data = '{"username" : "BlackWidow", "password" : "mipass"}')
+        invitations = client.get('/profile/BlackWidow/invitations')
+        token = list(invitations.get_json()['invitations'].keys())[0]
+        organization = invitations.get_json()['invitations'][token]
+        response = client.post('/organization/'+organization+'/accept-invitation', data = '{"token" : "'+token+'"}')
+        assert response.status_code == HTTPStatus.OK
+        response = client.get('/organization/Taller2/members')
+        assert 'BlackWidow' in response.get_json()['members']
+        #get public channels
+        response = client.get('/organization/Taller2/channels')
+        assert response.get_json()['channels'] == ['Publico1', 'Publico2']
