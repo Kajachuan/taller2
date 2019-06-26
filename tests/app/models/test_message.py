@@ -23,4 +23,4 @@ class TestMessage(object):
     def test_mention(self):
         mention_message = Message(timestamp = datetime.now(), sender = 'UserName', message = 'hola @tuvieja', creation_date = datetime.now())
         assert mention_message.has_mention() == True
-        assert mention_message.get_mentioned() == 'tuvieja'
+        assert mention_message.get_mentioned_and_command()[0] == 'tuvieja'

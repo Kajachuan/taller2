@@ -262,22 +262,23 @@ def send_message(organization_name, channel_name):
         message = Message(message = data['message'], sender = sender, timestamp = datetime.now(), creation_date = datetime.now(), type = type)
     except KeyError:
         message = Message(message = data['message'], sender = sender, timestamp = datetime.now(), creation_date = datetime.now())
-    message.save()
-    channel.update(push__messages = message)
-    User.objects.get(username=sender).update(inc__sent_messages=1)
-    response = FirebaseApi().send_message_to_users(channel.members, message, organization_name, channel_name)
-    if not response:
-        return jsonify(message = 'Firebase error'), HTTPStatus.SERVICE_UNAVAILABLE
     if message.has_mention():
         (mentioned, command) = message.get_mentioned_and_command()
         if mentioned == 'tito':
             response = requests.get(channel.bots['tito'] + command + '?user=' + session['username'] + '&org=' + organization_name)
+            FirebaseApi().send_bot_response_to_user(username, response)
             return jsonify(response.json()), HTTPStatus.OK
         elif mentioned in channel.bots.keys():
             pass
         elif mentioned not in channel.members:
             return jsonify(message = 'User not in channel'), HTTPStatus.OK
         FirebaseApi().send_notification_to_user(mentioned, organization_name, channel_name)
+    message.save()
+    channel.update(push__messages = message)
+    User.objects.get(username=sender).update(inc__sent_messages=1)
+    response = FirebaseApi().send_message_to_users(channel.members, message, organization_name, channel_name)
+    if not response:
+        return jsonify(message = 'Firebase error'), HTTPStatus.SERVICE_UNAVAILABLE
     return jsonify(message = 'Message sent'),HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/<channel_name>/bot', methods=['POST'])
