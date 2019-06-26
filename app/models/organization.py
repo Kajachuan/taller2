@@ -59,7 +59,8 @@ class Organization(db.Document):
         organization.update(push__members = user)
         organization.update(**{'unset__pending_invitations__' + token : user.username})
         for channel in organization.channels:
-            channel.update(push__members = username)
+            if channel.is_public():
+                channel.update(push__members = username)
 
     @classmethod
     def create_channel(cls,organization_name, channel_name, owner, private):
