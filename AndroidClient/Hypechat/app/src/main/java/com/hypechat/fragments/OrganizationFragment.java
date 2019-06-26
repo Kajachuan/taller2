@@ -312,12 +312,13 @@ public class OrganizationFragment extends Fragment {
         Call<OrganizationListBody> getOrganizationsCall = mHypechatRequest.getUserOrganizations(username);
         getOrganizationsCall.enqueue(new Callback<OrganizationListBody>() {
             @Override
-            public void onResponse(Call<OrganizationListBody> call, Response<OrganizationListBody> response) {
+            public void onResponse(@NonNull Call<OrganizationListBody> call, @NonNull Response<OrganizationListBody> response) {
                 processResponse(response);
             }
 
             @Override
-            public void onFailure(Call<OrganizationListBody> call, Throwable t) {
+            public void onFailure(@NonNull Call<OrganizationListBody> call, @NonNull Throwable t) {
+                showProgressWhileLoading(false);
                 showOrganizationError(t.getMessage());
             }
         });
@@ -443,16 +444,21 @@ public class OrganizationFragment extends Fragment {
             }
             showOrganizationError(error);
         } else {
-            List<String> organizations = response.body().getOrganizations();
-            if(organizations.size() > 0) {
-                //noinspection ConstantConditions
-                ((MainActivity) getActivity()).setupChannels(organizations);
-            } else {
-                String[] myResArray = getResources().getStringArray(R.array.org_initial_array);
-                List<String> myResArrayList = Arrays.asList(myResArray);
-                //noinspection ConstantConditions
-                ((MainActivity) getActivity()).initializeSpinner(myResArrayList);
-                showProgressWhileLoading(false);
+            List<String> organizations = null;
+            if (response.body() != null) {
+                organizations = response.body().getOrganizations();
+            }
+            if (organizations != null) {
+                if(organizations.size() > 0) {
+                    //noinspection ConstantConditions
+                    ((MainActivity) getActivity()).setupChannels(organizations);
+                } else {
+                    String[] myResArray = getResources().getStringArray(R.array.org_initial_array);
+                    List<String> myResArrayList = Arrays.asList(myResArray);
+                    //noinspection ConstantConditions
+                    ((MainActivity) getActivity()).initializeSpinner(myResArrayList);
+                    showProgressWhileLoading(false);
+                }
             }
         }
     }

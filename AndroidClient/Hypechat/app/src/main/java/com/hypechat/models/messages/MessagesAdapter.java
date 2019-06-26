@@ -1,13 +1,18 @@
 package com.hypechat.models.messages;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hypechat.R;
@@ -64,7 +69,6 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     .inflate(R.layout.their_message, parent, false);
             return new ReceivedMessageHolder(view);
         }
-
         return null;
     }
 
@@ -105,6 +109,17 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
+
+    public Bitmap stringToBitmap(String encodedString){
+        try{
+            byte [] encodeByte = Base64.decode(encodedString,Base64.DEFAULT);
+            return BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+        }
+        catch(Exception e){
+            e.getMessage();
+            return null;
+        }
+    }
 
     private class ReceivedMessageHolder extends RecyclerView.ViewHolder {
         TextView messageText, timeText, nameText;

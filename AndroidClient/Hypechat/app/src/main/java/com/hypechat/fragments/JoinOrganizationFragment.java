@@ -260,8 +260,21 @@ public class JoinOrganizationFragment extends Fragment {
             }
             showInvitationsError(error);
         } else {
-            //noinspection ConstantConditions
-            ((MainActivity) getActivity()).addOrganizationToAdapter(organization);
+
+            if (getArguments() != null) {
+                ArrayList<String> invitations = getArguments().getStringArrayList("invitations");
+                if (invitations != null) {
+                    if(invitations.contains("Inicio")){
+                        //Select Organizations by default
+                        Fragment fragment = OrganizationFragment.newInstance(false);
+                        //noinspection ConstantConditions
+                        ((MainActivity) getActivity()).displaySelectedFragment(fragment);
+                    } else {
+                        //noinspection ConstantConditions
+                        ((MainActivity) getActivity()).addOrganizationToAdapter(organization);
+                    }
+                }
+            }
             mAdapter.remove(organization);
             mAdapter.notifyDataSetChanged();
             showInvitationsError("Se aceptó la invitación correctamente");

@@ -6,10 +6,13 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.SubMenu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -27,6 +30,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.hypechat.API.APIError;
 import com.hypechat.API.ErrorUtils;
 import com.hypechat.API.HypechatRequest;
@@ -143,12 +150,12 @@ public class MainActivity extends AppCompatActivity
                             Call<ChannelListBody> channelsCall = mHypechatRequest.getOrganizationChannels(organization);
                             channelsCall.enqueue(new Callback<ChannelListBody>() {
                                 @Override
-                                public void onResponse(Call<ChannelListBody> call, Response<ChannelListBody> response) {
+                                public void onResponse(@NonNull Call<ChannelListBody> call, @NonNull Response<ChannelListBody> response) {
                                     processResponseChannels(response,organization);
                                 }
 
                                 @Override
-                                public void onFailure(Call<ChannelListBody> call, Throwable t) {
+                                public void onFailure(@NonNull Call<ChannelListBody> call, @NonNull Throwable t) {
                                     showMainError(t.getMessage());
                                 }
                             });
@@ -241,6 +248,10 @@ public class MainActivity extends AppCompatActivity
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
                 if (drawer.isDrawerOpen(GravityCompat.START)) {
                     onBackPressed();
+                }
+                MenuItem aboutChannel = mMainMenu.getItem(1);
+                if(!aboutChannel.isVisible()){
+                    aboutChannel.setVisible(true);
                 }
             } else {
                 //sino crashearia pero siempre deberia haber un canal general en teoria

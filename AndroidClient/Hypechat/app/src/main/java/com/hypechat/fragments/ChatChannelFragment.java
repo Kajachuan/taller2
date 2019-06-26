@@ -1,7 +1,13 @@
 package com.hypechat.fragments;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -9,6 +15,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +38,8 @@ import com.hypechat.models.messages.MessageBodyPost;
 import com.hypechat.models.messages.MessagesAdapter;
 import com.hypechat.prefs.SessionPrefs;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -43,6 +52,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static android.app.Activity.RESULT_OK;
 import static java.lang.Math.round;
 
 public class ChatChannelFragment extends Fragment {
@@ -112,7 +122,18 @@ public class ChatChannelFragment extends Fragment {
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage();
+                String type = "text";
+                sendMessage(mEtMessage.getText().toString(),type);
+            }
+        });
+
+        ImageButton mSendImageButton = (ImageButton) getView().findViewById(R.id.imageButton_image);
+        mSendImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_PICK,
+                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent, 1);
             }
         });
 
@@ -128,8 +149,10 @@ public class ChatChannelFragment extends Fragment {
                     mMessageRecycler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            mMessageRecycler.smoothScrollToPosition(
-                                    mMessageRecycler.getAdapter().getItemCount() - 1);
+                            if(mMessageRecycler.getAdapter().getItemCount() > 0){
+                                mMessageRecycler.smoothScrollToPosition(
+                                        mMessageRecycler.getAdapter().getItemCount() - 1);
+                            }
                         }
                     }, 50);
                 }
@@ -172,6 +195,44 @@ public class ChatChannelFragment extends Fragment {
         }
     };
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data != null && requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                Uri targetUri = data.getData();
+                Bitmap bitmap = null;
+                try {
+                    if (targetUri != null) {
+                        //noinspection ConstantConditions
+                        bitmap = BitmapFactory.decodeStream(getActivity().getContentResolver().openInputStream(targetUri));
+                        Bitmap resizedBitmap = null;
+                        resizedBitmap = Bitmap.createScaledBitmap(bitmap, 500, 500, false);
+                        Drawable icon = new BitmapDrawable(getResources(),bitmap);
+                        String image = bitmapToString(resizedBitmap);
+                        String type = "img";
+                        sendMessage(image,type);
+                        //mProfileImage.setImageBitmap(bitmap);
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public String bitmapToString(Bitmap bitmap){
+        ByteArrayOutputStream baos=new  ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);
+        byte [] b=baos.toByteArray();
+        return Base64.encodeToString(b, Base64.DEFAULT);
+    }
+
+    @Override
+    public void onDestroy () {
+        handler.removeCallbacks(runnable);
+        super.onDestroy ();
+    }
+
     private void processResponseMessages(Response<MessageBodyList> response, boolean scrollData) {
         // Procesar errores
         if (!response.isSuccessful()) {
@@ -197,7 +258,7 @@ public class ChatChannelFragment extends Fragment {
                 if(!scrollData){
                     for(int i = 0; i < getList.size(); i++){
                         Message lastMessage = mMessageAdapter.getLastMessage();
-                        Message getMessage = new Message(getList.get(i).get(2),getList.get(i).get(1),getList.get(i).get(0));
+                        Message getMessage = new Message(getList.get(i).get(2),getList.get(i).get(1),getList.get(i).get(0),getList.get(i).get(3));
                         if(lastMessage != null){
                             if(getMessage.getDate().compareTo(lastMessage.getDate()) > 0){
                                 mMessageAdapter.add(getMessage);
@@ -209,7 +270,7 @@ public class ChatChannelFragment extends Fragment {
                     mMessageRecycler.scrollToPosition(mMessageAdapter.getItemCount() - 1);
                 } else {
                     for(int i = 0; i < getList.size(); i++){
-                        Message getMessage = new Message(getList.get(i).get(2),getList.get(i).get(1),getList.get(i).get(0));
+                        Message getMessage = new Message(getList.get(i).get(2),getList.get(i).get(1),getList.get(i).get(0),getList.get(i).get(3));
                         mMessageAdapter.addAtFirst(getMessage);
                     }
                     // Now we call setRefreshing(false) to signal refresh has finished
@@ -253,15 +314,14 @@ public class ChatChannelFragment extends Fragment {
         Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
     }
 
-    public void sendMessage(){
-            String message = mEtMessage.getText().toString();
+    public void sendMessage(String message, String type){
             if(!message.isEmpty()){
                 if(getArguments() != null) {
                     String organization = getArguments().getString("organization");
                     String channel = getArguments().getString("channel");
-                    String username = SessionPrefs.get(getContext()).getUsername();;
-                    MessageBodyPost messageBody = new MessageBodyPost(message,username);
-                    final Message messageForList = new Message(message,username,getCurrentTime());
+                    String username = SessionPrefs.get(getContext()).getUsername();
+                    MessageBodyPost messageBody = new MessageBodyPost(message,username,type);
+                    final Message messageForList = new Message(message,username,getCurrentTime(),type);
                     Call<Void> messagesSendCall = mHypechatRequest.sendMessage(organization,channel,messageBody);
                     messagesSendCall.enqueue(new Callback<Void>() {
                         @Override

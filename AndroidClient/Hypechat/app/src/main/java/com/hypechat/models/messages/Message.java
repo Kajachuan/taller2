@@ -18,8 +18,9 @@ public class Message {
     private String timestamp;
     private String sender;
     private String message;
+    private String type;
 
-    public Message(String message, String sender, String timestamp){
+    public Message(String message, String sender, String timestamp, String type){
         DateFormat formatter = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z",Locale.ENGLISH);
         try {
             Calendar cal = Calendar.getInstance();
@@ -47,6 +48,7 @@ public class Message {
         this.timestamp = timestamp;
         this.sender = sender;
         this.message = message;
+        this.type = type;
     }
 
     public String getMessage() {
@@ -59,6 +61,10 @@ public class Message {
 
     public String getSender() {
         return sender;
+    }
+
+    public String getType() {
+        return type;
     }
 
     public Date getDate() {

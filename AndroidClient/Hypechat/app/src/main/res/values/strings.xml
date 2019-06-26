@@ -102,4 +102,6 @@
     <string name="raz_n_de_ban">Razón de ban</string>
     <string name="rol">Rol en la organización seleccionada</string>
     <string name="channels">Canales</string>
+
+    <string name="fcm_token">FCM Token: %s</string>
 </resources>

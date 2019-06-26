@@ -29,6 +29,8 @@ import android.widget.Toast;
 import com.hypechat.API.APIError;
 import com.hypechat.API.ErrorUtils;
 import com.hypechat.API.HypechatRequest;
+import com.hypechat.cookies.AddCookiesInterceptor;
+import com.hypechat.cookies.ReceivedCookiesInterceptor;
 import com.hypechat.models.profile.ProfileBodyLoad;
 
 import org.w3c.dom.Text;
@@ -36,7 +38,9 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -100,14 +104,22 @@ public class SearchProfileActivity extends AppCompatActivity {
             }
         });
 
+        OkHttpClient.Builder okHttpClient = new OkHttpClient().newBuilder()
+                .connectTimeout(60 * 5, TimeUnit.SECONDS)
+                .readTimeout(60 * 5, TimeUnit.SECONDS)
+                .writeTimeout(60 * 5, TimeUnit.SECONDS);
+        okHttpClient.interceptors().add(new AddCookiesInterceptor());
+        okHttpClient.interceptors().add(new ReceivedCookiesInterceptor());
+
         // Crear conexión al servicio REST
-        Retrofit mRestAdapter = new Retrofit.Builder()
+        Retrofit mMainRestAdapter = new Retrofit.Builder()
                 .baseUrl(HypechatRequest.BASE_URL)
+                .client(okHttpClient.build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         // Crear conexión a la API
-        mHypechatRequest = mRestAdapter.create(HypechatRequest.class);
+        mHypechatRequest = mMainRestAdapter.create(HypechatRequest.class);
     }
 
     @Override
@@ -207,7 +219,6 @@ public class SearchProfileActivity extends AppCompatActivity {
             showProfileError(error);
         } else {
             if (response.body() != null) {
-
                 TextInputLayout usernameTIL = findViewById(R.id.search_one_user_layout);
                 usernameTIL.setVisibility(View.GONE);
                 mSearchProfileButton.setVisibility(View.GONE);
@@ -249,7 +260,6 @@ public class SearchProfileActivity extends AppCompatActivity {
                         String selectedItem = parent.getItemAtPosition(position).toString();
                         Map<String, Map<String,String>> secondLevel = response.body().getSecondLevel(selectedItem);
 
-                        //noinspection ConstantConditions
                         List<String> channels = new ArrayList<>(secondLevel.get("channels").keySet());
                         StringBuilder builder = new StringBuilder();
                         for (String channel : channels) {
