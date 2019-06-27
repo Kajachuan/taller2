@@ -72,7 +72,7 @@ class Organization(db.Document):
         organization.update(push__channels = channel)
         if not private:
             for username in [member.username for member in organization.members]:
-                Channel.add_member(channel_name, owner, username)
+                Channel.add_member(channel_name, organization_name, owner, username)
         return True
 
     @classmethod

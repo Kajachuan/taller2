@@ -38,20 +38,32 @@ class Channel(db.Document):
 
 
     @classmethod
-    def add_member(cls, channel_name, requester, username):
-        channel = cls.objects.get(channel_name = channel_name)
+    def add_member(cls, channel_name, organization_name, requester, username):
+        from .organization import Organization
+        organization = Organization.objects.get(organization_name = organization_name)
+        for orga_channel in organization.channels:
+            if orga_channel.channel_name == channel_name:
+                channel = orga_channel
         if channel.is_member(requester):
             channel.update(push__members = username)
 
     @classmethod
-    def delete_member(cls, channel_name, requester, username):
-        channel = cls.objects.get(channel_name = channel_name)
+    def delete_member(cls, channel_name, organization_name, requester, username):
+        from .organization import Organization
+        organization = Organization.objects.get(organization_name = organization_name)
+        for orga_channel in organization.channels:
+            if orga_channel.channel_name == channel_name:
+                channel = orga_channel
         if channel.is_owner(requester):
             channel.update(pull__members = username)
 
     @classmethod
-    def add_message(cls, channel_name, requester, message):
-        channel = cls.objects.get(channel_name = channel_name)
+    def add_message(cls, channel_name, organization_name, requester, message):
+        from .organization import Organization
+        organization = Organization.objects.get(organization_name = organization_name)
+        for orga_channel in organization.channels:
+            if orga_channel.channel_name == channel_name:
+                channel = orga_channel
         if channel.is_member(requester):
             message = Message(timestamp = datetime.today(), sender = requester, message = message, creation_date = datetime.now())
             message.save()
