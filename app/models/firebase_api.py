@@ -18,11 +18,14 @@ HELP_KEYS = ['help', 'info', 'mute', 'me']
 INFO_KEYS = ['name', 'owner', 'description']
 ME_KEYS = ['username', 'first_name', 'last_name', 'email']
 
+default_app = None
+
 class FirebaseApi(object):
     def __init__(self):
         if environ['FLASK_ENV'] == PRODUCTION:
-            cred = credentials.Certificate(CREDENTIALS_PATH)
-            self.default_app  = firebase_admin.initialize_app(cred)
+            if not default_app:
+                cred = credentials.Certificate(CREDENTIALS_PATH)
+                default_app  = firebase_admin.initialize_app(cred)
 
     def send_message_to_users(self, list_username, message, organization_name, channel_name):
         if environ['FLASK_ENV'] != PRODUCTION:
