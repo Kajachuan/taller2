@@ -1,4 +1,5 @@
 import logging
+from logging.handlers import SMTPHandler
 from os import makedirs, path, environ
 from flask import Flask, redirect, url_for
 from flask_mongoengine import MongoEngine
