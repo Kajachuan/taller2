@@ -38,7 +38,7 @@ if __name__ != '__main__':
     if not app.debug:
         mail_handler = SMTPHandler(mailhost=(environ['SENDGRID_ADDRESS'], environ['SENDGRID_PORT']),
                                    fromaddr='hypechat@error.com',
-                                   toaddrs=['kevincajachuan@hotmail.com',
+                                   toaddrs=['kevincajachuan@gmail.com',
                                             'guillecondori19@gmail.com',
                                             'Fabrizio.Cozza@gmail.com'],
                                    subject='Application Error',
