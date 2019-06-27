@@ -8,6 +8,7 @@ import android.media.RingtoneManager;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -23,6 +24,7 @@ import com.hypechat.API.HypechatRequest;
 import com.hypechat.R;
 import com.hypechat.cookies.AddCookiesInterceptor;
 import com.hypechat.cookies.ReceivedCookiesInterceptor;
+import com.hypechat.models.messages.Message;
 import com.hypechat.prefs.SessionPrefs;
 
 import java.util.concurrent.TimeUnit;
@@ -38,6 +40,13 @@ import static android.widget.Toast.LENGTH_LONG;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
+
+    private LocalBroadcastManager broadcaster;
+
+    @Override
+    public void onCreate() {
+        broadcaster = LocalBroadcastManager.getInstance(this);
+    }
 
     private String TAG = "NOTIFICACION";
 
@@ -126,14 +135,24 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
-            Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+            Log.d(TAG, "Message data payload: " + remoteMessage.getData().get("sender"));
+            Log.d(TAG, "Message data payload: " + remoteMessage.getData().get("type"));
+            Log.d(TAG, "Message data payload: " + remoteMessage.getData().get("timestamp"));
+            Log.d(TAG, "Message data payload: " + remoteMessage.getData().get("channel"));
+            Log.d(TAG, "Message data payload: " + remoteMessage.getData().get("message"));
+            Log.d(TAG, "Message data payload: " + remoteMessage.getData().get("organization"));
         }
+        Intent intent = new Intent("Data");
+        intent.putExtra("message", remoteMessage.getData().get("message"));
+        intent.putExtra("sender", remoteMessage.getData().get("sender"));
+        intent.putExtra("timestamp", remoteMessage.getData().get("timestamp"));
+        intent.putExtra("type",remoteMessage.getData().get("type"));
+        broadcaster.sendBroadcast(intent);
 
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
         }
-
     }
 
     private void sendNotification(String title, String message) {

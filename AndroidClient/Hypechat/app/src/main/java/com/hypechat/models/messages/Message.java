@@ -23,6 +23,7 @@ public class Message {
 
     public Message(String message, String sender, String timestamp, String type){
         DateFormat formatter = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z",Locale.ENGLISH);
+        DateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss",Locale.ENGLISH);
         try {
             Calendar cal = Calendar.getInstance();
             this.timestampDate = formatter.parse(timestamp);
@@ -44,6 +45,29 @@ public class Message {
             }
             timestamp = hourString+":"+ minuteString +":"+secondString;
         } catch (ParseException e) {
+            try {
+                Calendar cal = Calendar.getInstance();
+                this.timestampDate = formatter2.parse(timestamp);
+                cal.setTime(this.timestampDate);
+                int hour = cal.getTime().getHours();
+                int minute = cal.getTime().getMinutes();
+                int second = cal.getTime().getSeconds();
+                String hourString = String.valueOf(hour);
+                String minuteString = String.valueOf(minute);
+                String secondString = String.valueOf(second);
+                if(minute < 10){
+                    minuteString = "0" + String.valueOf(minute);
+                }
+                if(hour < 10){
+                    hourString = "0" + String.valueOf(hourString);
+                }
+                if(second < 10){
+                    secondString = "0" + String.valueOf(secondString);
+                }
+                timestamp = hourString+":"+ minuteString +":"+secondString;
+            } catch (ParseException e1) {
+                e1.printStackTrace();
+            }
             e.printStackTrace();
         }
         this.timestamp = timestamp;

@@ -1,8 +1,11 @@
 package com.hypechat.fragments;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -17,6 +20,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -222,7 +226,7 @@ public class ChatChannelFragment extends Fragment {
         mMessageAdapter = new MessagesAdapter(getActivity(), messagesList);
 
         mMessageRecycler.setAdapter(mMessageAdapter);
-        handler.postDelayed(runnable, 0);
+        getMessages(1,10,false);
         handlerChannels.postDelayed(runnableChannels,60000);
         super.onActivityCreated(savedInstanceState);
     }
@@ -262,14 +266,6 @@ public class ChatChannelFragment extends Fragment {
         AlertDialog alert = builder.create();
         alert.show();
     }
-
-    private Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            getMessages(1,10,false);
-            handler.postDelayed(this, 1000);
-        }
-    };
 
     private Runnable runnableChannels = new Runnable() {
         @Override
@@ -341,18 +337,48 @@ public class ChatChannelFragment extends Fragment {
 
     @Override
     public void onPause () {
-        handler.removeCallbacks(runnable);
         handlerChannels.removeCallbacks(runnableChannels);
         super.onPause ();
     }
 
     @Override
     public void onResume () {
-        handler.postDelayed(runnable, 1000);
         handlerChannels.postDelayed(runnableChannels,60000);
         super.onResume ();
     }
 
+
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //noinspection ConstantConditions
+            Message new_message = new Message(intent.getExtras().getString("message"),
+                    intent.getExtras().getString("sender"),
+                    intent.getExtras().getString("timestamp"),
+                    intent.getExtras().getString("type"));
+            mMessageAdapter.add(new_message);
+            mMessageRecycler.scrollToPosition(mMessageAdapter.getItemCount() - 1);
+        }
+    };
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if(getContext() != null){
+            LocalBroadcastManager.getInstance(getContext()).registerReceiver((mMessageReceiver),
+                    new IntentFilter("Data")
+            );
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(getContext() != null){
+            LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(mMessageReceiver);
+        }
+
+    }
 
 
     private void processResponseMessages(Response<MessageBodyList> response, boolean scrollData) {

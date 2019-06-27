@@ -1,8 +1,11 @@
 package com.hypechat;
 
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -11,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.SubMenu;
@@ -46,6 +50,7 @@ import com.hypechat.fragments.NewChannelFragment;
 import com.hypechat.fragments.OrganizationFragment;
 import com.hypechat.models.channels.ChannelListBody;
 import com.hypechat.models.firebase.TokenPost;
+import com.hypechat.models.messages.Message;
 import com.hypechat.prefs.SessionPrefs;
 
 import java.util.ArrayList;
@@ -349,8 +354,6 @@ public class MainActivity extends AppCompatActivity
             NavigationView nvDrawer = (NavigationView) findViewById(R.id.nav_view);
             Menu menu = nvDrawer.getMenu();
             final List<String> channels = response.body().getChannels();
-            Log.d("a ver 1", String.valueOf(channels.size()));
-            Log.d("a ver 2", String.valueOf(menu.size()));
             if(!(channels.size() == (menu.size() - 1))){
                 menu.clear();
                 final SubMenu channelsMenu = menu.addSubMenu(R.string.channels);
