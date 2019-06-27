@@ -106,8 +106,7 @@ def accept(organization_name):
         username = organization.pending_invitations[token]
         user = User.objects.get(username = username)
         User.add_to_organization(username, organization_name)
-        organization.update(push__members = user)
-        organization.update(**{'unset__pending_invitations__' + token : user.username})
+        Organization.add_user(username, organization_name, token)
         current_app.logger.debug('User %s added to organization %s',username,organization_name)
         return jsonify(message = 'Member added'),HTTPStatus.OK
     current_app.logger.debug('User %s failed to join organization %s: invalid token',session['username'],organization_name)
