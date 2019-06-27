@@ -73,7 +73,7 @@ class TestChannelsControllers(object):
         client.post('/login', data = '{"username" : "IronMan", "password" : "mipass"}')
         response = client.get('/organization/Avengers/channels')
         assert response.status_code == HTTPStatus.OK
-        assert response.get_json()['channels'] == ['EndGame']
+        assert response.get_json()['channels'] == ['EndGame', 'Asgard']
 
     def test_get_channel_members(self):
         response = client.get('/organization/Avengers/EndGame/members')

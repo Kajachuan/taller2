@@ -27,7 +27,8 @@ app.register_blueprint(statistics)
 def index():
     return redirect(url_for('admins.admin_login'))
 
-FirebaseApi.start_service()
+if environ['FLASK_ENV'] == 'production':
+    FirebaseApi.start_service()
 
 if __name__ != '__main__':
     makedirs(path.dirname('logs/app.log'), exist_ok=True)
