@@ -38,6 +38,7 @@ import android.widget.Toast;
 import com.hypechat.API.APIError;
 import com.hypechat.API.ErrorUtils;
 import com.hypechat.API.HypechatRequest;
+import com.hypechat.MainActivity;
 import com.hypechat.R;
 import com.hypechat.cookies.AddCookiesInterceptor;
 import com.hypechat.cookies.ReceivedCookiesInterceptor;
@@ -79,6 +80,7 @@ public class ChatChannelFragment extends Fragment {
     private EditText mEtMessage;
     private SwipeRefreshLayout swipeContainer;
     private Handler handler = new Handler();
+    private Handler handlerChannels = new Handler();
     private LinearLayout attachments;
 
     public static ChatChannelFragment newInstance(String organization, String channel) {
@@ -220,8 +222,8 @@ public class ChatChannelFragment extends Fragment {
         mMessageAdapter = new MessagesAdapter(getActivity(), messagesList);
 
         mMessageRecycler.setAdapter(mMessageAdapter);
-        getMessages(1,10,false);
-        handler.postDelayed(runnable, 2000);
+        handler.postDelayed(runnable, 0);
+        handlerChannels.postDelayed(runnableChannels,60000);
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -264,8 +266,19 @@ public class ChatChannelFragment extends Fragment {
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            getMessages(1,7,false);
+            getMessages(1,10,false);
             handler.postDelayed(this, 1000);
+        }
+    };
+
+    private Runnable runnableChannels = new Runnable() {
+        @Override
+        public void run() {
+            if (getArguments() != null) {
+                //noinspection ConstantConditions
+                ((MainActivity) getActivity()).updateChannels(getArguments().getString("organization"));
+            }
+            handlerChannels.postDelayed(this, 60000);
         }
     };
 
@@ -327,10 +340,20 @@ public class ChatChannelFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy () {
+    public void onPause () {
         handler.removeCallbacks(runnable);
-        super.onDestroy ();
+        handlerChannels.removeCallbacks(runnableChannels);
+        super.onPause ();
     }
+
+    @Override
+    public void onResume () {
+        handler.postDelayed(runnable, 1000);
+        handlerChannels.postDelayed(runnableChannels,60000);
+        super.onResume ();
+    }
+
+
 
     private void processResponseMessages(Response<MessageBodyList> response, boolean scrollData) {
         // Procesar errores

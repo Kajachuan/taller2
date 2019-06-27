@@ -102,15 +102,15 @@ public class NewChannelFragment extends Fragment {
         showProgress(true);
         final String channelName = mChannelName.getText().toString();
         Boolean privado = mSwitchPrivate.isChecked();
-        String organizationName = null;
+        String organization_name = null;
         if (getArguments() != null) {
-            organizationName = getArguments().getString("organization",null);
+            organization_name = getArguments().getString("organization",null);
         }
         String privadoString = String.valueOf(privado);
-        if(!channelName.equals("")){
+        if(!channelName.isEmpty()){
             ChannelCreateBody channelCreateBody = new ChannelCreateBody(channelName, privadoString);
-            Call<Void> createOrganizationsCall = mHypechatRequest.createChannel(organizationName, channelCreateBody);
-            final String finalOrganizationName = organizationName;
+            Call<Void> createOrganizationsCall = mHypechatRequest.createChannel(organization_name, channelCreateBody);
+            final String finalOrganizationName = organization_name;
             createOrganizationsCall.enqueue(new Callback<Void>() {
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {

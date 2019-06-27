@@ -52,7 +52,7 @@ public interface HypechatRequest {
     Call<Void> createOrganization(@Body OrganizationCreateBody organizationCreateBody);
 
     @POST("/organization/{organization_name}/channels")
-    Call<Void> createChannel(@Path("organization_name") String name, @Body ChannelCreateBody channelCreateBody);
+    Call<Void> createChannel(@Path("organization_name") String organization_name, @Body ChannelCreateBody channelCreateBody);
 
     @GET("/profile/{username}/organizations")
     Call<OrganizationListBody> getUserOrganizations(@Path("username") String username);

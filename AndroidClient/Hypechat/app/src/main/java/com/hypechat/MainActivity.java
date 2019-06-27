@@ -170,6 +170,23 @@ public class MainActivity extends AppCompatActivity
         mOrgsSpinner.setAdapter(dataAdapter);
     }
 
+    public void updateChannels(final String organization){
+        if(!organization.equals("Inicio")){
+            Call<ChannelListBody> channelsCall = mHypechatRequest.getOrganizationChannels(organization);
+            channelsCall.enqueue(new Callback<ChannelListBody>() {
+                @Override
+                public void onResponse(@NonNull Call<ChannelListBody> call, @NonNull Response<ChannelListBody> response) {
+                    processResponseChannels2(response,organization);
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<ChannelListBody> call, @NonNull Throwable t) {
+                    showMainError(t.getMessage());
+                }
+            });
+        }
+    }
+
     public void setupChannels(List<String> organizations){
         final String primaryOrganization = organizations.get(0);
         MenuItem organizationsItem = mMainMenu.getItem(0);
@@ -255,6 +272,58 @@ public class MainActivity extends AppCompatActivity
                 }
             } else {
                 //sino crashearia pero siempre deberia haber un canal general en teoria
+            }
+        }
+    }
+
+    private void processResponseChannels2(Response<ChannelListBody> response, final String primaryOrganization) {
+        // Procesar errores
+        if (!response.isSuccessful()) {
+            String error;
+            if (response.errorBody()
+                    .contentType()
+                    .subtype()
+                    .equals("json")) {
+                APIError apiError = ErrorUtils.parseError(response);
+                assert apiError != null;
+                error = apiError.message();
+            } else {
+                error = response.message();
+            }
+            showMainError(error);
+        } else {
+            //setear navigation drawer channels
+            NavigationView nvDrawer = (NavigationView) findViewById(R.id.nav_view);
+            Menu menu = nvDrawer.getMenu();
+            final List<String> channels = response.body().getChannels();
+            Log.d("a ver 1", String.valueOf(channels.size()));
+            Log.d("a ver 2", String.valueOf(menu.size()));
+            if(!(channels.size() == (menu.size() - 1))){
+                menu.clear();
+                final SubMenu channelsMenu = menu.addSubMenu(R.string.channels);
+                for(int i = 0; i < channels.size(); i++){
+                    channelsMenu.add(Menu.NONE, Menu.NONE, i, channels.get(i));
+                    final int finalI = i;
+                    channelsMenu.getItem(i).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                        @Override public boolean onMenuItemClick(MenuItem item) {
+                            onBackPressed();
+                            Fragment fragment = ChatChannelFragment.newInstance(primaryOrganization,channelsMenu.getItem(finalI).getTitle().toString());
+                            displaySelectedFragment(fragment);
+                            return true;
+                        }
+                    });
+                }
+
+                SubMenu addChannelMenu = menu.addSubMenu(null);
+                addChannelMenu.add(Menu.NONE, Menu.NONE, 0,"+ Añadir canal");
+                addChannelMenu.getItem(0).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override public boolean onMenuItemClick(MenuItem item) {
+                        onBackPressed();
+                        Fragment fragment = NewChannelFragment.newInstance(mOrgsSpinner.getSelectedItem().toString());
+                        displaySelectedFragment(fragment);
+                        return true;
+                    }
+                });
             }
         }
     }

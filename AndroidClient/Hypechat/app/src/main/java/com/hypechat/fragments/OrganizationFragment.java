@@ -228,18 +228,22 @@ public class OrganizationFragment extends Fragment {
         EditText mEditTextOrganization = getView().findViewById(R.id.organization_name);
         final String organizationName = mEditTextOrganization.getText().toString();
         OrganizationCreateBody organization = new OrganizationCreateBody(organizationName);
-        Call<Void> createOrganizationsCall = mHypechatRequest.createOrganization(organization);
-        createOrganizationsCall.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                processResponseOrganizationCreation(response,organizationName);
-            }
+        if(!organizationName.equals("Inicio") && !organizationName.equals("inicio")) {
+            Call<Void> createOrganizationsCall = mHypechatRequest.createOrganization(organization);
+            createOrganizationsCall.enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    processResponseOrganizationCreation(response, organizationName);
+                }
 
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                showOrganizationError(t.getMessage());
-            }
-        });
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    showOrganizationError(t.getMessage());
+                }
+            });
+        } else {
+            showOrganizationError("La organización ya existe");
+        }
     }
 
     private void processResponseOrganizationCreation(Response<Void> response, String organizationName) {
