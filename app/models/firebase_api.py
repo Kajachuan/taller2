@@ -33,7 +33,7 @@ class FirebaseApi(object):
                     data = {
         		SENDER : message.sender,
                 MESSAGE : message.message,
-                TIMESTAMP : message.timestamp,
+                TIMESTAMP : str(message.timestamp),
                 TYPE: message.type,
                 ORGANIZATION : organization_name,
                 CHANNEL : channel_name,
