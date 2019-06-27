@@ -1,22 +1,31 @@
 package com.hypechat.fragments;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,9 +46,15 @@ import com.hypechat.models.messages.MessageBodyList;
 import com.hypechat.models.messages.MessageBodyPost;
 import com.hypechat.models.messages.MessagesAdapter;
 import com.hypechat.prefs.SessionPrefs;
+import com.obsez.android.lib.filechooser.ChooserDialog;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -53,6 +68,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.app.Activity.RESULT_OK;
+import static android.util.Base64.DEFAULT;
 import static java.lang.Math.round;
 
 public class ChatChannelFragment extends Fragment {
@@ -63,6 +79,7 @@ public class ChatChannelFragment extends Fragment {
     private EditText mEtMessage;
     private SwipeRefreshLayout swipeContainer;
     private Handler handler = new Handler();
+    private LinearLayout attachments;
 
     public static ChatChannelFragment newInstance(String organization, String channel) {
         ChatChannelFragment chatFragment = new ChatChannelFragment();
@@ -108,7 +125,7 @@ public class ChatChannelFragment extends Fragment {
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getMessages(mMessageAdapter.getItemCount() - 1,mMessageAdapter.getItemCount() + 5,true);
+                getMessages(mMessageAdapter.getItemCount() - 1,mMessageAdapter.getItemCount() + 30,true);
             }
         });
 
@@ -116,7 +133,7 @@ public class ChatChannelFragment extends Fragment {
         swipeContainer.setColorSchemeResources(android.R.color.white);
         swipeContainer.setProgressBackgroundColorSchemeResource(R.color.colorPrimary);
 
-        final LinearLayout attachments = getView().findViewById(R.id.attachments_layout);
+        attachments = getView().findViewById(R.id.attachments_layout);
 
         ImageButton mSendButton = (ImageButton) getView().findViewById(R.id.button_chatbox_send);
         mSendButton.setOnClickListener(new View.OnClickListener() {
@@ -134,6 +151,37 @@ public class ChatChannelFragment extends Fragment {
                 Intent intent = new Intent(Intent.ACTION_PICK,
                         android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(intent, 1);
+            }
+        });
+
+        ImageButton mSendSnippetButton = (ImageButton) getView().findViewById(R.id.imageButton_snippet);
+        mSendSnippetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupSnippet();
+            }
+        });
+
+        ImageButton mSendFileButton = (ImageButton) getView().findViewById(R.id.imageButton_file);
+        mSendFileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String path = null;
+                new ChooserDialog().with(getActivity())
+                        .withStartFile(path)
+                        .withChosenListener(new ChooserDialog.Result() {
+                            @Override
+                            public void onChoosePath(String path, File pathFile) {
+                                String type = "file";
+                                String encodedFile = encodeFileToBase64Binary(pathFile);
+                                String fileName = path.substring(path.lastIndexOf("/") + 1);
+                                String fileNameEncoded = fileName.concat("fileencoded");
+                                String finalFilename = fileNameEncoded.concat(encodedFile);
+                                sendMessage(finalFilename,type);
+                            }
+                        })
+                        .build()
+                        .show();
             }
         });
 
@@ -183,39 +231,100 @@ public class ChatChannelFragment extends Fragment {
             int messagesQuantity = round(height / 100);  // /dp general de un mensaje
             getMessages(1,7,false);
         }
-        handler.postDelayed(runnable, 5000);
+        handler.postDelayed(runnable, 2000);
         super.onActivityCreated(savedInstanceState);
+    }
+
+    private void popupSnippet() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Code snippet");
+
+        final EditText input = new EditText(getContext());
+
+        input.setTextScaleX(1.2f);
+        input.setTextColor(Color.GRAY);
+        input.setHint("Escriba aquí su código");
+        input.setTypeface(Typeface.MONOSPACE);
+        input.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        input.setSingleLine(false);
+        input.setLines(5);
+        input.setGravity(Gravity.START | Gravity.TOP);
+        builder.setView(input);
+
+        builder.setPositiveButton("Enviar", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String type = "snippet";
+                sendMessage(input.getText().toString(),type);
+            }
+        });
+
+        builder.setNegativeButton("Cancelar",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        boolean visible = (attachments.getVisibility() == View.VISIBLE);
+                        attachments.setVisibility(visible ? View.GONE : View.VISIBLE);
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
             getMessages(1,7,false);
-            handler.postDelayed(this, 5000);
+            handler.postDelayed(this, 1000);
         }
     };
 
+    private String encodeFileToBase64Binary(File file){
+        String encodedfile = null;
+        try {
+            FileInputStream fileInputStreamReader = new FileInputStream(file);
+            byte[] bytes = new byte[(int)file.length()];
+            fileInputStreamReader.read(bytes);
+            encodedfile = android.util.Base64.encodeToString(bytes,Base64.DEFAULT);
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return encodedfile;
+    }
+
+    private byte[] decodeFileFromBase64(String file){
+        return Base64.decode(file,Base64.DEFAULT);
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (data != null && requestCode == 1) {
-            if (resultCode == RESULT_OK) {
-                Uri targetUri = data.getData();
-                Bitmap bitmap = null;
-                try {
-                    if (targetUri != null) {
-                        //noinspection ConstantConditions
-                        bitmap = BitmapFactory.decodeStream(getActivity().getContentResolver().openInputStream(targetUri));
-                        Bitmap resizedBitmap = null;
-                        resizedBitmap = Bitmap.createScaledBitmap(bitmap, 500, 500, false);
-                        Drawable icon = new BitmapDrawable(getResources(),bitmap);
-                        String image = bitmapToString(resizedBitmap);
-                        String type = "img";
-                        sendMessage(image,type);
-                        //mProfileImage.setImageBitmap(bitmap);
+
+        if (data != null) {
+            switch (requestCode) {
+                case 1:
+                    if (resultCode == RESULT_OK) {
+                        Uri targetUri = data.getData();
+                        Bitmap bitmap = null;
+                        try {
+                            if (targetUri != null) {
+                                //noinspection ConstantConditions
+                                bitmap = BitmapFactory.decodeStream(getActivity().getContentResolver().openInputStream(targetUri));
+                                Bitmap resizedBitmap = null;
+                                resizedBitmap = Bitmap.createScaledBitmap(bitmap, 500, 500, false);
+                                Drawable icon = new BitmapDrawable(getResources(), bitmap);
+                                String image = bitmapToString(resizedBitmap);
+                                String type = "img";
+                                sendMessage(image, type);
+                            }
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
                     }
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
             }
         }
     }
@@ -256,18 +365,28 @@ public class ChatChannelFragment extends Fragment {
             if (response.body() != null) {
                 List<List<String>> getList = response.body().getMessageList();
                 if(!scrollData){
+                    int sizeOfMessages = mMessageAdapter.getItemCount();
                     for(int i = 0; i < getList.size(); i++){
                         Message lastMessage = mMessageAdapter.getLastMessage();
                         Message getMessage = new Message(getList.get(i).get(2),getList.get(i).get(1),getList.get(i).get(0),getList.get(i).get(3));
                         if(lastMessage != null){
-                            if(getMessage.getDate().compareTo(lastMessage.getDate()) > 0){
-                                mMessageAdapter.add(getMessage);
+                            if(lastMessage.getDate() != null){
+                                if(getMessage.getDate().compareTo(lastMessage.getDate()) > 0){
+                                    mMessageAdapter.add(getMessage);
+                                }
+                            } else {
+                                if(getMessage.getDate().compareTo(lastMessage.getDateFromAndroid()) > 0){
+                                    mMessageAdapter.add(getMessage);
+                                }
                             }
+
                         } else {
                             mMessageAdapter.add(getMessage);
                         }
                     }
-                    mMessageRecycler.scrollToPosition(mMessageAdapter.getItemCount() - 1);
+                    if(sizeOfMessages < mMessageAdapter.getItemCount()){
+                        mMessageRecycler.scrollToPosition(mMessageAdapter.getItemCount() - 1);
+                    }
                 } else {
                     for(int i = 0; i < getList.size(); i++){
                         Message getMessage = new Message(getList.get(i).get(2),getList.get(i).get(1),getList.get(i).get(0),getList.get(i).get(3));
@@ -305,8 +424,10 @@ public class ChatChannelFragment extends Fragment {
             inputMethodManager.hideSoftInputFromWindow(
                     getActivity().getCurrentFocus().getWindowToken(), 0);
             mEtMessage.getText().clear();
-            mMessageAdapter.add(messageBody);
-            mMessageRecycler.scrollToPosition(mMessageAdapter.getItemCount() - 1);
+            if(!messageBody.getType().equals("text")){
+                boolean visible = (attachments.getVisibility() == View.VISIBLE);
+                attachments.setVisibility(visible ? View.GONE : View.VISIBLE);
+            }
         }
     }
 

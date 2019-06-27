@@ -45,6 +45,7 @@ dependencies {
 
     //fb
     implementation 'com.facebook.android:facebook-android-sdk:4.+'
+    implementation 'com.obsez.android.lib.filechooser:filechooser:1.1.10'
 }
 
 apply plugin: 'com.google.gms.google-services'

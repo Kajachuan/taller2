@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class Message {
 
     private Date timestampDate;
+    private Date dateFromAndroid;
     private String timestamp;
     private String sender;
     private String message;
@@ -46,6 +47,7 @@ public class Message {
             e.printStackTrace();
         }
         this.timestamp = timestamp;
+        this.dateFromAndroid = Calendar.getInstance().getTime();
         this.sender = sender;
         this.message = message;
         this.type = type;
@@ -69,5 +71,9 @@ public class Message {
 
     public Date getDate() {
         return timestampDate;
+    }
+
+    public Date getDateFromAndroid(){
+        return dateFromAndroid;
     }
 }

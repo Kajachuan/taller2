@@ -9,6 +9,5 @@ public class MessageBodyPost {
         this.message = message;
         this.sender = sender;
         this.type = type;
-
     }
 }
