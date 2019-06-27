@@ -14,6 +14,7 @@ from .controllers.organizations import organizations
 from .controllers.admins import admins
 from .controllers.passwords import passwords
 from .controllers.statistics import statistics
+from .models.firebase_api import FirebaseApi
 
 app.register_blueprint(users)
 app.register_blueprint(sessions)
@@ -25,6 +26,8 @@ app.register_blueprint(statistics)
 @app.route('/')
 def index():
     return redirect(url_for('admins.admin_login'))
+
+FirebaseApi.start_service()
 
 if __name__ != '__main__':
     makedirs(path.dirname('logs/app.log'), exist_ok=True)
