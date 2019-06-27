@@ -46,7 +46,7 @@ if __name__ != '__main__':
                                    credentials=(environ['SENDGRID_USERNAME'],environ['SENDGRID_PASSWORD']))
         mail_handler.setLevel(logging.ERROR)
         mail_handler.setFormatter(logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s'))
-        gunicorn_logger.logger.addHandler(mail_handler)
+        gunicorn_logger.addHandler(mail_handler)
 
     app.logger.handlers = gunicorn_logger.handlers
     app.logger.setLevel(gunicorn_logger.level)
