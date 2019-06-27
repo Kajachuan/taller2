@@ -15,6 +15,7 @@ TYPE = 'type'
 BOT = 'bot'
 HELP_KEYS = ['help', 'info', 'mute', 'me']
 INFO_KEYS = ['name', 'owner', 'description']
+ME_KEYS = ['username', 'first_name', 'last_name', 'email']
 
 class FirebaseApi(object):
     def __init__(self):
@@ -55,7 +56,7 @@ class FirebaseApi(object):
 
     def send_bot_response_to_user(self, username, response):
         token = User.objects.get(username = username).firebase_token
-        message_response = parse_response(response.get_json(force = True))
+        message_response = self.parse_response(response)
         if environ['FLASK_ENV'] == PRODUCTION:
             message = messaging.Message(
                     data = {
@@ -66,7 +67,6 @@ class FirebaseApi(object):
         	token = token,
             )
             messaging.send(message)
-
 
     def get_users_tokens(self, list_username):
         tokens = []
@@ -85,7 +85,7 @@ class FirebaseApi(object):
         elif all (key in data for key in ME_KEYS ):
             return self.get_me(data)
         else:
-            return 'PTM no entiendo'
+            return self.get_default_message(data)
 
     def get_help(self, data):
         response = data['help'] + '\n'
@@ -102,6 +102,15 @@ class FirebaseApi(object):
 
     def get_me(self, data):
         response = 'Nombre de usuario: ' + data['username'] + '\n'
-        response += 'Nombre: ' + data['first_name'] + '\n'
-        response += 'Apellido' + data['last_name'] + '\n'
+        if data['first_name']:
+            response += 'Nombre: ' + data['first_name'] + '\n'
+        if data['last_name']:
+            response += 'Apellido' + data['last_name'] + '\n'
         response += 'Email: ' + data['email'] + '\n'
+        return response
+
+    def get_default_message(self, data):
+        response = ''
+        for key, value in data.items():
+            response += key + ': ' + value + '\n'
+        return response

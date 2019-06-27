@@ -266,10 +266,16 @@ def send_message(organization_name, channel_name):
         (mentioned, command) = message.get_mentioned_and_command()
         if mentioned == 'tito':
             response = requests.get(channel.bots['tito'] + command + '?user=' + session['username'] + '&org=' + organization_name)
-            FirebaseApi().send_bot_response_to_user(username, response)
-            return jsonify(response.json()), HTTPStatus.OK
-        elif mentioned in channel.bots.keys():
-            pass
+            if response.status_code != HTTPStatus.OK:
+                return jsonify(message = 'Bot error'), response.status_code
+            FirebaseApi().send_bot_response_to_user(session['username'], response.json())
+            return jsonify(message = 'Message sent'), HTTPStatus.OK
+        elif mentioned in channel.bots:
+            response = requests.post(channel.bots[mentioned], {'key': command})
+            if response.status_code != HTTPStatus.OK:
+                return jsonify(message = 'Bot error'), response.status_code
+            FirebaseApi().send_bot_response_to_user(session['username'], response.json())
+            return jsonify(message = 'Message sent'), HTTPStatus.OK
         elif mentioned not in channel.members:
             return jsonify(message = 'User not in channel'), HTTPStatus.OK
         FirebaseApi().send_notification_to_user(mentioned, organization_name, channel_name)
@@ -291,6 +297,8 @@ def create_bot(organization_name, channel_name):
         return jsonify(message='Bot cannot have the same name than a user'), HTTPStatus.BAD_REQUEST
     bot_url = data['url']
     channel = Organization.get_channel(organization_name, channel_name)
+    if bot_name in channel.bots:
+        return jsonify(message='Duplicated bot name'), HTTPStatus.BAD_REQUEST
     channel.update(**{'set__bots__' + bot_name: bot_url})
     return jsonify(message='Bot created'), HTTPStatus.CREATED
 

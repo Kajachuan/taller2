@@ -21,5 +21,5 @@ class Message(db.Document):
             if MENTION_SYMBOL in parsed[index]:
                 mentioned = parsed[index][1:]
                 if index != len(parsed) - 1:
-                    command = parsed[index + 1]
+                    command = ' '.join(parsed[index + 1:])
                 return (mentioned, command)
