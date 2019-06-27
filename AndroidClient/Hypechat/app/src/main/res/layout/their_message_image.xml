@@ -21,7 +21,7 @@
 
     <ImageView
         android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_height="wrap_content"
         android:id="@+id/tm_message_body"
         android:layout_below="@+id/tm_name"
         android:layout_alignLeft="@+id/tm_name"

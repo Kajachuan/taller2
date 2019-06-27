@@ -125,7 +125,7 @@ public class ChatChannelFragment extends Fragment {
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getMessages(mMessageAdapter.getItemCount() - 1,mMessageAdapter.getItemCount() + 30,true);
+                getMessages(mMessageAdapter.getItemCount() + 1,mMessageAdapter.getItemCount() + 21 ,true);
             }
         });
 
@@ -220,17 +220,7 @@ public class ChatChannelFragment extends Fragment {
         mMessageAdapter = new MessagesAdapter(getActivity(), messagesList);
 
         mMessageRecycler.setAdapter(mMessageAdapter);
-
-        //noinspection ConstantConditions
-        Display display = getActivity().getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        float height = size.y;
-        height = height - 300; //altura del telefono - (send message box + menu + barrita)
-        if(height > 0){
-            int messagesQuantity = round(height / 100);  // /dp general de un mensaje
-            getMessages(1,7,false);
-        }
+        getMessages(1,10,false);
         handler.postDelayed(runnable, 2000);
         super.onActivityCreated(savedInstanceState);
     }
@@ -388,12 +378,19 @@ public class ChatChannelFragment extends Fragment {
                         mMessageRecycler.scrollToPosition(mMessageAdapter.getItemCount() - 1);
                     }
                 } else {
-                    for(int i = 0; i < getList.size(); i++){
+                    int sizeOfMessages = mMessageAdapter.getItemCount();
+                    for(int i = getList.size() - 1; i > 0; i--){
                         Message getMessage = new Message(getList.get(i).get(2),getList.get(i).get(1),getList.get(i).get(0),getList.get(i).get(3));
                         mMessageAdapter.addAtFirst(getMessage);
                     }
+
+                    if(mMessageAdapter.getItemCount() > sizeOfMessages){
+                        mMessageRecycler.scrollToPosition(mMessageAdapter.getItemCount()-sizeOfMessages);
+                    }
+
                     // Now we call setRefreshing(false) to signal refresh has finished
                     swipeContainer.setRefreshing(false);
+
                 }
 
             }
