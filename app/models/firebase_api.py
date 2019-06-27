@@ -1,12 +1,12 @@
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import messaging
-from os import environ
+from os import environ, path
 from .user import User
 from flask import current_app
 
 PRODUCTION = 'production'
-CREDENTIALS_PATH = 'hypechat-647c1-firebase-adminsdk-bo1d5-77d6497801.json'
+CREDENTIALS_PATH = path.join(path.dirname(__file__),'./hypechat-647c1-firebase-adminsdk-bo1d5-77d6497801.json')
 SENDER = 'sender'
 MESSAGE = 'message'
 TIMESTAMP = 'timestamp'
