@@ -21,15 +21,12 @@ ME_KEYS = ['username', 'first_name', 'last_name', 'email']
 class FirebaseApi(object):
     def __init__(self):
         if environ['FLASK_ENV'] == PRODUCTION:
-            current_app.logger.error('Creando API')
             cred = credentials.Certificate(CREDENTIALS_PATH)
             self.default_app  = firebase_admin.initialize_app(cred)
-            current_app.logger.error('Termino de crear API')
 
     def send_message_to_users(self, list_username, message, organization_name, channel_name):
         if environ['FLASK_ENV'] != PRODUCTION:
             return True
-        current_app.logger.error('Entró a send_message_to_users')
         tokens = self.get_users_tokens(list_username)
         for token in tokens:
             message = messaging.Message(
@@ -44,7 +41,6 @@ class FirebaseApi(object):
         	token = token,
             )
             response = messaging.send(message)
-        current_app.logger.error('Voy a devolver True')
         return True
 
     def send_notification_to_user(self, username, organization_name, channel_name):
@@ -75,7 +71,6 @@ class FirebaseApi(object):
             messaging.send(message)
 
     def get_users_tokens(self, list_username):
-        current_app.logger.error('Estoy en get_users_tokens')
         tokens = []
         users = [User.objects.get(username = user_name) for user_name in list_username]
         for user in users:
