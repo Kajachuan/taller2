@@ -5,12 +5,13 @@ from os import environ
 from .user import User
 
 PRODUCTION = 'production'
-CREDENTIALS_PATH = '../config/hypechat-647c1-firebase-adminsdk-bo1d5-77d6497801.json'
+CREDENTIALS_PATH = 'hypechat-647c1-firebase-adminsdk-bo1d5-77d6497801.json'
 SENDER = 'sender'
 MESSAGE = 'message'
 TIMESTAMP = 'timestamp'
 ORGANIZATION = 'organization'
 CHANNEL = 'channel'
+TYPE = 'type'
 
 class FirebaseApi(object):
     def __init__(self):
@@ -21,13 +22,14 @@ class FirebaseApi(object):
     def send_message_to_users(self, list_username, message, organization_name, channel_name):
         if environ['FLASK_ENV'] != PRODUCTION:
             return True
-        tokens = get_users_tokens(list_username)
+        tokens = self.get_users_tokens(list_username)
         for token in tokens:
             message = messaging.Message(
                     data = {
         		SENDER : message.sender,
                 MESSAGE : message.message,
                 TIMESTAMP : message.timestamp,
+                TYPE: message.type,
                 ORGANIZATION : organization_name,
                 CHANNEL : channel_name,
         		},
@@ -49,7 +51,7 @@ class FirebaseApi(object):
             )
             messaging.send(message)
 
-    def get_users_tokens(list_username):
+    def get_users_tokens(self, list_username):
         tokens = []
         users = [User.objects.get(username) for username in list_username]
         for user in users:
