@@ -30,7 +30,7 @@ class TestPasswordsController(object):
         response = client.post('/recovery', data='{"username": "testrecovery"}')
 
         assert response.status_code == HTTPStatus.OK
-        assert response.get_json() == {'message': 'The token was sended'}
+        assert response.get_json() == {'message': 'The token was sent'}
 
     def test_new_password_inexistent_user(self):
         response = client.post('/password', data='{"username": "wronguser",\

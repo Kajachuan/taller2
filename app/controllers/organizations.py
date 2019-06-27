@@ -1,3 +1,4 @@
+import requests
 from os import environ
 from http import HTTPStatus
 from datetime import datetime
@@ -260,15 +261,52 @@ def send_message(organization_name, channel_name):
         message = Message(message = data['message'], sender = sender, timestamp = datetime.now(), creation_date = datetime.now(), type = type)
     except KeyError:
         message = Message(message = data['message'], sender = sender, timestamp = datetime.now(), creation_date = datetime.now())
+    if message.has_mention():
+        (mentioned, command) = message.get_mentioned_and_command()
+        if mentioned == 'tito':
+            response = requests.get(channel.bots['tito'] + command + '?user=' + session['username'] + '&org=' + organization_name)
+            if response.status_code != HTTPStatus.OK:
+                return jsonify(message = 'Bot error'), response.status_code
+            FirebaseApi().send_bot_response_to_user(session['username'], response.json())
+            return jsonify(message = 'Message sent'), HTTPStatus.OK
+        elif mentioned in channel.bots:
+            response = requests.post(channel.bots[mentioned], {'key': command})
+            if response.status_code != HTTPStatus.OK:
+                return jsonify(message = 'Bot error'), response.status_code
+            FirebaseApi().send_bot_response_to_user(session['username'], response.json())
+            return jsonify(message = 'Message sent'), HTTPStatus.OK
+        elif mentioned not in channel.members:
+            return jsonify(message = 'User not in channel'), HTTPStatus.OK
+        FirebaseApi().send_notification_to_user(mentioned, organization_name, channel_name)
     message.save()
     channel.update(push__messages = message)
     User.objects.get(username=sender).update(inc__sent_messages=1)
     response = FirebaseApi().send_message_to_users(channel.members, message, organization_name, channel_name)
     if not response:
         return jsonify(message = 'Firebase error'), HTTPStatus.SERVICE_UNAVAILABLE
-    if message.has_mention():
-        mentioned = message.get_mentioned()
-        if mentioned not in channel.members:
-            return jsonify(message = 'User not in channel'), HTTPStatus.OK
-        FirebaseApi().send_notification_to_user(mentioned, organization_name, channel_name)
     return jsonify(message = 'Message sent'),HTTPStatus.OK
+
+@organizations.route('/organization/<organization_name>/<channel_name>/bot', methods=['POST'])
+@user_no_banned_required
+@organization_no_banned_required
+def create_bot(organization_name, channel_name):
+    data = request.get_json(force = True)
+    bot_name = data['name']
+    if User.objects(username=bot_name).count():
+        return jsonify(message='Bot cannot have the same name than a user'), HTTPStatus.BAD_REQUEST
+    bot_url = data['url']
+    channel = Organization.get_channel(organization_name, channel_name)
+    if bot_name in channel.bots:
+        return jsonify(message='Duplicated bot name'), HTTPStatus.BAD_REQUEST
+    channel.update(**{'set__bots__' + bot_name: bot_url})
+    return jsonify(message='Bot created'), HTTPStatus.CREATED
+
+@organizations.route('/organization/<organization_name>/<channel_name>/bot', methods=['DELETE'])
+@user_no_banned_required
+@organization_no_banned_required
+def delete_bot(organization_name, channel_name):
+    data = request.get_json(force = True)
+    bot_name = data['name']
+    channel = Organization.get_channel(organization_name, channel_name)
+    channel.update(**{'unset__bots__' + bot_name: 1})
+    return jsonify(message='Bot deleted'), HTTPStatus.OK

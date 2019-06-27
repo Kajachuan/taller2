@@ -118,7 +118,6 @@ class TestChannelsControllers(object):
         assert message_wout_tstamp == [('Thor','Hello4'),('Thor','Hello5')]
         response = client.get('/organization/Avengers/EndGame/messages?init=3&end=5')
         message_wout_tstamp = [(message[1], message[2]) for message in response.get_json()['messages']]
-        print(message_wout_tstamp)
         assert message_wout_tstamp == [('IronMan','Hello1'),('IronMan','Hello2'),('IronMan','Hello3')]
 
     def test_get_slices_out_of_range(self):
