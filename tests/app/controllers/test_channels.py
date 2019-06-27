@@ -155,3 +155,19 @@ class TestChannelsControllers(object):
         response = client.post('/organization/Avengers/EndGame/message', data = msg)
         assert response.get_json()['message'] == 'User not in channel'
         assert response.status_code == HTTPStatus.OK
+
+    def test_create_bot(self):
+        response = client.post('/organization/Avengers/EndGame/bot', data='{"name": "Ultron", "url": "ultron.com/"}')
+        assert response.status_code == HTTPStatus.CREATED
+
+    def test_create_duplicated_bot(self):
+        response = client.post('/organization/Avengers/EndGame/bot', data='{"name": "Ultron", "url": "ultron.com/"}')
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+
+    def test_create_bot_with_username(self):
+        response = client.post('/organization/Avengers/EndGame/bot', data='{"name": "IronMan", "url": "ironman.com/"}')
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+
+    def test_delete_bot(self):
+        response = client.delete('/organization/Avengers/EndGame/bot', data='{"name": "Ultron"}')
+        assert response.status_code == HTTPStatus.OK
