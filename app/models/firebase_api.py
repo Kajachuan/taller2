@@ -53,7 +53,7 @@ class FirebaseApi(object):
 
     def get_users_tokens(self, list_username):
         tokens = []
-        users = [User.objects.get(username) for username in list_username]
+        users = [User.objects.get(username = user_name) for user_name in list_username]
         for user in users:
             token = user.firebase_token
             if token:
