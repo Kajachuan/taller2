@@ -45,6 +45,7 @@ import com.hypechat.fragments.JoinOrganizationFragment;
 import com.hypechat.fragments.NewChannelFragment;
 import com.hypechat.fragments.OrganizationFragment;
 import com.hypechat.models.channels.ChannelListBody;
+import com.hypechat.models.firebase.TokenPost;
 import com.hypechat.prefs.SessionPrefs;
 
 import java.util.ArrayList;
@@ -270,9 +271,61 @@ public class MainActivity extends AppCompatActivity
                 if(!aboutChannel.isVisible()){
                     aboutChannel.setVisible(true);
                 }
+                sendFirebaseToken();
             } else {
                 //sino crashearia pero siempre deberia haber un canal general en teoria
             }
+        }
+    }
+
+    private void sendFirebaseToken() {
+        final String username = SessionPrefs.get(this).getUsername();
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w("TOKEN_NOT_SUCCESSFUL", "getInstanceId failed", task.getException());
+                            return;
+                        }
+                        // Get new Instance ID token
+                        String tokenResult = task.getResult().getToken();
+                        TokenPost tokenBody = new TokenPost(tokenResult);
+                        Call<Void> tokenCall = mHypechatRequest.sendFirebaseToken(username,tokenBody);
+                        tokenCall.enqueue(new Callback<Void>() {
+                            @Override
+                            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                                processTokenResponse(response);
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                                showMainError(t.getMessage());
+                            }
+                        });
+
+                    }
+                });
+    }
+
+
+    private void processTokenResponse(Response<Void> response) {
+        // Procesar errores
+        if (!response.isSuccessful()) {
+            String error;
+            if (response.errorBody()
+                    .contentType()
+                    .subtype()
+                    .equals("json")) {
+                APIError apiError = ErrorUtils.parseError(response);
+                assert apiError != null;
+                error = apiError.message();
+            } else {
+                error = response.message();
+            }
+            showMainError(error);
+        } else {
+            Log.d("TOKEN", "ENVIO OK");
         }
     }
 

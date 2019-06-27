@@ -2,6 +2,7 @@ package com.hypechat.API;
 
 import com.facebook.AccessToken;
 import com.hypechat.models.channels.ChannelInfoBody;
+import com.hypechat.models.firebase.TokenPost;
 import com.hypechat.models.invitations.AcceptInvitationBody;
 import com.hypechat.models.auth.ChangePasswordBody;
 import com.hypechat.models.channels.ChannelCreateBody;
@@ -92,4 +93,8 @@ public interface HypechatRequest {
     @GET("/organization/{organization_name}/{channel_name}")
     Call<ChannelInfoBody> getChannelInfo(@Path("organization_name") String organization_name,
                                          @Path("channel_name") String channel_name);
+
+    @POST("/firebase-token/{username}")
+    Call<Void> sendFirebaseToken(@Path("username") String username,
+                                 @Body TokenPost tokenBody);
 }

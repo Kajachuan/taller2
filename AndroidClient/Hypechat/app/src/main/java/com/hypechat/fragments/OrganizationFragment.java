@@ -270,7 +270,8 @@ public class OrganizationFragment extends Fragment {
     }
 
     private void createGeneralChannelAndStartOrganization(final String organizationName) {
-        ChannelCreateBody channelCreateBody = new ChannelCreateBody("general","False");
+        String privado = "False";
+        ChannelCreateBody channelCreateBody = new ChannelCreateBody("general",privado);
         Call<Void> createOrganizationsCall = mHypechatRequest.createChannel(organizationName,channelCreateBody);
         createOrganizationsCall.enqueue(new Callback<Void>() {
             @Override
