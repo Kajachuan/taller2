@@ -1,5 +1,5 @@
 import logging
-from os import makedirs, path
+from os import makedirs, path, environ
 from flask import Flask, redirect, url_for
 from flask_mongoengine import MongoEngine
 
@@ -32,8 +32,20 @@ if __name__ != '__main__':
     formatter = logging.Formatter(fmt='[%(asctime)s] [%(levelname)s] [%(process)s] %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S %z')
     file_handler.setFormatter(formatter)
+
     gunicorn_logger = logging.getLogger('gunicorn.error')
     gunicorn_logger.addHandler(file_handler)
+    if not app.debug:
+        mail_handler = SMTPHandler(mailhost=(environ['SENDGRID_ADDRESS'], environ['SENDGRID_PORT']),
+                                   fromaddr='hypechat@error.com',
+                                   toaddrs=['kevincajachuan@hotmail.com',
+                                            'guillecondori19@gmail.com',
+                                            'Fabrizio.Cozza@gmail.com'],
+                                   subject='Application Error',
+                                   credentials=(environ['SENDGRID_USERNAME'],environ['SENDGRID_PASSWORD']))
+        mail_handler.setLevel(logging.ERROR)
+        mail_handler.setFormatter(logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s'))
+        app.logger.addHandler(mail_handler)
 
     app.logger.handlers = gunicorn_logger.handlers
     app.logger.setLevel(gunicorn_logger.level)
