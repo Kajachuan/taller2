@@ -29,7 +29,7 @@ class FirebaseApi(object):
             return True
         tokens = self.get_users_tokens(list_username)
         for token in tokens:
-            message = messaging.Message(
+            new_message = messaging.Message(
                     data = {
         		SENDER : message.sender,
                 MESSAGE : message.message,
@@ -40,7 +40,7 @@ class FirebaseApi(object):
         		},
         	token = token,
             )
-            response = messaging.send(message)
+            response = messaging.send(new_message)
         return True
 
     def send_notification_to_user(self, username, organization_name, channel_name):
