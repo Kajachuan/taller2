@@ -156,6 +156,16 @@ class TestChannelsControllers(object):
         assert response.get_json()['message'] == 'User not in channel'
         assert response.status_code == HTTPStatus.OK
 
+    def test_ban_forbidden_word(self):
+        client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
+        client.post('/admin/forbidden-words/words', data={"word":"HDP"})
+        msg = '{"sender":"Thor","message":"Hola hdp todo bien HDP?"}'
+        client.post('/organization/Avengers/EndGame/message', data = msg)
+        response = client.get('/organization/Avengers/EndGame/messages?init=1&end=1')
+        assert response.get_json()['messages'][0][2] == 'Hola *** todo bien ***?'
+        response = client.post('/admin/forbidden-words/word-delete', data={"word":"HDP"})
+
+
     def test_create_bot(self):
         response = client.post('/organization/Avengers/EndGame/bot', data='{"name": "Ultron", "url": "ultron.com/"}')
         assert response.status_code == HTTPStatus.CREATED
