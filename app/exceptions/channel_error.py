@@ -1,0 +1,2 @@
+class InvalidAmountOfMembers(Exception):
+    pass
