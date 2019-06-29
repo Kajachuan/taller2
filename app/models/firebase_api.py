@@ -28,11 +28,12 @@ class FirebaseApi(object):
         if environ['FLASK_ENV'] != PRODUCTION:
             return True
         tokens = self.get_users_tokens(list_username)
+        message_payload = message.message if message.type == 'message' or message.type == 'snippet' else ''
         for token in tokens:
             new_message = messaging.Message(
                     data = {
         		SENDER : message.sender,
-                MESSAGE : message.message,
+                MESSAGE : message_payload,
                 TIMESTAMP : str(message.timestamp),
                 TYPE: message.type,
                 ORGANIZATION : organization_name,
