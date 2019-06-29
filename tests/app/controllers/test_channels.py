@@ -33,7 +33,7 @@ class TestChannelsControllers(object):
         response = client.post('/organization/Avengers/channels', data = '{"name" : "EndGame", "privado" : "True"}')
         assert response.status_code == HTTPStatus.CREATED
         response = client.get('/organization/Avengers/channels')
-        assert 'EndGame' in response.get_json()['channels']
+        assert 'EndGame' in response.get_json()['channels'][0]
         assert len(response.get_json()['channels']) == 1
 
     def test_get_channel(self):
@@ -73,7 +73,7 @@ class TestChannelsControllers(object):
         client.post('/login', data = '{"username" : "IronMan", "password" : "mipass"}')
         response = client.get('/organization/Avengers/channels')
         assert response.status_code == HTTPStatus.OK
-        assert response.get_json()['channels'] == ['EndGame', 'Asgard']
+        assert response.get_json()['channels'] == [['EndGame', 'private'], ['Asgard', 'public']]
 
     def test_get_channel_members(self):
         response = client.get('/organization/Avengers/EndGame/members')
@@ -181,3 +181,9 @@ class TestChannelsControllers(object):
     def test_delete_bot(self):
         response = client.delete('/organization/Avengers/EndGame/bot', data='{"name": "Ultron"}')
         assert response.status_code == HTTPStatus.OK
+
+    def test_get_channels_include_privacy(self):
+        response = client.get('/organization/Avengers/channels')
+        channel_list = response.get_json()['channels']
+        for channel in channel_list:
+            assert channel[1] == 'private' or channel[1] == 'public'

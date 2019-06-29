@@ -181,8 +181,8 @@ def delete_moderator(organization_name):
 @organization_no_banned_required
 def get_channels(organization_name):
     organization = Organization.objects.get(organization_name = organization_name)
-    channels = [channel.channel_name for channel in organization.channels if session['username'] in channel.members]
-    return jsonify(channels = channels), HTTPStatus.OK
+    list_of_channels = [(channel.channel_name, channel.privacy()) for channel in organization.channels if session['username'] in channel.members]
+    return jsonify(channels = list_of_channels), HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/channels', methods=['POST'])
 @user_no_banned_required

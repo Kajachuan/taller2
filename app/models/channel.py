@@ -36,6 +36,8 @@ class Channel(db.Document):
         start = 0 if start < 0 else start
         return self.messages[start: end]
 
+    def privacy(self):
+        return 'private' if self.private else 'public'
 
     @classmethod
     def add_member(cls, channel_name, organization_name, requester, username):

@@ -213,4 +213,4 @@ class TestOrganizationsController(object):
         assert 'BlackWidow' in response.get_json()['members']
         #get public channels
         response = client.get('/organization/Taller2/channels')
-        assert response.get_json()['channels'] == ['Publico1', 'Publico2']
+        assert response.get_json()['channels'] == [['Publico1','public'], ['Publico2','public']]
