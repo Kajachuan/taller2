@@ -57,14 +57,14 @@ class FirebaseApi(object):
             )
             messaging.send(message)
 
-    def send_bot_response_to_user(self, username, response):
+    def send_bot_response_to_user(self, username, response, bot_name):
         token = User.objects.get(username = username).firebase_token
         message_response = self.parse_response(response)
         if environ['FLASK_ENV'] == PRODUCTION:
             message = messaging.Message(
                     data = {
-        		SENDER : BOT,
-                TYPE: BOT,
+        		SENDER : bot_name,
+                TYPE: 'text',
                 MESSAGE : message_response,
         		},
         	token = token,

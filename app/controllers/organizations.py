@@ -267,13 +267,13 @@ def send_message(organization_name, channel_name):
             response = requests.get(channel.bots['tito'] + command + '?user=' + session['username'] + '&org=' + organization_name)
             if response.status_code != HTTPStatus.OK:
                 return jsonify(message = 'Bot error'), response.status_code
-            FirebaseApi().send_bot_response_to_user(session['username'], response.json())
+            FirebaseApi().send_bot_response_to_user(session['username'], response.json(), mentioned)
             return jsonify(message = 'Message sent'), HTTPStatus.OK
         elif mentioned in channel.bots:
             response = requests.post(channel.bots[mentioned], {'key': command})
             if response.status_code != HTTPStatus.OK:
                 return jsonify(message = 'Bot error'), response.status_code
-            FirebaseApi().send_bot_response_to_user(session['username'], response.json())
+            FirebaseApi().send_bot_response_to_user(session['username'], response.json(), mentioned)
             return jsonify(message = 'Message sent'), HTTPStatus.OK
         elif mentioned not in channel.members:
             return jsonify(message = 'User not in channel'), HTTPStatus.OK
