@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 public class Message {
@@ -24,6 +25,9 @@ public class Message {
     public Message(String message, String sender, String timestamp, String type){
         DateFormat formatter = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z",Locale.ENGLISH);
         DateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss",Locale.ENGLISH);
+
+        formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+        formatter2.setTimeZone(TimeZone.getTimeZone("GMT"));
         try {
             Calendar cal = Calendar.getInstance();
             this.timestampDate = formatter.parse(timestamp);

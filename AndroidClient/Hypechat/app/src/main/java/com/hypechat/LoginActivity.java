@@ -348,6 +348,7 @@ public class LoginActivity extends AppCompatActivity {
             } else {
                 error = response.message();
             }
+            deleteAccessToken();
             showLoginError(error);
         } else {
             // Guardar usuario en preferencias

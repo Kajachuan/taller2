@@ -34,9 +34,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.hypechat.API.APIError;
@@ -83,9 +85,10 @@ public class ChatChannelFragment extends Fragment {
     private HypechatRequest mHypechatRequest;
     private EditText mEtMessage;
     private SwipeRefreshLayout swipeContainer;
-    private Handler handler = new Handler();
     private Handler handlerChannels = new Handler();
     private LinearLayout attachments;
+    private ImageButton mSendButton;
+    private ProgressBar pbSendMessage;
 
     public static ChatChannelFragment newInstance(String organization, String channel) {
         ChatChannelFragment chatFragment = new ChatChannelFragment();
@@ -141,7 +144,7 @@ public class ChatChannelFragment extends Fragment {
 
         attachments = getView().findViewById(R.id.attachments_layout);
 
-        ImageButton mSendButton = (ImageButton) getView().findViewById(R.id.button_chatbox_send);
+        mSendButton = (ImageButton) getView().findViewById(R.id.button_chatbox_send);
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -149,6 +152,8 @@ public class ChatChannelFragment extends Fragment {
                 sendMessage(mEtMessage.getText().toString(),type);
             }
         });
+
+        pbSendMessage = (ProgressBar) getView().findViewById(R.id.progressBar_send_message);
 
         ImageButton mSendImageButton = (ImageButton) getView().findViewById(R.id.imageButton_image);
         mSendImageButton.setOnClickListener(new View.OnClickListener() {
@@ -314,7 +319,7 @@ public class ChatChannelFragment extends Fragment {
                                 //noinspection ConstantConditions
                                 bitmap = BitmapFactory.decodeStream(getActivity().getContentResolver().openInputStream(targetUri));
                                 Bitmap resizedBitmap = null;
-                                resizedBitmap = Bitmap.createScaledBitmap(bitmap, 500, 500, false);
+                                resizedBitmap = scaleBitmap(bitmap);
                                 Drawable icon = new BitmapDrawable(getResources(), bitmap);
                                 String image = bitmapToString(resizedBitmap);
                                 String type = "img";
@@ -326,6 +331,32 @@ public class ChatChannelFragment extends Fragment {
                     }
             }
         }
+    }
+
+    private Bitmap scaleBitmap(Bitmap bm) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        int maxWidth = 512;
+        int maxHeight = 512;
+
+        if (width > height) {
+            // landscape
+            float ratio = (float) width / maxWidth;
+            width = maxWidth;
+            height = (int)(height / ratio);
+        } else if (height > width) {
+            // portrait
+            float ratio = (float) height / maxHeight;
+            height = maxHeight;
+            width = (int)(width / ratio);
+        } else {
+            // square
+            height = maxHeight;
+            width = maxWidth;
+        }
+
+        bm = Bitmap.createScaledBitmap(bm, width, height, true);
+        return bm;
     }
 
     public String bitmapToString(Bitmap bitmap){
@@ -446,7 +477,7 @@ public class ChatChannelFragment extends Fragment {
         }
     }
 
-    private void processResponseSendMessage(Response<Void> response, Message messageBody) {
+    private void processResponseSendMessage(Response<Void> response, String type) {
         // Procesar errores
         if (!response.isSuccessful()) {
             String error;
@@ -460,6 +491,8 @@ public class ChatChannelFragment extends Fragment {
             } else {
                 error = response.message();
             }
+            pbSendMessage.setVisibility(View.GONE);
+            mSendButton.setVisibility(View.VISIBLE);
             showChatError(error);
         } else {
             //noinspection ConstantConditions
@@ -470,10 +503,12 @@ public class ChatChannelFragment extends Fragment {
             inputMethodManager.hideSoftInputFromWindow(
                     getActivity().getCurrentFocus().getWindowToken(), 0);
             mEtMessage.getText().clear();
-            if(!messageBody.getType().equals("text")){
+            if(!type.equals("text")){
                 boolean visible = (attachments.getVisibility() == View.VISIBLE);
                 attachments.setVisibility(visible ? View.GONE : View.VISIBLE);
             }
+            pbSendMessage.setVisibility(View.GONE);
+            mSendButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -481,49 +516,31 @@ public class ChatChannelFragment extends Fragment {
         Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
     }
 
-    public void sendMessage(String message, String type){
+    public void sendMessage(String message, final String type){
+            pbSendMessage.setVisibility(View.VISIBLE);
+            mSendButton.setVisibility(View.GONE);
             if(!message.isEmpty()){
                 if(getArguments() != null) {
                     String organization = getArguments().getString("organization");
                     String channel = getArguments().getString("channel");
                     String username = SessionPrefs.get(getContext()).getUsername();
                     MessageBodyPost messageBody = new MessageBodyPost(message,username,type);
-                    final Message messageForList = new Message(message,username,getCurrentTime(),type);
                     Call<Void> messagesSendCall = mHypechatRequest.sendMessage(organization,channel,messageBody);
                     messagesSendCall.enqueue(new Callback<Void>() {
                         @Override
                         public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
-                            processResponseSendMessage(response,messageForList);
+                            processResponseSendMessage(response,type);
                         }
 
                         @Override
                         public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
                             showChatError(t.getMessage());
+                            pbSendMessage.setVisibility(View.GONE);
+                            mSendButton.setVisibility(View.VISIBLE);
                         }
                     });
                 }
             }
-    }
-
-    private String getCurrentTime(){
-        Calendar cal = Calendar.getInstance();
-        int hour = cal.get(Calendar.HOUR_OF_DAY);
-        int minute = cal.get(Calendar.MINUTE);
-        int second = cal.get(Calendar.SECOND);
-        String hourString = String.valueOf(hour);
-        String minuteString = String.valueOf(minute);
-        String secondString = String.valueOf(second);
-        if(minute < 10){
-            minuteString = "0" + String.valueOf(minute);
-        }
-        if(hour < 10){
-            hourString = "0" + String.valueOf(hourString);
-        }
-        if(second < 10){
-            secondString = "0" + String.valueOf(secondString);
-        }
-        String timestamp = hourString+":"+ minuteString +":"+secondString;
-        return timestamp;
     }
 
     private void getMessages(int init, int end, final boolean scrollData){

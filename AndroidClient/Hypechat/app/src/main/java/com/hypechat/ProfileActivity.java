@@ -32,13 +32,17 @@ import android.widget.Toast;
 import com.hypechat.API.APIError;
 import com.hypechat.API.ErrorUtils;
 import com.hypechat.API.HypechatRequest;
+import com.hypechat.cookies.AddCookiesInterceptor;
+import com.hypechat.cookies.ReceivedCookiesInterceptor;
 import com.hypechat.models.profile.ProfileBodySave;
 import com.hypechat.models.profile.ProfileBodyLoad;
 import com.hypechat.prefs.SessionPrefs;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -98,14 +102,22 @@ public class ProfileActivity extends AppCompatActivity {
         // perform the user load profile attempt.
         showProgress(true);
 
+        OkHttpClient.Builder okHttpClient = new OkHttpClient().newBuilder()
+                .connectTimeout(60 * 5, TimeUnit.SECONDS)
+                .readTimeout(60 * 5, TimeUnit.SECONDS)
+                .writeTimeout(60 * 5, TimeUnit.SECONDS);
+        okHttpClient.interceptors().add(new AddCookiesInterceptor());
+        okHttpClient.interceptors().add(new ReceivedCookiesInterceptor());
+
         // Crear conexión al servicio REST
-        Retrofit mProfileRestAdapter = new Retrofit.Builder()
+        Retrofit mMainRestAdapter = new Retrofit.Builder()
                 .baseUrl(HypechatRequest.BASE_URL)
+                .client(okHttpClient.build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         // Crear conexión a la API
-        mHypechatRequest = mProfileRestAdapter.create(HypechatRequest.class);
+        mHypechatRequest = mMainRestAdapter.create(HypechatRequest.class);
 
         if(!isOnline()){
             showProfileError(getString(R.string.error_network));
@@ -188,7 +200,7 @@ public class ProfileActivity extends AppCompatActivity {
                     if (targetUri != null) {
                         bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(targetUri));
                         Bitmap resizedBitmap = null;
-                        resizedBitmap = Bitmap.createScaledBitmap(bitmap, 500, 500, false);
+                        resizedBitmap = scaleBitmap(bitmap);
                         Drawable icon = new BitmapDrawable(getResources(),bitmap);
                         image = bitmapToString(resizedBitmap);
                         mProfileImage.setImageBitmap(bitmap);
@@ -198,6 +210,32 @@ public class ProfileActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    private Bitmap scaleBitmap(Bitmap bm) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        int maxWidth = 512;
+        int maxHeight = 512;
+
+        if (width > height) {
+            // landscape
+            float ratio = (float) width / maxWidth;
+            width = maxWidth;
+            height = (int)(height / ratio);
+        } else if (height > width) {
+            // portrait
+            float ratio = (float) height / maxHeight;
+            height = maxHeight;
+            width = (int)(width / ratio);
+        } else {
+            // square
+            height = maxHeight;
+            width = maxWidth;
+        }
+
+        bm = Bitmap.createScaledBitmap(bm, width, height, true);
+        return bm;
     }
 
     public String bitmapToString(Bitmap bitmap){
@@ -275,6 +313,7 @@ public class ProfileActivity extends AppCompatActivity {
             }
             String imageString = response.body().getImage();
             if(imageString != null){
+                image = imageString;
                 Bitmap imageBitmap = stringToBitmap(imageString);
                 mProfileImage.setImageBitmap(imageBitmap);
             }

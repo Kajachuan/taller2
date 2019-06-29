@@ -140,6 +140,17 @@
                     android:scaleType="fitCenter"
                     android:tint="@color/colorAccentLight" />
 
+                <ProgressBar
+                    android:id="@+id/progressBar_send_message"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginRight="10dp"
+                    android:visibility="gone"
+                    android:tint="@color/colorAccentLight"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp" />
+
             </LinearLayout>
         </LinearLayout>
 
