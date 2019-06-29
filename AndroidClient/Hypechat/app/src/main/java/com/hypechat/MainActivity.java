@@ -1,5 +1,8 @@
 package com.hypechat;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -239,9 +243,9 @@ public class MainActivity extends AppCompatActivity
             Menu menu = nvDrawer.getMenu();
             menu.clear();
             final SubMenu channelsMenu = menu.addSubMenu(R.string.channels);
-            final List<String> channels = response.body().getChannels();
+            final List<List<String>> channels = response.body().getChannels();
             for(int i = 0; i < channels.size(); i++){
-                channelsMenu.add(Menu.NONE, Menu.NONE, i, channels.get(i));
+                channelsMenu.add(Menu.NONE, Menu.NONE, i, channels.get(i).get(0));
                 final int finalI = i;
                 channelsMenu.getItem(i).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override public boolean onMenuItemClick(MenuItem item) {
@@ -266,7 +270,7 @@ public class MainActivity extends AppCompatActivity
 
             //setear nuevo fragment
             if(channels.size() > 0){
-                Fragment fragment = ChatChannelFragment.newInstance(primaryOrganization,channels.get(0));
+                Fragment fragment = ChatChannelFragment.newInstance(primaryOrganization,channels.get(0).get(0));
                 displaySelectedFragment(fragment);
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
                 if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -353,12 +357,13 @@ public class MainActivity extends AppCompatActivity
             //setear navigation drawer channels
             NavigationView nvDrawer = (NavigationView) findViewById(R.id.nav_view);
             Menu menu = nvDrawer.getMenu();
-            final List<String> channels = response.body().getChannels();
+            final List<List<String>> channels = response.body().getChannels();
+
             if(!(channels.size() == (menu.size() - 1))){
                 menu.clear();
                 final SubMenu channelsMenu = menu.addSubMenu(R.string.channels);
                 for(int i = 0; i < channels.size(); i++){
-                    channelsMenu.add(Menu.NONE, Menu.NONE, i, channels.get(i));
+                    channelsMenu.add(Menu.NONE, Menu.NONE, i, channels.get(i).get(0));
                     final int finalI = i;
                     channelsMenu.getItem(i).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                         @Override public boolean onMenuItemClick(MenuItem item) {

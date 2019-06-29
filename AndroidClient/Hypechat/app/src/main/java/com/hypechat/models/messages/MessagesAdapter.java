@@ -227,8 +227,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     public Bitmap stringToBitmap(String encodedString){
         try{
-            byte [] encodeByte = Base64.decode(encodedString, DEFAULT);
-            return BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+            byte[] imageAsBytes = Base64.decode(encodedString.getBytes(), Base64.DEFAULT);
+            return BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
         }
         catch(Exception e){
             e.getMessage();
@@ -273,6 +273,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         void bind(Message message) {
             String imageString = message.getMessage();
+
             if(imageString != null){
                 Bitmap imageBitmap = stringToBitmap(imageString);
                 messageText.setImageBitmap(imageBitmap);

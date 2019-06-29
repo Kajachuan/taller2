@@ -1,5 +1,6 @@
 package com.hypechat.fragments;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -34,6 +35,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.RenderProcessGoneDetail;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -89,6 +91,7 @@ public class ChatChannelFragment extends Fragment {
     private LinearLayout attachments;
     private ImageButton mSendButton;
     private ProgressBar pbSendMessage;
+    private ProgressBar mProgressBarLoadMessage;
 
     public static ChatChannelFragment newInstance(String organization, String channel) {
         ChatChannelFragment chatFragment = new ChatChannelFragment();
@@ -127,6 +130,7 @@ public class ChatChannelFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         mEtMessage = (EditText) getView().findViewById(R.id.edittext_chatbox);
+        mProgressBarLoadMessage = (ProgressBar) getView().findViewById(R.id.progressBar_load_messages);
 
         swipeContainer = (SwipeRefreshLayout) getView().findViewById(R.id.swipeContainer);
 
@@ -301,16 +305,9 @@ public class ChatChannelFragment extends Fragment {
         return encodedfile;
     }
 
-    private byte[] decodeFileFromBase64(String file){
-        return Base64.decode(file,Base64.DEFAULT);
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if (data != null) {
-            switch (requestCode) {
-                case 1:
+        if (data != null && requestCode == 1) {
                     if (resultCode == RESULT_OK) {
                         Uri targetUri = data.getData();
                         Bitmap bitmap = null;
@@ -319,7 +316,7 @@ public class ChatChannelFragment extends Fragment {
                                 //noinspection ConstantConditions
                                 bitmap = BitmapFactory.decodeStream(getActivity().getContentResolver().openInputStream(targetUri));
                                 Bitmap resizedBitmap = null;
-                                resizedBitmap = scaleBitmap(bitmap);
+                                resizedBitmap = Bitmap.createScaledBitmap(bitmap,500,500,false);
                                 Drawable icon = new BitmapDrawable(getResources(), bitmap);
                                 String image = bitmapToString(resizedBitmap);
                                 String type = "img";
@@ -330,7 +327,6 @@ public class ChatChannelFragment extends Fragment {
                         }
                     }
             }
-        }
     }
 
     private Bitmap scaleBitmap(Bitmap bm) {
@@ -360,10 +356,10 @@ public class ChatChannelFragment extends Fragment {
     }
 
     public String bitmapToString(Bitmap bitmap){
-        ByteArrayOutputStream baos=new  ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);
-        byte [] b=baos.toByteArray();
-        return Base64.encodeToString(b, Base64.DEFAULT);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream .toByteArray();
+        return Base64.encodeToString(byteArray, Base64.DEFAULT);
     }
 
     @Override
@@ -387,8 +383,14 @@ public class ChatChannelFragment extends Fragment {
                     intent.getExtras().getString("sender"),
                     intent.getExtras().getString("timestamp"),
                     intent.getExtras().getString("type"));
-            mMessageAdapter.add(new_message);
-            mMessageRecycler.scrollToPosition(mMessageAdapter.getItemCount() - 1);
+
+            if (new_message.getType().equals("img")){
+                getMessages(1,5,false);
+            } else {
+                mMessageAdapter.add(new_message);
+                mMessageRecycler.scrollToPosition(mMessageAdapter.getItemCount() - 1);
+            }
+
         }
     };
 
@@ -432,6 +434,7 @@ public class ChatChannelFragment extends Fragment {
             }
             showChatError(error);
         } else {
+            mProgressBarLoadMessage.setVisibility(View.GONE);
             if (response.body() != null) {
                 List<List<String>> getList = response.body().getMessageList();
                 if(!scrollData){
@@ -560,6 +563,7 @@ public class ChatChannelFragment extends Fragment {
                         // Now we call setRefreshing(false) to signal refresh has finished
                         swipeContainer.setRefreshing(false);
                     }
+                    mProgressBarLoadMessage.setVisibility(View.GONE);
                     showChatError(t.getMessage());
                 }
             });

@@ -13,88 +13,118 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <android.support.v4.widget.SwipeRefreshLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/swipeContainer"
-            android:layout_marginBottom="48dp"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/reyclerview_message_list"
-            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:descendantFocusability="beforeDescendants"
-            android:clipToPadding="false"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent">
-        </android.support.v7.widget.RecyclerView>
+            android:layout_marginBottom="48dp">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/reyclerview_message_list"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:descendantFocusability="beforeDescendants"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+            </android.support.v7.widget.RecyclerView>
 
         </android.support.v4.widget.SwipeRefreshLayout>
 
-    <!-- A horizontal line between the chatbox and RecyclerView -->
-    <View
-        android:layout_width="0dp"
-        android:layout_height="2dp"
-        android:background="#dfdfdf"
-        android:id="@+id/view_chatbox"
-        android:layout_marginBottom="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/layout_chatbox"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/floatingActionButton_add_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="20dp"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true"
+            android:src="@drawable/user_add"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginEnd="20dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="48dp"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ProgressBar
+                android:id="@+id/progressBar_load_messages"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center" />
+
+        </LinearLayout>
+
+        <!-- A horizontal line between the chatbox and RecyclerView -->
+        <View
+            android:id="@+id/view_chatbox"
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:layout_marginBottom="0dp"
+            android:background="#dfdfdf"
+            app:layout_constraintBottom_toTopOf="@+id/layout_chatbox"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
 
         <LinearLayout
             android:id="@+id/layout_chatbox"
-            android:orientation="vertical"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="#ffffff"
             android:minHeight="48dp"
+            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent">
 
             <LinearLayout
+                android:id="@+id/attachments_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/attachments_layout"
-                android:minHeight="48dp"
-                android:visibility="gone"
                 android:background="@drawable/border"
-                android:orientation="horizontal">
+                android:minHeight="48dp"
+                android:orientation="horizontal"
+                android:visibility="gone">
 
                 <ImageButton
                     android:id="@+id/imageButton_snippet"
                     android:layout_width="0dp"
                     android:layout_height="48dp"
-                    android:scaleType="fitCenter"
-                    android:background="@android:color/transparent"
                     android:layout_weight="1"
+                    android:background="@android:color/transparent"
                     android:padding="2dp"
-                    android:tint="@color/colorAccentLight"
-                    android:src="@drawable/code_snippet" />
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/code_snippet"
+                    android:tint="@color/colorAccentLight" />
 
                 <ImageButton
                     android:id="@+id/imageButton_image"
                     android:layout_width="0dp"
                     android:layout_height="48dp"
-                    android:scaleType="fitCenter"
-                    android:background="@android:color/transparent"
                     android:layout_weight="1"
+                    android:background="@android:color/transparent"
                     android:padding="5dp"
-                    android:tint="@color/colorAccentLight"
-                    android:src="@drawable/upload_image" />
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/upload_image"
+                    android:tint="@color/colorAccentLight" />
 
                 <ImageButton
                     android:id="@+id/imageButton_file"
                     android:layout_width="0dp"
                     android:layout_height="48dp"
-                    android:scaleType="fitCenter"
-                    android:background="@android:color/transparent"
                     android:layout_weight="1"
+                    android:background="@android:color/transparent"
                     android:padding="10dp"
-                    android:tint="@color/colorAccentLight"
-                    android:src="@drawable/upload_file" />
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/upload_file"
+                    android:tint="@color/colorAccentLight" />
             </LinearLayout>
 
             <LinearLayout
@@ -113,9 +143,9 @@
                     android:layout_marginLeft="16dp"
                     android:layout_marginRight="16dp"
                     android:layout_weight="1"
-                    android:tint="@color/colorAccentLight"
                     android:background="@android:color/transparent"
-                    android:hint="@string/enter_message" />
+                    android:hint="@string/enter_message"
+                    android:tint="@color/colorAccentLight" />
 
                 <ImageButton
                     android:id="@+id/button_attach"
@@ -142,17 +172,22 @@
 
                 <ProgressBar
                     android:id="@+id/progressBar_send_message"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
                     android:layout_gravity="center"
                     android:layout_marginEnd="10dp"
                     android:layout_marginRight="10dp"
-                    android:visibility="gone"
                     android:tint="@color/colorAccentLight"
-                    style="?android:attr/progressBarStyle"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp" />
+                    android:visibility="gone" />
 
             </LinearLayout>
         </LinearLayout>
+
+        <android.support.constraint.Constraints
+            android:id="@+id/constraints"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
     </android.support.constraint.ConstraintLayout>
 
