@@ -264,10 +264,10 @@ def send_message(organization_name, channel_name):
     if message.has_mention():
         (mentioned, command) = message.get_mentioned_and_command()
         if mentioned == 'tito':
-            response = requests.get(channel.bots['tito'] + command + '?user=' + session['username'] + '&org=' + organization_name)
-            if response.status_code != HTTPStatus.OK:
-                return jsonify(message = 'Bot error'), response.status_code
-            FirebaseApi().send_bot_response_to_user(session['username'], response.json(), mentioned)
+            FirebaseApi().send_message_to_users([session['username']], message, organization_name, channel_name)
+            response = requests.get(channel.bots['tito'] + command + '?user=' + session['username'] + '&org=' + organization_name + '&channel=' + channel_name)
+            message = Message(message=response.json()['message'], sender='tito', timestamp=datetime.now(), creation_date=datetime.now(), type='text')
+            FirebaseApi().send_message_to_users([session['username']], message, organization_name, channel_name)
             return jsonify(message = 'Message sent'), HTTPStatus.OK
         elif mentioned in channel.bots:
             response = requests.post(channel.bots[mentioned], {'key': command})
