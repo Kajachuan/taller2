@@ -197,7 +197,6 @@ def create_channel(organization_name):
     return '',HTTPStatus.BAD_REQUEST
 
 @organizations.route('/organization/<organization_name>/<channel_name>', methods=['GET'])
-@user_no_banned_required
 def get_channel(organization_name, channel_name):
     channel = Organization.get_channel(organization_name,channel_name)
     return jsonify(owner=channel.owner, is_private=channel.private,
