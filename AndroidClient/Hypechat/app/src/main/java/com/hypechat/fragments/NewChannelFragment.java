@@ -101,7 +101,7 @@ public class NewChannelFragment extends Fragment {
         // perform the attempt.
         showProgress(true);
         final String channelName = mChannelName.getText().toString();
-        boolean privado = mSwitchPrivate.isChecked();
+        final boolean privado = mSwitchPrivate.isChecked();
         String canalPrivado = "False";
         if (privado){
             canalPrivado = "True";
@@ -117,7 +117,7 @@ public class NewChannelFragment extends Fragment {
             createOrganizationsCall.enqueue(new Callback<Void>() {
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
-                    processResponseNewChannelCreation(response, finalOrganizationName, channelName);
+                    processResponseNewChannelCreation(response, finalOrganizationName, channelName,privado);
                 }
 
                 @Override
@@ -130,7 +130,7 @@ public class NewChannelFragment extends Fragment {
         }
     }
 
-    private void processResponseNewChannelCreation(Response<Void> response, String organizationName, String channelName) {
+    private void processResponseNewChannelCreation(Response<Void> response, String organizationName, String channelName, boolean privado) {
         showProgress(false);
         // Procesar errores
         if (!response.isSuccessful()) {
@@ -147,8 +147,15 @@ public class NewChannelFragment extends Fragment {
             }
             showNewChannelError(error);
         } else {
-            //noinspection ConstantConditions
-            ((MainActivity) getActivity()).createNewChannelFragment(organizationName,channelName);
+
+            if(privado){
+                //noinspection ConstantConditions
+                ((MainActivity) getActivity()).createNewChannelFragment(organizationName,channelName,"private");
+            } else {
+                //noinspection ConstantConditions
+                ((MainActivity) getActivity()).createNewChannelFragment(organizationName,channelName,"public");
+            }
+
         }
     }
 

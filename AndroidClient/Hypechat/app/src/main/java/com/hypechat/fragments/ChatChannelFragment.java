@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -93,20 +94,34 @@ public class ChatChannelFragment extends Fragment {
     private ProgressBar pbSendMessage;
     private ProgressBar mProgressBarLoadMessage;
 
-    public static ChatChannelFragment newInstance(String organization, String channel) {
+    public static ChatChannelFragment newInstance(String organization, String channel, String privacy) {
         ChatChannelFragment chatFragment = new ChatChannelFragment();
         Bundle args = new Bundle();
         args.putString("channel", channel);
         args.putString("organization", organization);
+        args.putString("privacy", privacy);
         chatFragment.setArguments(args);
         return chatFragment;
+    }
+
+    public String getEmojiByUnicode(int unicode){
+        return new String(Character.toChars(unicode));
     }
 
     @SuppressWarnings("ConstantConditions")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getActivity().setTitle(getArguments().getString("channel",null));
+        if(getArguments()!= null){
+            int unicodePrivate = 0x1F512;
+            int unicodePublic = 0x1F4E2;
+            if(getArguments().getString("privacy",null).equals("private")){
+                getActivity().setTitle(getEmojiByUnicode(unicodePrivate) + " " + getArguments().getString("channel",null));
+            } else {
+                getActivity().setTitle(getEmojiByUnicode(unicodePublic) + " " + getArguments().getString("channel",null));
+            }
+        }
+
 
         OkHttpClient.Builder okHttpClient = new OkHttpClient().newBuilder()
                 .connectTimeout(60 * 5, TimeUnit.SECONDS)
@@ -156,6 +171,21 @@ public class ChatChannelFragment extends Fragment {
                 sendMessage(mEtMessage.getText().toString(),type);
             }
         });
+
+        if(getArguments()!= null){
+            if(getArguments().getString("privacy",null).equals("private")){
+                FloatingActionButton fabAddUser = getView().findViewById(R.id.floatingActionButton_add_user);
+                fabAddUser.show();
+                fabAddUser.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String organization = getArguments().getString("organization",null);
+                        String channel = getArguments().getString("channel",null);
+                        ((MainActivity) getActivity()).createAddUserToPrivateChannelFragment(organization,channel);
+                    }
+                });
+            }
+        }
 
         pbSendMessage = (ProgressBar) getView().findViewById(R.id.progressBar_send_message);
 
@@ -520,9 +550,9 @@ public class ChatChannelFragment extends Fragment {
     }
 
     public void sendMessage(String message, final String type){
-            pbSendMessage.setVisibility(View.VISIBLE);
-            mSendButton.setVisibility(View.GONE);
             if(!message.isEmpty()){
+                pbSendMessage.setVisibility(View.VISIBLE);
+                mSendButton.setVisibility(View.GONE);
                 if(getArguments() != null) {
                     String organization = getArguments().getString("organization");
                     String channel = getArguments().getString("channel");

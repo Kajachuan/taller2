@@ -1,6 +1,7 @@
 package com.hypechat.API;
 
 import com.facebook.AccessToken;
+import com.hypechat.models.channels.AddUserToChannelBody;
 import com.hypechat.models.channels.ChannelInfoBody;
 import com.hypechat.models.firebase.TokenPost;
 import com.hypechat.models.invitations.AcceptInvitationBody;
@@ -97,4 +98,9 @@ public interface HypechatRequest {
     @POST("/firebase-token/{username}")
     Call<Void> sendFirebaseToken(@Path("username") String username,
                                  @Body TokenPost tokenBody);
+
+    @POST("/organization/{organization_name}/{channel_name}/members")
+    Call<Void> addUserToPrivateChannel(@Path("organization_name") String organization_name,
+                                       @Path("channel_name") String channel_name,
+                                       @Body AddUserToChannelBody addUserBody);
 }

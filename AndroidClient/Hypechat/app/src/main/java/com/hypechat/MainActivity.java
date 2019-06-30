@@ -48,6 +48,7 @@ import com.hypechat.API.HypechatRequest;
 import com.hypechat.cookies.AddCookiesInterceptor;
 import com.hypechat.cookies.ReceivedCookiesInterceptor;
 import com.hypechat.fragments.AboutChannelFragment;
+import com.hypechat.fragments.AddUserToPrivateChannelFragment;
 import com.hypechat.fragments.ChatChannelFragment;
 import com.hypechat.fragments.JoinOrganizationFragment;
 import com.hypechat.fragments.NewChannelFragment;
@@ -245,12 +246,19 @@ public class MainActivity extends AppCompatActivity
             final SubMenu channelsMenu = menu.addSubMenu(R.string.channels);
             final List<List<String>> channels = response.body().getChannels();
             for(int i = 0; i < channels.size(); i++){
-                channelsMenu.add(Menu.NONE, Menu.NONE, i, channels.get(i).get(0));
+                int unicodePrivate = 0x1F512;
+                int unicodePublic = 0x1F4E2;
+                if(channels.get(i).get(1).equals("private")){
+                    channelsMenu.add(Menu.NONE, Menu.NONE, i, getEmojiByUnicode(unicodePrivate)+" "+channels.get(i).get(0));
+                } else {
+                    channelsMenu.add(Menu.NONE, Menu.NONE, i, getEmojiByUnicode(unicodePublic)+" "+channels.get(i).get(0));
+                }
+
                 final int finalI = i;
                 channelsMenu.getItem(i).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override public boolean onMenuItemClick(MenuItem item) {
                         onBackPressed();
-                        Fragment fragment = ChatChannelFragment.newInstance(primaryOrganization,channelsMenu.getItem(finalI).getTitle().toString());
+                        Fragment fragment = ChatChannelFragment.newInstance(primaryOrganization,channels.get(finalI).get(0),channels.get(finalI).get(1));
                         displaySelectedFragment(fragment);
                         return true;
                     }
@@ -270,7 +278,7 @@ public class MainActivity extends AppCompatActivity
 
             //setear nuevo fragment
             if(channels.size() > 0){
-                Fragment fragment = ChatChannelFragment.newInstance(primaryOrganization,channels.get(0).get(0));
+                Fragment fragment = ChatChannelFragment.newInstance(primaryOrganization,channels.get(0).get(0),channels.get(0).get(1));
                 displaySelectedFragment(fragment);
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
                 if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -285,6 +293,10 @@ public class MainActivity extends AppCompatActivity
                 //sino crashearia pero siempre deberia haber un canal general en teoria
             }
         }
+    }
+
+    public String getEmojiByUnicode(int unicode){
+        return new String(Character.toChars(unicode));
     }
 
     private void sendFirebaseToken() {
@@ -358,17 +370,22 @@ public class MainActivity extends AppCompatActivity
             NavigationView nvDrawer = (NavigationView) findViewById(R.id.nav_view);
             Menu menu = nvDrawer.getMenu();
             final List<List<String>> channels = response.body().getChannels();
-
-            if(!(channels.size() == (menu.size() - 1))){
+            if(!((channels.size()) == (menu.size() - 1))){
                 menu.clear();
                 final SubMenu channelsMenu = menu.addSubMenu(R.string.channels);
                 for(int i = 0; i < channels.size(); i++){
-                    channelsMenu.add(Menu.NONE, Menu.NONE, i, channels.get(i).get(0));
+                    int unicodePrivate = 0x1F512;
+                    int unicodePublic = 0x1F4E2;
+                    if(channels.get(i).get(1).equals("private")){
+                        channelsMenu.add(Menu.NONE, Menu.NONE, i, getEmojiByUnicode(unicodePrivate)+" "+channels.get(i).get(0));
+                    } else {
+                        channelsMenu.add(Menu.NONE, Menu.NONE, i, getEmojiByUnicode(unicodePublic)+" "+channels.get(i).get(0));
+                    }
                     final int finalI = i;
                     channelsMenu.getItem(i).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                         @Override public boolean onMenuItemClick(MenuItem item) {
                             onBackPressed();
-                            Fragment fragment = ChatChannelFragment.newInstance(primaryOrganization,channelsMenu.getItem(finalI).getTitle().toString());
+                            Fragment fragment = ChatChannelFragment.newInstance(primaryOrganization,channels.get(finalI).get(0),channels.get(finalI).get(1));
                             displaySelectedFragment(fragment);
                             return true;
                         }
@@ -504,12 +521,23 @@ public class MainActivity extends AppCompatActivity
                 Intent search_profile = new Intent(this, SearchProfileActivity.class);
                 startActivity(search_profile);
             } else if(id == R.id.action_about_channel){
-                Fragment fragment = AboutChannelFragment.newInstance(mOrgsSpinner.getSelectedItem().toString(),
-                        String.valueOf(getTitle()));
+                Fragment fragment = AboutChannelFragment.newInstance(mOrgsSpinner.getSelectedItem().toString(), removeUnicodeFromTitle(String.valueOf(getTitle())));
                 displaySelectedFragment(fragment);
             }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private String removeUnicodeFromTitle(String title){
+        int unicodePrivate = 0x1F512;
+        int unicodePublic = 0x1F4E2;
+        String publico = getEmojiByUnicode(unicodePublic);
+        String privado = getEmojiByUnicode(unicodePrivate);
+
+        String tituloReemplazadoSinPublico = title.replaceAll(publico, "");
+        String tituloReemplazadoSinPrivado = tituloReemplazadoSinPublico.replaceAll(privado, "");
+
+        return tituloReemplazadoSinPrivado.replaceFirst(" ","");
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -532,25 +560,36 @@ public class MainActivity extends AppCompatActivity
         displaySelectedFragment(fragment);
     }
 
-    public void createNewChannelFragment(final String organizationName, final String newChannelName){
+    public void createNewChannelFragment(final String organizationName, final String newChannelName, final String privado){
         NavigationView nvDrawer = (NavigationView) findViewById(R.id.nav_view);
         SubMenu channels = nvDrawer.getMenu().getItem(0).getSubMenu();
-        channels.add(Menu.NONE, Menu.NONE, channels.size(), newChannelName);
+        int unicodePrivate = 0x1F512;
+        int unicodePublic = 0x1F4E2;
+        if(privado.equals("private")){
+            channels.add(Menu.NONE, Menu.NONE, channels.size(),getEmojiByUnicode(unicodePrivate)+" "+newChannelName);
+        } else {
+            channels.add(Menu.NONE, Menu.NONE, channels.size(),getEmojiByUnicode(unicodePublic)+" "+newChannelName);
+        }
         channels.getItem(channels.size()-1).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override public boolean onMenuItemClick(MenuItem item) {
                 onBackPressed();
-                Fragment fragment = ChatChannelFragment.newInstance(organizationName,newChannelName);
+                Fragment fragment = ChatChannelFragment.newInstance(organizationName,newChannelName,privado);
                 displaySelectedFragment(fragment);
                 return true;
             }
         });
-        Fragment fragment = ChatChannelFragment.newInstance(organizationName,newChannelName);
+        Fragment fragment = ChatChannelFragment.newInstance(organizationName,newChannelName,privado);
         displaySelectedFragment(fragment);
     }
 
     public void addOrganizationToAdapter(String organization){
         dataAdapter.add(organization);
         dataAdapter.notifyDataSetChanged();
+    }
+
+    public void createAddUserToPrivateChannelFragment(String organization, String channel){
+        Fragment fragment = AddUserToPrivateChannelFragment.newInstance(organization,channel);
+        displaySelectedFragment(fragment);
     }
 
     /**
