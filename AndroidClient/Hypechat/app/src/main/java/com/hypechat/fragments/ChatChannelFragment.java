@@ -93,6 +93,7 @@ public class ChatChannelFragment extends Fragment {
     private ImageButton mSendButton;
     private ProgressBar pbSendMessage;
     private ProgressBar mProgressBarLoadMessage;
+    BroadcastReceiver mMessageReceiver;
 
     public static ChatChannelFragment newInstance(String organization, String channel, String privacy) {
         ChatChannelFragment chatFragment = new ChatChannelFragment();
@@ -139,6 +140,25 @@ public class ChatChannelFragment extends Fragment {
 
         // Crear conexión a la API
         mHypechatRequest = mMainRestAdapter.create(HypechatRequest.class);
+
+        mMessageReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                //noinspection ConstantConditions
+                Message new_message = new Message(intent.getExtras().getString("message"),
+                        intent.getExtras().getString("sender"),
+                        intent.getExtras().getString("timestamp"),
+                        intent.getExtras().getString("type"));
+
+                if (new_message.getType().equals("img")){
+                    getMessages(1,5,false);
+                } else {
+                    mMessageAdapter.add(new_message);
+                    mMessageRecycler.scrollToPosition(mMessageAdapter.getItemCount() - 1);
+                }
+
+            }
+        };
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -395,54 +415,22 @@ public class ChatChannelFragment extends Fragment {
     @Override
     public void onPause () {
         handlerChannels.removeCallbacks(runnableChannels);
+        if(getContext() != null){
+            LocalBroadcastManager.getInstance(getActivity())
+                    .unregisterReceiver(mMessageReceiver);
+        }
         super.onPause ();
     }
 
     @Override
     public void onResume () {
         handlerChannels.postDelayed(runnableChannels,60000);
+        if(getContext() != null){
+            LocalBroadcastManager.getInstance(getActivity())
+                    .registerReceiver(mMessageReceiver, new IntentFilter("Data"));
+        }
         super.onResume ();
     }
-
-
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            //noinspection ConstantConditions
-            Message new_message = new Message(intent.getExtras().getString("message"),
-                    intent.getExtras().getString("sender"),
-                    intent.getExtras().getString("timestamp"),
-                    intent.getExtras().getString("type"));
-
-            if (new_message.getType().equals("img")){
-                getMessages(1,5,false);
-            } else {
-                mMessageAdapter.add(new_message);
-                mMessageRecycler.scrollToPosition(mMessageAdapter.getItemCount() - 1);
-            }
-
-        }
-    };
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        if(getContext() != null){
-            LocalBroadcastManager.getInstance(getContext()).registerReceiver((mMessageReceiver),
-                    new IntentFilter("Data")
-            );
-        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if(getContext() != null){
-            LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(mMessageReceiver);
-        }
-
-    }
-
 
     private void processResponseMessages(Response<MessageBodyList> response, boolean scrollData) {
         // Procesar errores

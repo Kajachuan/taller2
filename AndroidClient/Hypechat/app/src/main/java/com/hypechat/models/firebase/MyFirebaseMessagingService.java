@@ -1,6 +1,7 @@
 package com.hypechat.models.firebase;
 
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -21,12 +22,14 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.hypechat.API.APIError;
 import com.hypechat.API.ErrorUtils;
 import com.hypechat.API.HypechatRequest;
+import com.hypechat.MainActivity;
 import com.hypechat.R;
 import com.hypechat.cookies.AddCookiesInterceptor;
 import com.hypechat.cookies.ReceivedCookiesInterceptor;
 import com.hypechat.models.messages.Message;
 import com.hypechat.prefs.SessionPrefs;
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -39,14 +42,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import static android.widget.Toast.LENGTH_LONG;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
-
-
-    private LocalBroadcastManager broadcaster;
-
-    @Override
-    public void onCreate() {
-        broadcaster = LocalBroadcastManager.getInstance(this);
-    }
 
     private String TAG = "NOTIFICACION";
 
@@ -126,53 +121,68 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
+    private static ArrayList<Long> alreadyNotifiedTimestamps = new ArrayList<>();
+
+    // Workaround for Firebase duplicate pushes
+    private boolean isDuplicate(String timestamp) {
+        java.sql.Timestamp ts = java.sql.Timestamp.valueOf(timestamp);
+        long tsTime = ts.getTime();
+        if (alreadyNotifiedTimestamps.contains(tsTime)) {
+            alreadyNotifiedTimestamps.remove(tsTime);
+            return true;
+        } else {
+            alreadyNotifiedTimestamps.add(tsTime);
+        }
+
+        return false;
+    }
+
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-
-        // TODO(developer): Handle FCM messages here.
-        // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
-        Log.d(TAG, "From: " + remoteMessage.getFrom());
-
-        // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
-            Log.d(TAG, "Message data payload: " + remoteMessage.getData().get("sender"));
-            Log.d(TAG, "Message data payload: " + remoteMessage.getData().get("type"));
-            Log.d(TAG, "Message data payload: " + remoteMessage.getData().get("timestamp"));
-            Log.d(TAG, "Message data payload: " + remoteMessage.getData().get("channel"));
-            Log.d(TAG, "Message data payload: " + remoteMessage.getData().get("message"));
-            Log.d(TAG, "Message data payload: " + remoteMessage.getData().get("organization"));
+            Intent intent = new Intent("Data");
+            intent.putExtra("message", remoteMessage.getData().get("message"));
+            intent.putExtra("sender", remoteMessage.getData().get("sender"));
+            intent.putExtra("timestamp", remoteMessage.getData().get("timestamp"));
+            intent.putExtra("type",remoteMessage.getData().get("type"));
+
+            if(!isDuplicate(remoteMessage.getData().get("timestamp"))){
+                LocalBroadcastManager.getInstance(getApplicationContext())
+                        .sendBroadcast(intent);
+            }
         }
-        Intent intent = new Intent("Data");
-        intent.putExtra("message", remoteMessage.getData().get("message"));
-        intent.putExtra("sender", remoteMessage.getData().get("sender"));
-        intent.putExtra("timestamp", remoteMessage.getData().get("timestamp"));
-        intent.putExtra("type",remoteMessage.getData().get("type"));
-        broadcaster.sendBroadcast(intent);
 
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
-            Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
+           sendNotification(remoteMessage.getNotification());
         }
     }
 
-    private void sendNotification(String title, String message) {
+    private void sendNotification(RemoteMessage.Notification remoteMessage) {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
+                PendingIntent.FLAG_ONE_SHOT);
 
-    }
-
-
-/*
-        @SuppressWarnings("ConstantConditions") NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, "channel_id")
-                .setContentTitle(remoteMessage.getNotification().getTitle())
-                .setContentText(remoteMessage.getNotification().getBody())
+        @SuppressWarnings("ConstantConditions")
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, "channel_id")
+                .setSmallIcon(R.drawable.logo_transparent)
+                .setContentTitle(remoteMessage.getTitle())
+                .setContentText(remoteMessage.getBody())
+                .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setStyle(new NotificationCompat.BigTextStyle())
                 .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setAutoCancel(true);
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setContentIntent(pendingIntent);;
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        notificationManager.notify(0, notificationBuilder.build());*/
+        notificationManager.notify(0, notificationBuilder.build());
+    }
+
+
+
 
 }

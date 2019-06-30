@@ -211,13 +211,13 @@ public class MainActivity extends AppCompatActivity
         List<String> auxList = new ArrayList<>();
         auxList.add(organization);
         if(!mOrgsSpinner.getSelectedItem().toString().equals("Inicio")){
-            dataAdapter.add(organization);
-            dataAdapter.notifyDataSetChanged();
-            mOrgsSpinner.setSelection(dataAdapter.getPosition(organization));
             MenuItem organizationsItem = mMainMenu.getItem(0);
             if(!organizationsItem.isVisible()){
                 organizationsItem.setVisible(true);
             }
+            dataAdapter.add(organization);
+            dataAdapter.notifyDataSetChanged();
+            mOrgsSpinner.setSelection(dataAdapter.getPosition(organization));
         } else {
             initializeSpinner(auxList);
         }
