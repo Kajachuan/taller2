@@ -11,6 +11,7 @@ db = MongoEngine(app)
 from .controllers.users import users
 from .controllers.sessions import sessions
 from .controllers.organizations import organizations
+from .controllers.direct_channels import direct_channels
 from .controllers.admins import admins
 from .controllers.passwords import passwords
 from .controllers.statistics import statistics
@@ -19,6 +20,7 @@ from .models.firebase_api import FirebaseApi
 app.register_blueprint(users)
 app.register_blueprint(sessions)
 app.register_blueprint(organizations)
+app.register_blueprint(direct_channels)
 app.register_blueprint(admins)
 app.register_blueprint(passwords)
 app.register_blueprint(statistics)

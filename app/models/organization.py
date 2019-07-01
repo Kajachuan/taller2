@@ -5,6 +5,7 @@ from datetime import datetime
 from ..app import db
 from .user import User
 from .channel import Channel
+from .direct_channel import DirectChannel
 
 class Organization(db.Document):
     organization_name = db.StringField(required = True, unique = True)
@@ -25,6 +26,7 @@ class Organization(db.Document):
     welcome_message = db.StringField(default = 'Welcome')
     pending_invitations = db.MapField(db.StringField())
     channels = db.ListField(db.ReferenceField('Channel'))
+    direct_channels = db.ListField(db.ReferenceField('DirectChannel'))
     creation_date = db.DateTimeField(required=True)
     ban_date = db.DateTimeField(required=False)
     ban_reason = db.StringField(required=False)
