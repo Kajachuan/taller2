@@ -293,6 +293,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void addChatFragmentAdditionalMenuOptions(){
+
+        MenuItem organizations = mMainMenu.getItem(0);
+        if(!organizations.isVisible()){
+            organizations.setVisible(true);
+        }
+
         MenuItem aboutChannel = mMainMenu.getItem(1);
         if(!aboutChannel.isVisible()){
             aboutChannel.setVisible(true);
