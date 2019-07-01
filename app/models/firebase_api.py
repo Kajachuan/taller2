@@ -53,6 +53,18 @@ class FirebaseApi(object):
             )
             messaging.send(message)
 
+    def send_invitation_notification_to_user(self, username, organization_name, channel_name):
+        token = User.objects.get(username = username).firebase_token
+        if environ['FLASK_ENV'] == PRODUCTION:
+            message = messaging.Message(
+            notification=messaging.Notification(
+            title='Te agregaron al canal %s' % channel_name,
+            body='Fuiste agregado al canal %s de la organización %s' % (channel_name, organization_name),
+            ),
+            token = token,
+            )
+            messaging.send(message)
+
     def get_users_tokens(self, list_username):
         tokens = []
         users = [User.objects.get(username = user_name) for user_name in list_username]

@@ -1,9 +1,4 @@
 export FLASK_ENV=testing
 export FLASK_APP=app/app.py
 export CRYPT_KEY="4N8Ylf5VffObUk3JeRe7ha04dOGYc1U5h8eehFrdBAw="
-export SENDGRID_ADDRESS=smtp.sendgrid.net
-export SENDGRID_PORT=25
-export SENDGRID_KEY=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
-export SENDGRID_PASSWORD=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
-export SENDGRID_USERNAME=apikey
 python3 -m pytest

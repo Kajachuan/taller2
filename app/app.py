@@ -40,7 +40,7 @@ if __name__ != '__main__':
 
     gunicorn_logger = logging.getLogger('gunicorn.error')
     gunicorn_logger.addHandler(file_handler)
-    if not app.debug:
+    if environ['FLASK_ENV'] == 'production':
         mail_handler = SMTPHandler(mailhost=(environ['SENDGRID_ADDRESS'], environ['SENDGRID_PORT']),
                                    fromaddr='hypechat@error.com',
                                    toaddrs=['kevincajachuan@gmail.com',

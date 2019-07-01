@@ -233,9 +233,10 @@ def add_member_to_channel(organization_name, channel_name):
     data = request.get_json(force = True)
     member = data['name']
     if not Organization.has_member(organization_name, member):
-        return jsonify(message = 'User is not member'), HTTPStatus.BAD_REQUEST
+        return jsonify(message = 'User is not member of this organization'), HTTPStatus.BAD_REQUEST
     Organization.add_member_to_channel(organization_name, channel_name, member)
-    return '', HTTPStatus.OK
+    FirebaseApi().send_invitation_notification_to_user(member, organization_name, channel_name)
+    return jsonify(message = 'User added'), HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/<channel_name>/messages', methods=['GET'])
 @user_no_banned_required
@@ -271,9 +272,13 @@ def send_message(organization_name, channel_name):
             message = Message(message=response.json()['message'], sender=mentioned, timestamp=datetime.now(), creation_date=datetime.now(), type='text')
             FirebaseApi().send_message_to_users([session['username']], message, organization_name, channel_name)
             return jsonify(message = 'Message sent'), HTTPStatus.OK
-        elif mentioned not in channel.members:
-            return jsonify(message = 'User not in channel'), HTTPStatus.OK
-        FirebaseApi().send_notification_to_user(mentioned, organization_name, channel_name)
+        if mentioned not in channel.members:
+            if not Organization.has_member(organization_name, mentioned):
+                return jsonify(message = 'User is not member of this organization'), HTTPStatus.BAD_REQUEST
+            Organization.add_member_to_channel(organization_name, channel_name, mentioned)
+            FirebaseApi().send_invitation_notification_to_user(mentioned, organization_name, channel_name)
+        else:
+            FirebaseApi().send_notification_to_user(mentioned, organization_name, channel_name)
     message.save()
     channel.update(push__messages = message)
     User.objects.get(username=sender).update(inc__sent_messages=1)
