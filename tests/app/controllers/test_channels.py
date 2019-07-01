@@ -82,7 +82,7 @@ class TestChannelsControllers(object):
     def test_add_member_not_in_organization(self):
         response = client.post('/organization/Avengers/EndGame/members', data = '{"name" : "Thanos"}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.get_json()['message'] == 'User is not member'
+        assert response.get_json()['message'] == 'User is not member of this organization'
 
     def test_add_member_ok(self):
         response = client.post('/organization/Avengers/EndGame/members', data = '{"name" : "Thor"}')
@@ -150,11 +150,26 @@ class TestChannelsControllers(object):
         assert response.get_json()['message'] == 'Message sent'
         assert response.status_code == HTTPStatus.OK
 
-    def test_mention_user_not_in_channel_not_mentioned(self):
-        msg = '{"sender":"Thor","message":"Hola @NotExisting"}'
+    def test_mention_user_not_in_channel(self):
+        msg = '{"sender":"Thor","message":"Hola @Thanos"}'
         response = client.post('/organization/Avengers/EndGame/message', data = msg)
-        assert response.get_json()['message'] == 'User not in channel'
+        assert response.get_json()['message'] == 'User is not member of this organization'
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+
+        client.post('/organization/Avengers/invite', data = '{"username":"Thanos"}')
+        client.post('/login', data = '{"username" : "Thanos", "password" : "mipass"}')
+        invitations = client.get('/profile/Thanos/invitations')
+        token = list(invitations.get_json()['invitations'].keys())[0]
+        organization = invitations.get_json()['invitations'][token]
+        client.post('/organization/'+organization+'/accept-invitation', data = '{"token" : "'+token+'"}')
+
+        client.post('/login', data = '{"username" : "Thor", "password" : "mipass"}')
+        msg = '{"sender":"Thor","message":"Hola @Thanos"}'
+        response = client.post('/organization/Avengers/EndGame/message', data = msg)
+        assert response.get_json()['message'] == 'Message sent'
         assert response.status_code == HTTPStatus.OK
+        response = client.get('/organization/Avengers/EndGame/members')
+        assert 'Thanos' in response.get_json()['members']
 
     def test_ban_forbidden_word(self):
         client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
