@@ -179,7 +179,7 @@ class TestChannelsControllers(object):
         assert response.status_code == HTTPStatus.BAD_REQUEST
 
     def test_delete_bot(self):
-        response = client.delete('/organization/Avengers/EndGame/bot', data='{"name": "Ultron"}')
+        response = client.delete('/organization/Avengers/EndGame/bot/Ultron')
         assert response.status_code == HTTPStatus.OK
 
     def test_get_channels_include_privacy(self):
