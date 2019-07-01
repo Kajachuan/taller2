@@ -297,12 +297,10 @@ def create_bot(organization_name, channel_name):
     channel.update(**{'set__bots__' + bot_name: bot_url})
     return jsonify(message='Bot created'), HTTPStatus.CREATED
 
-@organizations.route('/organization/<organization_name>/<channel_name>/bot', methods=['DELETE'])
+@organizations.route('/organization/<organization_name>/<channel_name>/bot/<bot_name>', methods=['DELETE'])
 @user_no_banned_required
 @organization_no_banned_required
-def delete_bot(organization_name, channel_name):
-    data = request.get_json(force = True)
-    bot_name = data['name']
+def delete_bot(organization_name, channel_name, bot_name):
     channel = Organization.get_channel(organization_name, channel_name)
     channel.update(**{'unset__bots__' + bot_name: 1})
     return jsonify(message='Bot deleted'), HTTPStatus.OK
