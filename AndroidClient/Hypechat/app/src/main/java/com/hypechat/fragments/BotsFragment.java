@@ -210,8 +210,7 @@ public class BotsFragment extends Fragment {
         if(getArguments() != null && !botName.isEmpty()){
             String organization = getArguments().getString("organization");
             String channel = getArguments().getString("channel");
-            BotsDeletePost botPost = new BotsDeletePost(botName);
-            Call<Void> botDeleteCall = mHypechatRequest.deleteBot(organization,channel,botPost);
+            Call<Void> botDeleteCall = mHypechatRequest.deleteBot(organization,channel,botName);
             botDeleteCall.enqueue(new Callback<Void>() {
                 @Override
                 public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {

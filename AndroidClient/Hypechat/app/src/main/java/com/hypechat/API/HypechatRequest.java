@@ -111,8 +111,8 @@ public interface HypechatRequest {
                          @Path("channel_name") String channel_name,
                          @Body BotsCreationPost botsCreatePost);
 
-    @DELETE("/organization/{organization_name}/{channel_name}/bot")
+    @DELETE("/organization/{organization_name}/{channel_name}/bot/{bot_name}")
     Call<Void> deleteBot(@Path("organization_name") String organization_name,
                          @Path("channel_name") String channel_name,
-                         @Body BotsDeletePost botsDeletePost);
+                         @Path("bot_name") String botName);
 }
