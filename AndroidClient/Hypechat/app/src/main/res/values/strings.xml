@@ -107,4 +107,15 @@
     <string name="channels">Canales</string>
 
     <string name="fcm_token">FCM Token: %s</string>
+
+    <string name="bot_create">Crear bot</string>
+    <string name="bot_delete">Borrar bot</string>
+    <string name="bot_a_create">Crear un bot</string>
+    <string name="bot_a_delete">Borrar un bot</string>
+    <string name="bot_admin">Administración de bots</string>
+    <string name="organization_only">Organización:</string>
+    <string name="channel_only">Canal:</string>
+    <string name="bot_name">Nombre del bot</string>
+    <string name="bot_url">URL del bot</string>
+    <string name="action_bots">Bots</string>
 </resources>

@@ -49,6 +49,7 @@ import com.hypechat.cookies.AddCookiesInterceptor;
 import com.hypechat.cookies.ReceivedCookiesInterceptor;
 import com.hypechat.fragments.AboutChannelFragment;
 import com.hypechat.fragments.AddUserToPrivateChannelFragment;
+import com.hypechat.fragments.BotsFragment;
 import com.hypechat.fragments.ChatChannelFragment;
 import com.hypechat.fragments.JoinOrganizationFragment;
 import com.hypechat.fragments.NewChannelFragment;
@@ -284,14 +285,22 @@ public class MainActivity extends AppCompatActivity
                 if (drawer.isDrawerOpen(GravityCompat.START)) {
                     onBackPressed();
                 }
-                MenuItem aboutChannel = mMainMenu.getItem(1);
-                if(!aboutChannel.isVisible()){
-                    aboutChannel.setVisible(true);
-                }
                 sendFirebaseToken();
             } else {
                 //sino crashearia pero siempre deberia haber un canal general en teoria
             }
+        }
+    }
+
+    public void addChatFragmentAdditionalMenuOptions(){
+        MenuItem aboutChannel = mMainMenu.getItem(1);
+        if(!aboutChannel.isVisible()){
+            aboutChannel.setVisible(true);
+        }
+
+        MenuItem bots = mMainMenu.getItem(2);
+        if(!bots.isVisible()){
+            bots.setVisible(true);
         }
     }
 
@@ -522,6 +531,9 @@ public class MainActivity extends AppCompatActivity
                 startActivity(search_profile);
             } else if(id == R.id.action_about_channel){
                 Fragment fragment = AboutChannelFragment.newInstance(mOrgsSpinner.getSelectedItem().toString(), removeUnicodeFromTitle(String.valueOf(getTitle())));
+                displaySelectedFragment(fragment);
+            }else if(id == R.id.action_bots){
+                Fragment fragment = BotsFragment.newInstance(mOrgsSpinner.getSelectedItem().toString(), removeUnicodeFromTitle(String.valueOf(getTitle())));
                 displaySelectedFragment(fragment);
             }
 

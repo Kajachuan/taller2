@@ -33,6 +33,8 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -159,6 +161,14 @@ public class ChatChannelFragment extends Fragment {
 
             }
         };
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        //noinspection ConstantConditions
+        ((MainActivity) getActivity()).addChatFragmentAdditionalMenuOptions();
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @SuppressWarnings("ConstantConditions")
