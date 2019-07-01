@@ -268,7 +268,7 @@ def send_message(organization_name, channel_name):
             if mentioned == 'tito':
                 response = requests.get(channel.bots['tito'] + command + '?user=' + session['username'] + '&org=' + organization_name + '&channel=' + channel_name)
             else:
-                response = requests.post(channel.bots[mentioned], {'query': command})
+                response = requests.post(channel.bots[mentioned], json={'query': command})
             message = Message(message=response.json()['message'], sender=mentioned, timestamp=datetime.now(), creation_date=datetime.now(), type='text')
             FirebaseApi().send_message_to_users([session['username']], message, organization_name, channel_name)
             return jsonify(message = 'Message sent'), HTTPStatus.OK
