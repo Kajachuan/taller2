@@ -183,6 +183,13 @@ class TestChannelsControllers(object):
         assert response.get_json()['messages'][0][2] == 'Hola *** todo bien ***?'
         response = client.post('/admin/forbidden-words/word-delete', data={"word":"HDP"})
 
+        client.post('/login', data = '{"username" : "Thanos", "password" : "mipass"}')
+        response = client.post('/organization/Avengers/word', data={"word": "fuck"})
+        assert response.status_code == HTTPStatus.FORBIDDEN
+        assert response.get_json()['message'] == 'Only owner and moderators can add a forbidden word'
+        response = client.delete('/organization/Avengers/fuck')
+        assert response.status_code == HTTPStatus.FORBIDDEN
+        assert response.get_json()['message'] == 'Only owner and moderators can delete a forbidden word'
 
     def test_create_bot(self):
         response = client.post('/organization/Avengers/EndGame/bot', data='{"name": "Ultron", "url": "ultron.com/"}')

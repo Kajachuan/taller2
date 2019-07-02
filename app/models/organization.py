@@ -30,7 +30,7 @@ class Organization(db.Document):
     creation_date = db.DateTimeField(required=True)
     ban_date = db.DateTimeField(required=False)
     ban_reason = db.StringField(required=False)
-    #map_of_active_users ?
+    forbidden_words = db.ListField(default = [])
     meta = {'strict': False}
 
     def is_member(self, user):
@@ -47,6 +47,11 @@ class Organization(db.Document):
 
     def is_valid_token(self, token):
         return token in self.pending_invitations.keys()
+
+    @classmethod
+    def get_forbidden_words(cls, organization_name):
+        organization = cls.objects.get(organization_name = organization_name)
+        return organization.forbidden_words
 
     @classmethod
     def has_member(cls, organization_name, username):

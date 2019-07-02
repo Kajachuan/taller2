@@ -185,8 +185,30 @@ def get_organization_locations(organization_name):
         locations[member.username] = member.location
     return jsonify(locations=locations), HTTPStatus.OK
 
-#channels
+@organizations.route('/organization/<organization_name>/word', methods=['POST'])
+@user_no_banned_required
+@organization_no_banned_required
+def add_forbidden_word(organization_name):
+    current_user = User.objects.get(username = session['username'])
+    organization = Organization.objects.get(organization_name = organization_name)
+    if not organization.is_owner(current_user) and not organization.is_moderator(current_user):
+        return jsonify(message = 'Only owner and moderators can add a forbidden word'), HTTPStatus.FORBIDDEN
+    data = request.get_json(force = True)
+    organization.update(add_to_set__forbidden_words=data['word'])
+    return jsonify(message='Forbidden word added'), HTTPStatus.OK
 
+@organizations.route('/organization/<organization_name>/<word>', methods=['DELETE'])
+@user_no_banned_required
+@organization_no_banned_required
+def delete_forbidden_word(organization_name, word):
+    current_user = User.objects.get(username = session['username'])
+    organization = Organization.objects.get(organization_name = organization_name)
+    if not organization.is_owner(current_user) and not organization.is_moderator(current_user):
+        return jsonify(message = 'Only owner and moderators can delete a forbidden word'), HTTPStatus.FORBIDDEN
+    organization.update(pull__forbidden_words=word)
+    return jsonify(message='Forbidden word deleted'), HTTPStatus.OK
+
+#channels
 @organizations.route('/organization/<organization_name>/channels', methods=['GET'])
 @organization_no_banned_required
 def get_channels(organization_name):
@@ -291,6 +313,7 @@ def send_message(organization_name, channel_name):
             FirebaseApi().send_invitation_notification_to_user(mentioned, organization_name, channel_name)
         else:
             FirebaseApi().send_notification_to_users([mentioned], organization_name, channel_name)
+    message.replace_organization_forbidden_words(Organization.get_forbidden_words(organization_name))
     message.save()
     channel.update(push__messages = message)
     User.objects.get(username=sender).update(inc__sent_messages=1)

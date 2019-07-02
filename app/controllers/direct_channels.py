@@ -74,6 +74,7 @@ def send_message(organization_name):
         message = Message(message = data['message'], sender = sender, timestamp = datetime.now(), creation_date = datetime.now(), type = type)
     except KeyError:
         message = Message(message = data['message'], sender = sender, timestamp = datetime.now(), creation_date = datetime.now())
+    message.replace_organization_forbidden_words(Organization.get_forbidden_words(organization_name))
     message.save()
     dchannel.update(push__messages = message)
     User.objects.get(username=sender).update(inc__sent_messages=1)

@@ -17,8 +17,12 @@ class Message(db.Document):
             if forbidden_word.lower() in self.message.lower():
                 fw = re.compile(re.escape(forbidden_word), re.IGNORECASE)
                 self.message = fw.sub('*' * len(forbidden_word), self.message)
-                #self.message = self.message.replace(forbidden_word, '*' * len(forbidden_word))
 
+    def replace_organization_forbidden_words(self, forbidden_words):
+        for forbidden_word in forbidden_words:
+            if forbidden_word.lower() in self.message.lower():
+                fw = re.compile(re.escape(forbidden_word), re.IGNORECASE)
+                self.message = fw.sub('*' * len(forbidden_word), self.message)
 
     def has_mention(self):
         return True if MENTION_SYMBOL in self.message else False
