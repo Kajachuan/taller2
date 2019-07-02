@@ -47,3 +47,37 @@ def get_user_direct_channels(organization_name):
         if username in dchannel.members_username():
             direct_channels.append(dchannel.display_name(username))
     return jsonify(direct_channels = direct_channels)
+
+@direct_channels.route('/organization/<organization_name>/direct-channels/messages', methods=['GET'])
+@user_no_banned_required
+@organization_no_banned_required
+def get_n_channel_messages(organization_name):
+    init = request.args.get('init', '')
+    end = request.args.get('end', '')
+    username1 = request.args.get('user1','')
+    username2 = request.args.get('user2','')
+    dchannel = Organization.get_direct_channel(organization_name, username1, username2)
+    messages = dchannel.get_messages(int(init), int(end))
+    list_of_msg = [(message.timestamp,message.sender,message.message,message.type) for message in messages]
+    return jsonify(messages = list_of_msg), HTTPStatus.OK
+
+@direct_channels.route('/organization/<organization_name>/direct-channels/messages', methods=['POST'])
+@user_no_banned_required
+@organization_no_banned_required
+def send_message(organization_name):
+    data = request.get_json(force = True)
+    sender = data['from']
+    receiver = data['to']
+    dchannel = Organization.get_direct_channel(organization_name, sender, receiver)
+    try:
+        type = data['type']
+        message = Message(message = data['message'], sender = sender, timestamp = datetime.now(), creation_date = datetime.now(), type = type)
+    except KeyError:
+        message = Message(message = data['message'], sender = sender, timestamp = datetime.now(), creation_date = datetime.now())
+    message.save()
+    dchannel.update(push__messages = message)
+    User.objects.get(username=sender).update(inc__sent_messages=1)
+    response = FirebaseApi().send_direct_message_to_user(message, organization_name, sender, receiver)
+    if not response:
+        return jsonify(message = 'Firebase error'), HTTPStatus.SERVICE_UNAVAILABLE
+    return jsonify(message = 'Message sent'),HTTPStatus.CREATED

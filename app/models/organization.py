@@ -85,6 +85,15 @@ class Organization(db.Document):
                 return channel
 
     @classmethod
+    def get_direct_channel(cls, organization_name, username1, username2):
+        organization = cls.objects.get(organization_name = organization_name)
+        user1 = User.objects.get(username = username1)
+        user2 = User.objects.get(username = username2)
+        for dchannel in organization.direct_channels:
+            if user1 in dchannel.members and user2 in dchannel.members:
+                return dchannel
+
+    @classmethod
     def get_channel_members(cls, organization_name, channel_name):
         organization = Organization.objects.get(organization_name = organization_name)
         members = []
