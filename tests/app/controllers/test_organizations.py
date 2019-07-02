@@ -216,3 +216,7 @@ class TestOrganizationsController(object):
         #get public channels
         response = client.get('/organization/Taller2/channels')
         assert response.get_json()['channels'] == [['Publico1','public'], ['Publico2','public']]
+
+    def test_get_locations(self):
+        response = client.get('/organization/Taller2/locations')
+        assert response.status_code == HTTPStatus.OK
