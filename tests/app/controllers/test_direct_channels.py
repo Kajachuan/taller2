@@ -7,9 +7,11 @@ client = app.test_client()
 class TestDirectChannel(object):
     def setup_class(cls):
         client.post('/register', data='{"username": "Harry", "email": "iron@test.com",\
-                                        "password": "mipass", "password_confirmation": "mipass"}')
+                                        "password": "mipass", "password_confirmation": "mipass",\
+                                        "lat": 0, "lon": 0}')
         client.post('/register', data='{"username": "Ron", "email": "thor@test.com",\
-                                        "password": "mipass", "password_confirmation": "mipass"}')
+                                        "password": "mipass", "password_confirmation": "mipass",\
+                                        "lat": 0, "lon": 0}')
         client.post('/login', data='{"username": "Harry", "password": "mipass"}')
         client.post('/organization', data = '{"name" : "Hogwarts"}')
         client.post('/organization/Hogwarts/invite', data = '{"username" : "Ron" }')
