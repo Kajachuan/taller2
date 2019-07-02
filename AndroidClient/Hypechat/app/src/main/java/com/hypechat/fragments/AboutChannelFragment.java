@@ -11,9 +11,16 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -25,6 +32,7 @@ import com.hypechat.API.HypechatRequest;
 import com.hypechat.R;
 import com.hypechat.cookies.AddCookiesInterceptor;
 import com.hypechat.cookies.ReceivedCookiesInterceptor;
+import com.hypechat.models.channels.ChangeChannelPost;
 import com.hypechat.models.channels.ChannelInfoBody;
 
 import java.util.concurrent.TimeUnit;
@@ -46,10 +54,15 @@ public class AboutChannelFragment extends Fragment {
     private TextView mChannelNameTv;
     private TextView mOwnerNameTv;
     private TextView mPrivacyTv;
-    private TextView mDescriptionTv;
-    private TextView mWelMsgTv;
+    private EditText mDescriptionEt;
+    private EditText mWelMsgTv;
     private TextView mMsgQuantTv;
     private TextView mMemQuantTv;
+    private EditText et_channel_desc;
+    private EditText et_channel_welmsg;
+    private ImageView et_channel_desc_img_view;
+    private ImageView et_channel_welmsg_im_view;
+    private CheckBox ch_privacy;
 
     public static AboutChannelFragment newInstance(String organization, String channel) {
         AboutChannelFragment aboutChannelFragment = new AboutChannelFragment();
@@ -82,6 +95,90 @@ public class AboutChannelFragment extends Fragment {
 
         // Crear conexión a la API
         mHypechatRequest = mMainRestAdapter.create(HypechatRequest.class);
+
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.save_channel, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+
+        if(itemId == R.id.acton_save_channel)
+        {
+            showProgress(true);
+            saveChannelInfo();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void saveChannelInfo() {
+        String desc = mDescriptionEt.getText().toString();
+        String wel_msg = mWelMsgTv.getText().toString();
+        if (getArguments() != null && !desc.isEmpty() && !wel_msg.isEmpty()) {
+            boolean privado;
+            if(mPrivacyTv.getText().toString().equals("Privado")){
+                if(ch_privacy.isChecked()){
+                    privado = true;
+                } else {
+                    privado = false;
+                }
+            } else {
+                if(ch_privacy.isChecked()){
+                    privado = false;
+                } else {
+                    privado = true;
+                }
+            }
+            ChangeChannelPost changeChannelInfoBody = new ChangeChannelPost(privado,desc,wel_msg);
+            Call<Void> changeChannelInfoCall = mHypechatRequest.changeChannelInfo(
+                    getArguments().getString("organization"),
+                    getArguments().getString("channel"),
+                    changeChannelInfoBody);
+            changeChannelInfoCall.enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                    processSaveChannelInfoResponse(response);
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                    showAbChannelError(t.getMessage());
+                    showProgress(false);
+                }
+            });
+        } else {
+            showProgress(false);
+        }
+    }
+
+    private void processSaveChannelInfoResponse(Response<Void> response) {
+        // Mostrar progreso
+        showProgress(false);
+
+        // Procesar errores
+        if (!response.isSuccessful()) {
+            String error;
+            if (response.errorBody()
+                    .contentType()
+                    .subtype()
+                    .equals("json")) {
+                APIError apiError = ErrorUtils.parseError(response);
+                assert apiError != null;
+                error = apiError.message();
+            } else {
+                error = response.message();
+            }
+            showAbChannelError(error);
+        } else {
+            showAbChannelError("Se guardó la información del canal exitosamente");
+        }
     }
 
 
@@ -100,10 +197,35 @@ public class AboutChannelFragment extends Fragment {
         mChannelNameTv = getView().findViewById(R.id.textView_channel_name);
         mOwnerNameTv = getView().findViewById(R.id.textView_owner_name);
         mPrivacyTv = getView().findViewById(R.id.textView_privacy);
-        mDescriptionTv = getView().findViewById(R.id.textView_description);
-        mWelMsgTv = getView().findViewById(R.id.textView_welcome_message);
+        mDescriptionEt = getView().findViewById(R.id.description_channel_et);
+        mWelMsgTv = getView().findViewById(R.id.welcomemsg_channel_et);
         mMsgQuantTv = getView().findViewById(R.id.textView_msg_quantity);
         mMemQuantTv = getView().findViewById(R.id.textView_members_quantity);
+        ch_privacy = getView().findViewById(R.id.checkBox_privacy);
+
+        et_channel_desc_img_view = getView().findViewById(R.id.et_desc_channel_button);
+        et_channel_desc_img_view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setFocusOnDescEditText(getView());
+            }
+        });
+
+        et_channel_welmsg_im_view = getView().findViewById(R.id.et_welcomemsg_channel_button);
+        et_channel_welmsg_im_view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setFocusOnWelMsgEditText(getView());
+            }
+        });
+
+        et_channel_welmsg_im_view = getView().findViewById(R.id.et_welcomemsg_channel_button);
+        et_channel_welmsg_im_view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setFocusOnWelMsgEditText(getView());
+            }
+        });
 
         mProgressLoadInfoChannel = getView().findViewById(R.id.progressBar_about_channel);
         mInfoChannelLayout = getView().findViewById(R.id.channel_statistics);
@@ -181,12 +303,26 @@ public class AboutChannelFragment extends Fragment {
                     mPrivacyTv.setText(getText(R.string.privado_2));
                 }
 
-                mDescriptionTv.setText(response.body().getDescription());
+                mDescriptionEt.setText(response.body().getDescription());
                 mWelMsgTv.setText(response.body().getWelcome_message());
                 mMsgQuantTv.setText(response.body().getMessages());
                 mMemQuantTv.setText(response.body().getMembers());
             }
         }
+    }
+
+    public void setFocusOnDescEditText(View view) {
+        mDescriptionEt.setSelection(mDescriptionEt.getText().length());
+        mDescriptionEt.requestFocus();
+        InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(mDescriptionEt, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+    public void setFocusOnWelMsgEditText(View view) {
+        mWelMsgTv.setSelection(mWelMsgTv.getText().length());
+        mWelMsgTv.requestFocus();
+        InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(mWelMsgTv, InputMethodManager.SHOW_IMPLICIT);
     }
 
     private void showAbChannelError(String error) {

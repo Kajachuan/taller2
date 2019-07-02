@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -104,13 +105,48 @@
                     android:gravity="center"
                     android:text="@string/privacy" />
 
-                <TextView
-                    android:id="@+id/textView_privacy"
+                <RelativeLayout
+                    android:orientation="horizontal"
+                    android:paddingLeft="80dp"
+                    android:paddingStart="80dp"
+                    android:paddingRight="50dp"
+                    android:focusableInTouchMode="true"
+                    android:paddingEnd="50dp"
+                    android:id="@+id/rl_privacy_channel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:gravity="center"
-                    android:text="" />
+                    >
+
+                    <TextView
+                        android:id="@+id/textView_privacy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:paddingLeft="20dp"
+                        android:textColor="@android:color/primary_text_light"
+                        android:paddingStart="20dp"
+                        android:textSize="16sp"
+                        android:paddingRight="20dp"
+                        android:paddingEnd="20dp"
+                        android:gravity="center"
+                        android:text="" />
+
+                    <CheckBox
+                        android:id="@+id/checkBox_privacy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:checked="true"
+                        android:layout_marginLeft="5dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_toEndOf="@+id/textView_privacy"
+                        android:layout_toRightOf="@+id/textView_privacy"
+                        android:text=""
+                        android:layout_alignParentRight="true" />
+
+                </RelativeLayout>
+
+
 
                 <TextView
                     android:id="@+id/textView5"
@@ -121,13 +157,46 @@
                     android:gravity="center"
                     android:text="@string/description" />
 
-                <TextView
-                    android:id="@+id/textView_description"
+                <RelativeLayout
+                    android:orientation="horizontal"
+                    android:paddingLeft="80dp"
+                    android:paddingStart="80dp"
+                    android:paddingRight="50dp"
+                    android:focusableInTouchMode="true"
+                    android:paddingEnd="50dp"
+                    android:id="@+id/rl_description_channel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:gravity="center"
-                    android:text="" />
+                    >
+
+                    <EditText
+                        android:background="@android:color/transparent"
+                        android:id="@+id/description_channel_et"
+                        android:layout_centerInParent="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="20dp"
+                        android:textColor="@android:color/primary_text_light"
+                        android:paddingStart="20dp"
+                        android:textSize="16sp"
+                        android:paddingRight="20dp"
+                        android:paddingEnd="20dp"
+                        android:imeOptions="actionDone"
+                        tools:ignore="Autofill"
+                        android:inputType="text" />
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_toRightOf="@+id/description_channel_et"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerInParent="true"
+                        android:contentDescription="@string/image_desc"
+                        android:src="@android:drawable/ic_menu_edit"
+                        android:id="@+id/et_desc_channel_button"
+                        android:layout_alignParentRight="true"
+                        android:layout_toEndOf="@+id/description_channel_et" />
+
+                </RelativeLayout>
 
                 <TextView
                     android:id="@+id/textView3"
@@ -138,13 +207,46 @@
                     android:gravity="center"
                     android:text="@string/welcome_message" />
 
-                <TextView
-                    android:id="@+id/textView_welcome_message"
+                <RelativeLayout
+                    android:orientation="horizontal"
+                    android:paddingLeft="80dp"
+                    android:paddingStart="80dp"
+                    android:paddingRight="50dp"
+                    android:focusableInTouchMode="true"
+                    android:paddingEnd="50dp"
+                    android:id="@+id/rl_welcomemsg_channel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:gravity="center"
-                    android:text="" />
+                    >
+
+                    <EditText
+                        android:background="@android:color/transparent"
+                        android:id="@+id/welcomemsg_channel_et"
+                        android:layout_centerInParent="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="20dp"
+                        android:paddingStart="20dp"
+                        android:textSize="16sp"
+                        android:textColor="@android:color/primary_text_light"
+                        android:paddingRight="20dp"
+                        android:paddingEnd="20dp"
+                        android:imeOptions="actionDone"
+                        tools:ignore="Autofill"
+                        android:inputType="text" />
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_toRightOf="@+id/welcomemsg_channel_et"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerInParent="true"
+                        android:contentDescription="@string/image_desc"
+                        android:src="@android:drawable/ic_menu_edit"
+                        android:id="@+id/et_welcomemsg_channel_button"
+                        android:layout_alignParentRight="true"
+                        android:layout_toEndOf="@+id/welcomemsg_channel_et" />
+
+                </RelativeLayout>
 
                 <TextView
                     android:id="@+id/textView4"

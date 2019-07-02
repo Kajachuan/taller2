@@ -25,20 +25,28 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_profile"
+        android:id="@+id/acton_save_channel"
         android:orderInCategory="400"
+        android:visible="false"
+        android:icon="@drawable/save_icon"
+        android:title="@string/acton_save_channel"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_profile"
+        android:orderInCategory="500"
         android:title="@string/action_profile"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/action_search_profile"
-        android:orderInCategory="500"
+        android:orderInCategory="600"
         android:title="@string/action_search_profile"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/action_logout"
-        android:orderInCategory="600"
+        android:orderInCategory="700"
         android:title="@string/action_logout"
         app:showAsAction="never" />
 </menu>

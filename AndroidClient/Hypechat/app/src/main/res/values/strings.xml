@@ -118,4 +118,5 @@
     <string name="bot_name">Nombre del bot</string>
     <string name="bot_url">URL del bot</string>
     <string name="action_bots">Bots</string>
+    <string name="acton_save_channel">Guardar canal</string>
 </resources>

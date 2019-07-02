@@ -4,6 +4,7 @@ import com.facebook.AccessToken;
 import com.hypechat.models.bots.BotsCreationPost;
 import com.hypechat.models.bots.BotsDeletePost;
 import com.hypechat.models.channels.AddUserToChannelBody;
+import com.hypechat.models.channels.ChangeChannelPost;
 import com.hypechat.models.channels.ChannelInfoBody;
 import com.hypechat.models.firebase.TokenPost;
 import com.hypechat.models.invitations.AcceptInvitationBody;
@@ -115,4 +116,9 @@ public interface HypechatRequest {
     Call<Void> deleteBot(@Path("organization_name") String organization_name,
                          @Path("channel_name") String channel_name,
                          @Path("bot_name") String botName);
+
+    @POST("/organization/{organization_name}/{channel_name}")
+    Call<Void> changeChannelInfo(@Path("organization_name") String organization_name,
+                         @Path("channel_name") String channel_name,
+                                 @Body ChangeChannelPost changeChannelPost);
 }
