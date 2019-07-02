@@ -35,3 +35,15 @@ def create_direct_channel(organization_name):
     new_direct_channel.save()
     organization.update(push__direct_channels = new_direct_channel)
     return jsonify(message = 'Direct channel created'), HTTPStatus.CREATED
+
+@direct_channels.route('/organization/<organization_name>/direct_channels', methods=['GET'])
+@user_no_banned_required
+@organization_no_banned_required
+def get_user_direct_channels(organization_name):
+    username = request.args['username']
+    direct_channels = []
+    organization = Organization.objects.get(organization_name = organization_name)
+    for dchannel in organization.direct_channels:
+        if username in dchannel.members_username():
+            direct_channels.append(dchannel.display_name(username))
+    return jsonify(direct_channels = direct_channels)

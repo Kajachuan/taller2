@@ -19,6 +19,12 @@ class DirectChannel(db.Document):
         start = 0 if start < 0 else start
         return self.messages[start: end]
 
+    def members_username(self):
+        return [member.username for member in self.members]
+
+    def display_name(self, requester_username):
+        return self.members[0].username if self.members[1].username == requester_username else self.members[1].username
+
     @classmethod
     def add_message(cls, organization_name, sender, receiver, message):
         from .organization import Organization

@@ -26,3 +26,7 @@ class TestDirectChannel(object):
         response = client.post('/organization/Hogwarts/direct-channels', data = '{"members":"Harry,Ron"}')
         assert response.get_json()['message'] == 'Direct channel created'
         assert response.status_code == HTTPStatus.CREATED
+
+    def test_get_user_direct_channels(self):
+        response = client.get('/organization/Hogwarts/direct_channels?username=Harry')
+        assert response.get_json()['direct_channels'] == ['Ron']
