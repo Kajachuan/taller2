@@ -266,7 +266,9 @@ def add_member_to_channel(organization_name, channel_name):
     member = data['name']
     if not Organization.has_member(organization_name, member):
         return jsonify(message = 'User is not member of this organization'), HTTPStatus.BAD_REQUEST
-    Organization.add_member_to_channel(organization_name, channel_name, member)
+    added = Organization.add_member_to_channel(organization_name, channel_name, member)
+    if not added:
+        return jsonify(message = 'User is already in channel'), HTTPStatus.BAD_REQUEST
     FirebaseApi().send_invitation_notification_to_user(member, organization_name, channel_name)
     message = Message(message=Organization.get_welcome_message(organization_name), sender='tito',
                       timestamp=datetime.now(), creation_date=datetime.now(), type='text')
