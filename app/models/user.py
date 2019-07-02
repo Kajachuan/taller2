@@ -28,6 +28,7 @@ class User(db.Document):
     facebook_id = db.StringField(required=False)
     firebase_token = db.StringField(required=False)
     sent_messages = db.IntField(default=0)
+    location = db.DictField(required=False, default={'lat':0, 'lon':0})
     meta = {'strict': False}
 
     def clean(self):

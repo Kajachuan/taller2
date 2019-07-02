@@ -175,6 +175,16 @@ def delete_moderator(organization_name):
     organization.update(pull__moderators = user)
     return jsonify(message = 'member is not a moderator anymore'), HTTPStatus.OK
 
+@organizations.route('/organization/<organization_name>/locations', methods=['GET'])
+@user_no_banned_required
+@organization_no_banned_required
+def get_organization_locations(organization_name):
+    organization = Organization.objects.get(organization_name = organization_name)
+    locations = {}
+    for member in organization.members:
+        locations[member.username] = member.location
+    return jsonify(locations=locations), HTTPStatus.OK
+
 #channels
 
 @organizations.route('/organization/<organization_name>/channels', methods=['GET'])

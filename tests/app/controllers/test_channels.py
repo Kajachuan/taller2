@@ -7,11 +7,14 @@ client = app.test_client()
 class TestChannelsControllers(object):
     def setup_class(cls):
         client.post('/register', data='{"username": "IronMan", "email": "iron@test.com",\
-                                        "password": "mipass", "password_confirmation": "mipass"}')
+                                        "password": "mipass", "password_confirmation": "mipass",\
+                                        "lat": 0, "lon": 0}')
         client.post('/register', data='{"username": "Thor", "email": "thor@test.com",\
-                                        "password": "mipass", "password_confirmation": "mipass"}')
+                                        "password": "mipass", "password_confirmation": "mipass",\
+                                        "lat": 0, "lon": 0}')
         client.post('/register', data='{"username": "Thanos", "email": "thanos@test.com",\
-                                        "password": "mipass", "password_confirmation": "mipass"}')
+                                        "password": "mipass", "password_confirmation": "mipass",\
+                                        "lat": 0, "lon": 0}')
         client.post('/login', data='{"username": "IronMan", "password": "mipass"}')
         client.post('/organization', data = '{"name" : "Avengers"}')
         client.post('/organization/Avengers/invite', data = '{"username" : "Thor" }')

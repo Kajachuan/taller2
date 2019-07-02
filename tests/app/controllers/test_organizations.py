@@ -14,9 +14,11 @@ default_img_file = open(path.abspath(default_img_path), 'rb')
 default_img = b64encode(default_img_file.read()).decode()
 
 client.post('/register', data='{"username": "orgacreator", "email": "user@test.com",\
-                                "password": "mipass", "password_confirmation": "mipass"}')
+                                "password": "mipass", "password_confirmation": "mipass",\
+                                "lat": 0, "lon": 0}')
 client.post('/register', data='{"username": "BlackWidow", "email": "user@test.com",\
-                                "password": "mipass", "password_confirmation": "mipass"}')
+                                "password": "mipass", "password_confirmation": "mipass",\
+                                "lat": 0, "lon": 0}')
 client.post('/login', data='{"username": "orgacreator", "password": "mipass"}')
 
 class TestOrganizationsController(object):
@@ -214,3 +216,7 @@ class TestOrganizationsController(object):
         #get public channels
         response = client.get('/organization/Taller2/channels')
         assert response.get_json()['channels'] == [['Publico1','public'], ['Publico2','public']]
+
+    def test_get_locations(self):
+        response = client.get('/organization/Taller2/locations')
+        assert response.status_code == HTTPStatus.OK

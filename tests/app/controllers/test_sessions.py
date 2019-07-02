@@ -10,7 +10,8 @@ file = open(path.abspath(file_path), 'rb')
 img = b64encode(file.read()).decode()
 
 client.post('/register', data='{"username": "testlogin", "email": "user@test.com",\
-                                "password": "mipass", "password_confirmation": "mipass"}')
+                                "password": "mipass", "password_confirmation": "mipass",\
+                                "lat": 0, "lon": 0}')
 
 class TestSessionsController(object):
     def test_correct_login(self):

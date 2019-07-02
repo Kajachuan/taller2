@@ -82,7 +82,8 @@ class TestAdminsController(object):
     def test_ban_user(self):
         client.post('/register',
                      data='{"username": "banUser", "email": "user@test.com",\
-                            "password": "mipass", "password_confirmation": "mipass"}')
+                            "password": "mipass", "password_confirmation": "mipass",\
+                            "lat": 0, "lon": 0}')
         client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
         response = client.post('/admin/ban/user',
                                data={"username": "banUser", "ban_date": "2020-12-20",
@@ -97,7 +98,8 @@ class TestAdminsController(object):
     def test_ban_user_while_logged_in(self):
         client.post('/register',
                     data='{"username": "banUser2", "email": "user@test.com",\
-                           "password": "mipass", "password_confirmation": "mipass"}')
+                           "password": "mipass", "password_confirmation": "mipass",\
+                           "lat": 0, "lon": 0}')
         client.post('/login', data='{"username": "banUser2", "password": "mipass"}')
 
         client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
@@ -113,7 +115,8 @@ class TestAdminsController(object):
     def test_ban_organization(self):
         client.post('/register',
                      data='{"username": "ownerBanOrganization", "email": "user@test.com",\
-                            "password": "mipass", "password_confirmation": "mipass"}')
+                            "password": "mipass", "password_confirmation": "mipass",\
+                            "lat": 0, "lon": 0}')
         client.post('/login', data='{"username": "ownerBanOrganization", "password": "mipass"}')
         client.post('/organization', data = '{"name" : "BanOrganization"}')
         client.post('/admin/', data={"name": "soyadmin", "password": "mipass"})
