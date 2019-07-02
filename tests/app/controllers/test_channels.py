@@ -202,3 +202,10 @@ class TestChannelsControllers(object):
         channel_list = response.get_json()['channels']
         for channel in channel_list:
             assert channel[1] == 'private' or channel[1] == 'public'
+
+    def test_add_member_to_channel_duplicated(self):
+        response = client.get('/organization/Avengers/EndGame/members')
+        assert response.get_json()['members'] == ['IronMan', 'Thor', 'Thanos']
+        response = client.post('/organization/Avengers/EndGame/members', data = '{"name":"Thor"}')
+        assert response.get_json()['message'] == 'User is already in channel'
+        assert response.status_code == HTTPStatus.BAD_REQUEST

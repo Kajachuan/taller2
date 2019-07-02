@@ -107,4 +107,7 @@ class Organization(db.Document):
         organization = Organization.objects.get(organization_name = organization_name)
         member = User.objects.get(username = member_name)
         channel = [channel for channel in organization.channels if channel.channel_name == channel_name].pop()
-        channel.update(push__members = member_name)
+        if member_name not in channel.members:
+            channel.update(push__members = member_name)
+            return True
+        return False
