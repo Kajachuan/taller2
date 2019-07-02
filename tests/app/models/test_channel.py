@@ -7,7 +7,7 @@ from taller2.app.models.organization import Organization
 
 class TestChannel(object):
     def setup_class(cls):
-        owner = User(username='MiNombre2', email='user@test.com', crypted_password='mipass', creation_date = datetime.now())
+        owner = User(username='MiNombre2', email='user@test.com', location={'lat':0, 'lon':0}, crypted_password='mipass', creation_date = datetime.now())
         owner.save()
         organization = Organization(owner = owner, organization_name = 'My organization Channel', creation_date = datetime.now())
         organization.save()

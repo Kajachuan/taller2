@@ -4,9 +4,11 @@ from taller2.app.app import app
 
 client = app.test_client()
 client.post('/register', data='{"username": "testrecovery", "email": "user@test.com",\
-                                "password": "password", "password_confirmation": "password"}')
+                                "password": "password", "password_confirmation": "password",\
+                                "lat": 0, "lon": 0}')
 client.post('/register', data='{"username": "testpassword", "email": "user@test.com",\
-                                "password": "password", "password_confirmation": "password"}')
+                                "password": "password", "password_confirmation": "password",\
+                                "lat": 0, "lon": 0}')
 
 def get_token_from_mail():
     file_path = path.join(path.dirname(__file__), '../../../mails/mail.txt')

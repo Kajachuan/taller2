@@ -30,7 +30,9 @@ def register():
     cipher_suite = Fernet(environ['CRYPT_KEY'].encode())
     crypted_password = cipher_suite.encrypt(password.encode())
 
-    new_user = User(username=username, email=email,
+    lat = data['lat']
+    lon = data['lon']
+    new_user = User(username=username, email=email, location={'lat':lat, 'lon':lon},
                     crypted_password=crypted_password, creation_date=datetime.now())
 
     try:

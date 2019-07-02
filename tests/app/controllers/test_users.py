@@ -10,51 +10,59 @@ file = open(path.abspath(file_path), 'rb')
 img = b64encode(file.read()).decode()
 
 client.post('/register', data='{"username": "IronMan", "email": "tony@stark.com",\
-                              "password": "mipass", "password_confirmation": "mipass"}')
+                              "password": "mipass", "password_confirmation": "mipass",\
+                              "lat": 0, "lon": 0}')
 client.post('/login', data='{"username": "IronMan", "password": "mipass"}')
 
 class TestUsersController(object):
     def test_new_user(self):
         response = client.post('/register',
                                data='{"username": "MiNombre", "email": "user@test.com",\
-                                      "password": "mipass", "password_confirmation": "mipass"}')
+                                      "password": "mipass", "password_confirmation": "mipass",\
+                                      "lat": 0, "lon": 0}')
         assert response.status_code == HTTPStatus.CREATED
         assert response.get_json() == {'message': 'The user has been created'}
 
     def test_wrong_password_confirmation(self):
         response = client.post('/register',
                                data='{"username": "MiNombre2", "email": "user@test.com",\
-                                      "password": "mipass", "password_confirmation": "otropass"}')
+                                      "password": "mipass", "password_confirmation": "otropass",\
+                                      "lat": 0, "lon": 0}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.get_json() == {'message': 'The password and the confirmation are not the same'}
 
     def test_blank_username(self):
         response = client.post('/register',
                                data='{"username": "", "email": "user@test.com",\
-                                      "password": "mipass", "password_confirmation": "mipass"}')
+                                      "password": "mipass", "password_confirmation": "mipass",\
+                                      "lat": 0, "lon": 0}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.get_json() == {'message': 'The username cannot be blank'}
 
     def test_invalid_email(self):
         response = client.post('/register',
                                data='{"username": "MiNombre3", "email": "usertest.com",\
-                                      "password": "mipass", "password_confirmation": "mipass"}')
+                                      "password": "mipass", "password_confirmation": "mipass",\
+                                      "lat": 0, "lon": 0}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.get_json() == {'message': 'The email is invalid. It must be user@domain'}
 
     def test_short_password(self):
         response = client.post('/register',
                                data='{"username": "MiNombre4", "email": "user@test.com",\
-                                      "password": "pw", "password_confirmation": "pw"}')
+                                      "password": "pw", "password_confirmation": "pw",\
+                                      "lat": 0, "lon": 0}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.get_json() == {'message': 'The password is too short. It must have at least five characters'}
 
     def test_duplicate_username(self):
         client.post('/register', data='{"username": "NewUser", "email": "user@test.com",\
-                                        "password": "mipass", "password_confirmation": "mipass"}')
+                                        "password": "mipass", "password_confirmation": "mipass",\
+                                        "lat": 0, "lon": 0}')
         response = client.post('/register',
                                data='{"username": "NewUser", "email": "user2@test.com",\
-                                      "password": "123456", "password_confirmation": "123456"}')
+                                      "password": "123456", "password_confirmation": "123456",\
+                                      "lat": 0, "lon": 0}')
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.get_json() == {'message': 'The username already exists'}
 
