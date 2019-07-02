@@ -59,10 +59,11 @@ class FirebaseApi(object):
         response = messaging.send(new_message)
         return True if response else False
 
-    def send_notification_to_user(self, username, organization_name, channel_name):
-        user = User.objects.get(username = username)
-        token = user.firebase_token
-        if environ['FLASK_ENV'] == PRODUCTION:
+    def send_notification_to_users(self, list_username, organization_name, channel_name):
+        if environ['FLASK_ENV'] != PRODUCTION:
+            return
+        tokens = self.get_users_tokens(list_username)
+        for token in tokens:
             message = messaging.Message(
             notification=messaging.Notification(
             title='Te mencionaron en %s'%channel_name,
