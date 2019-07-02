@@ -268,6 +268,9 @@ def add_member_to_channel(organization_name, channel_name):
         return jsonify(message = 'User is not member of this organization'), HTTPStatus.BAD_REQUEST
     Organization.add_member_to_channel(organization_name, channel_name, member)
     FirebaseApi().send_invitation_notification_to_user(member, organization_name, channel_name)
+    message = Message(message=Organization.get_welcome_message(organization_name), sender='tito',
+                      timestamp=datetime.now(), creation_date=datetime.now(), type='text')
+    FirebaseApi().send_message_to_users([member], message, organization_name, channel_name)
     return jsonify(message = 'User added'), HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/<channel_name>/messages', methods=['GET'])

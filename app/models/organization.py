@@ -49,6 +49,11 @@ class Organization(db.Document):
         return token in self.pending_invitations.keys()
 
     @classmethod
+    def get_welcome_message(cls, organization_name):
+        organization = cls.objects.get(organization_name = organization_name)
+        return organization.welcome_message
+
+    @classmethod
     def get_forbidden_words(cls, organization_name):
         organization = cls.objects.get(organization_name = organization_name)
         return organization.forbidden_words
