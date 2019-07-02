@@ -5,6 +5,7 @@ from datetime import datetime
 from ..app import db
 from .user import User
 from .channel import Channel
+from .direct_channel import DirectChannel
 
 class Organization(db.Document):
     organization_name = db.StringField(required = True, unique = True)
@@ -25,6 +26,7 @@ class Organization(db.Document):
     welcome_message = db.StringField(default = 'Welcome')
     pending_invitations = db.MapField(db.StringField())
     channels = db.ListField(db.ReferenceField('Channel'))
+    direct_channels = db.ListField(db.ReferenceField('DirectChannel'))
     creation_date = db.DateTimeField(required=True)
     ban_date = db.DateTimeField(required=False)
     ban_reason = db.StringField(required=False)
@@ -81,6 +83,15 @@ class Organization(db.Document):
         for channel in organization.channels:
             if channel.channel_name == channel_name:
                 return channel
+
+    @classmethod
+    def get_direct_channel(cls, organization_name, username1, username2):
+        organization = cls.objects.get(organization_name = organization_name)
+        user1 = User.objects.get(username = username1)
+        user2 = User.objects.get(username = username2)
+        for dchannel in organization.direct_channels:
+            if user1 in dchannel.members and user2 in dchannel.members:
+                return dchannel
 
     @classmethod
     def get_channel_members(cls, organization_name, channel_name):
