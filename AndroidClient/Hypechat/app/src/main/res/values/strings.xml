@@ -120,5 +120,8 @@
     <string name="action_bots">Bots</string>
     <string name="acton_save_channel">Guardar canal</string>
     <string name="action_map">Ver mapa</string>
-    <string name="mapa">Mapa de organización</string>
+    <string name="mapa">Mapa de</string>
+    <string name="conversations">Conversaciones</string>
+    <string name="start_conversation">Iniciar conversación</string>
+    <string name="start_conv_with">Iniciar conversación con:</string>
 </resources>

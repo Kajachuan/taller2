@@ -342,8 +342,10 @@ public class ChatChannelFragment extends Fragment {
             if (getArguments() != null) {
                 //noinspection ConstantConditions
                 ((MainActivity) getActivity()).updateChannels(getArguments().getString("organization"));
+                ((MainActivity) getActivity()).updateDirectChannels(getArguments().getString("organization"));
             }
             handlerChannels.postDelayed(this, 60000);
+            //60000
         }
     };
 
@@ -435,6 +437,7 @@ public class ChatChannelFragment extends Fragment {
     @Override
     public void onResume () {
         handlerChannels.postDelayed(runnableChannels,60000);
+        //60000
         if(getContext() != null){
             LocalBroadcastManager.getInstance(getActivity())
                     .registerReceiver(mMessageReceiver, new IntentFilter("Data"));
@@ -460,6 +463,7 @@ public class ChatChannelFragment extends Fragment {
                 // Now we call setRefreshing(false) to signal refresh has finished
                 swipeContainer.setRefreshing(false);
             }
+            mProgressBarLoadMessage.setVisibility(View.GONE);
             showChatError(error);
         } else {
             mProgressBarLoadMessage.setVisibility(View.GONE);

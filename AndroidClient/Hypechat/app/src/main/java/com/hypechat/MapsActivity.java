@@ -47,14 +47,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        Intent i = getIntent();
+        organization = i.getStringExtra("organization");
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_maps);
-        toolbar.setTitle(R.string.mapa);
+        toolbar.setTitle(getString(R.string.mapa)+ " " + organization);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-
-        Intent i = getIntent();
-        organization = i.getStringExtra("organization");
 
         OkHttpClient.Builder okHttpClient = new OkHttpClient().newBuilder()
                 .connectTimeout(60 * 5, TimeUnit.SECONDS)

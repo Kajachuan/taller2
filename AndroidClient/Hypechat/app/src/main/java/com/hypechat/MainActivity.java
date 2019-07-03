@@ -1,24 +1,14 @@
 package com.hypechat;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.SubMenu;
@@ -51,12 +41,14 @@ import com.hypechat.fragments.AboutChannelFragment;
 import com.hypechat.fragments.AddUserToPrivateChannelFragment;
 import com.hypechat.fragments.BotsFragment;
 import com.hypechat.fragments.ChatChannelFragment;
+import com.hypechat.fragments.DirectChatChannelFragment;
 import com.hypechat.fragments.JoinOrganizationFragment;
 import com.hypechat.fragments.NewChannelFragment;
+import com.hypechat.fragments.NewDirectChannelFragment;
 import com.hypechat.fragments.OrganizationFragment;
 import com.hypechat.models.channels.ChannelListBody;
+import com.hypechat.models.channels.DirectChannelsGet;
 import com.hypechat.models.firebase.TokenPost;
-import com.hypechat.models.messages.Message;
 import com.hypechat.prefs.SessionPrefs;
 
 import java.util.ArrayList;
@@ -246,7 +238,8 @@ public class MainActivity extends AppCompatActivity
             menu.clear();
             final SubMenu channelsMenu = menu.addSubMenu(R.string.channels);
             final List<List<String>> channels = response.body().getChannels();
-            for(int i = 0; i < channels.size(); i++){
+            int i = 0;
+            for(i = 0; i < channels.size(); i++){
                 int unicodePrivate = 0x1F512;
                 int unicodePublic = 0x1F4E2;
                 if(channels.get(i).get(1).equals("private")){
@@ -266,9 +259,8 @@ public class MainActivity extends AppCompatActivity
                 });
             }
 
-            SubMenu addChannelMenu = menu.addSubMenu(null);
-            addChannelMenu.add(Menu.NONE, Menu.NONE, 0,"+ Añadir canal");
-            addChannelMenu.getItem(0).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            channelsMenu.add(Menu.NONE, Menu.NONE, i,"+ Añadir canal");
+            channelsMenu.getItem(i).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override public boolean onMenuItemClick(MenuItem item) {
                     onBackPressed();
                     Fragment fragment = NewChannelFragment.newInstance(mOrgsSpinner.getSelectedItem().toString());
@@ -276,6 +268,9 @@ public class MainActivity extends AppCompatActivity
                     return true;
                 }
             });
+
+            SubMenu directChannelsMenu = menu.addSubMenu(R.string.conversations);
+            startDirectChannels(primaryOrganization);
 
             //setear nuevo fragment
             if(channels.size() > 0){
@@ -290,6 +285,77 @@ public class MainActivity extends AppCompatActivity
                 //sino crashearia pero siempre deberia haber un canal general en teoria
             }
         }
+    }
+
+    private void startDirectChannels(final String organization) {
+        if(!organization.equals("Inicio")){
+            String username = SessionPrefs.get(getApplicationContext()).getUsername();
+            Call<DirectChannelsGet> channelsCall = mHypechatRequest.getDirectChannels(organization,username);
+            channelsCall.enqueue(new Callback<DirectChannelsGet>() {
+                @Override
+                public void onResponse(@NonNull Call<DirectChannelsGet> call, @NonNull Response<DirectChannelsGet> response) {
+                    processResponseDirect(response,organization);
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<DirectChannelsGet> call, @NonNull Throwable t) {
+                    showMainError(t.getMessage());
+                }
+            });
+        }
+
+    }
+
+    private void processResponseDirect(Response<DirectChannelsGet> response, final String organization){
+        // Procesar errores
+        if (!response.isSuccessful()) {
+            String error;
+            if (response.errorBody()
+                    .contentType()
+                    .subtype()
+                    .equals("json")) {
+                APIError apiError = ErrorUtils.parseError(response);
+                assert apiError != null;
+                error = apiError.message();
+            } else {
+                error = response.message();
+            }
+            showMainError(error);
+        } else {
+            //setear navigation drawer channels
+            NavigationView nvDrawer = (NavigationView) findViewById(R.id.nav_view);
+            final List<String> channels = response.body().getDirect_channels();
+            SubMenu directChannelsMenu = nvDrawer.getMenu().getItem(1).getSubMenu();
+            int i = 0;
+            for (i = 0; i < channels.size(); i++) {
+                int unicodeUser = 0x1F47E;
+                directChannelsMenu.add(Menu.NONE, Menu.NONE, i, getEmojiByUnicode(unicodeUser) + " " + channels.get(i));
+                final int finalI = i;
+                directChannelsMenu.getItem(i).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        onBackPressed();
+                        Fragment fragment = DirectChatChannelFragment.newInstance(organization, channels.get(finalI));
+                        displaySelectedFragment(fragment);
+                        return true;
+                    }
+                });
+            }
+            directChannelsMenu.add(Menu.NONE, Menu.NONE, i, "");
+            directChannelsMenu.getItem(i).setVisible(false);
+
+            directChannelsMenu.add(Menu.NONE, Menu.NONE, i+1, "+ Nueva conversación");
+            directChannelsMenu.getItem(i+1).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    onBackPressed();
+                    Fragment fragment = NewDirectChannelFragment.newInstance(mOrgsSpinner.getSelectedItem().toString());
+                    displaySelectedFragment(fragment);
+                    return true;
+                }
+            });
+        }
+
     }
 
     public void addChatFragmentAdditionalMenuOptions(){
@@ -307,6 +373,26 @@ public class MainActivity extends AppCompatActivity
         MenuItem aboutChannel = mMainMenu.getItem(2);
         if(!aboutChannel.isVisible()){
             aboutChannel.setVisible(true);
+        }
+
+        MenuItem bots = mMainMenu.getItem(3);
+        if(!bots.isVisible()){
+            bots.setVisible(true);
+        }
+
+    }
+
+
+    public void addDirectChatFragmentAdditionalMenuOptions(){
+
+        MenuItem organizations = mMainMenu.getItem(0);
+        if(!organizations.isVisible()){
+            organizations.setVisible(true);
+        }
+
+        MenuItem maps = mMainMenu.getItem(1);
+        if(!maps.isVisible()){
+            maps.setVisible(true);
         }
 
         MenuItem bots = mMainMenu.getItem(3);
@@ -389,11 +475,10 @@ public class MainActivity extends AppCompatActivity
         } else {
             //setear navigation drawer channels
             NavigationView nvDrawer = (NavigationView) findViewById(R.id.nav_view);
-            Menu menu = nvDrawer.getMenu();
             final List<List<String>> channels = response.body().getChannels();
-            if(!((channels.size()) == (menu.size() - 1))){
-                menu.clear();
-                final SubMenu channelsMenu = menu.addSubMenu(R.string.channels);
+            final SubMenu channelsMenu = nvDrawer.getMenu().getItem(0).getSubMenu();
+            if(!((channels.size()) == (channelsMenu.size() - 1))){
+                channelsMenu.clear();
                 for(int i = 0; i < channels.size(); i++){
                     int unicodePrivate = 0x1F512;
                     int unicodePublic = 0x1F4E2;
@@ -412,13 +497,82 @@ public class MainActivity extends AppCompatActivity
                         }
                     });
                 }
-
-                SubMenu addChannelMenu = menu.addSubMenu(null);
-                addChannelMenu.add(Menu.NONE, Menu.NONE, 0,"+ Añadir canal");
-                addChannelMenu.getItem(0).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                channelsMenu.add(Menu.NONE, Menu.NONE, channelsMenu.size() - 1,"+ Añadir canal");
+                channelsMenu.getItem(channelsMenu.size() - 1).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override public boolean onMenuItemClick(MenuItem item) {
                         onBackPressed();
                         Fragment fragment = NewChannelFragment.newInstance(mOrgsSpinner.getSelectedItem().toString());
+                        displaySelectedFragment(fragment);
+                        return true;
+                    }
+                });
+            }
+        }
+    }
+
+    public void updateDirectChannels(final String organization) {
+        if(!organization.equals("Inicio")){
+            Call<DirectChannelsGet> channelsCall = mHypechatRequest.getDirectChannels(organization,SessionPrefs.get(getApplicationContext()).getUsername());
+            channelsCall.enqueue(new Callback<DirectChannelsGet>() {
+                @Override
+                public void onResponse(@NonNull Call<DirectChannelsGet> call, @NonNull Response<DirectChannelsGet> response) {
+                    processResponseChannels3(response,organization);
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<DirectChannelsGet> call, @NonNull Throwable t) {
+                    showMainError(t.getMessage());
+                }
+            });
+        }
+
+    }
+
+    private void processResponseChannels3(Response<DirectChannelsGet> response, final String organization) {
+        // Procesar errores
+        if (!response.isSuccessful()) {
+            String error;
+            if (response.errorBody()
+                    .contentType()
+                    .subtype()
+                    .equals("json")) {
+                APIError apiError = ErrorUtils.parseError(response);
+                assert apiError != null;
+                error = apiError.message();
+            } else {
+                error = response.message();
+            }
+            showMainError(error);
+        } else {
+            //setear navigation drawer channels
+            NavigationView nvDrawer = (NavigationView) findViewById(R.id.nav_view);
+            final List<String> channels = response.body().getDirect_channels();
+            final SubMenu channelsMenu = nvDrawer.getMenu().getItem(1).getSubMenu();
+            if(!((channels.size()) == (channelsMenu.size() - 2))){
+                channelsMenu.clear();
+                int i = 0;
+                for(i = 0; i < channels.size(); i++){
+                    int unicodeUser = 0x1F47E;
+                    channelsMenu.add(Menu.NONE, Menu.NONE, i, getEmojiByUnicode(unicodeUser)+" "+channels.get(i));
+                    final int finalI = i;
+                    channelsMenu.getItem(i).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                        @Override public boolean onMenuItemClick(MenuItem item) {
+                            onBackPressed();
+                            Fragment fragment = DirectChatChannelFragment.newInstance(organization,channels.get(finalI));
+                            displaySelectedFragment(fragment);
+                            return true;
+                        }
+                    });
+                }
+
+                channelsMenu.add(Menu.NONE, Menu.NONE, i, "");
+                channelsMenu.getItem(i).setVisible(false);
+
+                channelsMenu.add(Menu.NONE, Menu.NONE, i+1,"+ Nueva conversación");
+                channelsMenu.getItem(i+1).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override public boolean onMenuItemClick(MenuItem item) {
+                        onBackPressed();
+                        Fragment fragment = NewDirectChannelFragment.newInstance(mOrgsSpinner.getSelectedItem().toString());
                         displaySelectedFragment(fragment);
                         return true;
                     }
@@ -594,11 +748,11 @@ public class MainActivity extends AppCompatActivity
         int unicodePrivate = 0x1F512;
         int unicodePublic = 0x1F4E2;
         if(privado.equals("private")){
-            channels.add(Menu.NONE, Menu.NONE, channels.size(),getEmojiByUnicode(unicodePrivate)+" "+newChannelName);
+            channels.add(Menu.NONE, Menu.NONE, channels.size()-2,getEmojiByUnicode(unicodePrivate)+" "+newChannelName);
         } else {
-            channels.add(Menu.NONE, Menu.NONE, channels.size(),getEmojiByUnicode(unicodePublic)+" "+newChannelName);
+            channels.add(Menu.NONE, Menu.NONE, channels.size()-2,getEmojiByUnicode(unicodePublic)+" "+newChannelName);
         }
-        channels.getItem(channels.size()-1).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+        channels.getItem(channels.size()-2).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override public boolean onMenuItemClick(MenuItem item) {
                 onBackPressed();
                 Fragment fragment = ChatChannelFragment.newInstance(organizationName,newChannelName,privado);
@@ -607,6 +761,25 @@ public class MainActivity extends AppCompatActivity
             }
         });
         Fragment fragment = ChatChannelFragment.newInstance(organizationName,newChannelName,privado);
+        displaySelectedFragment(fragment);
+    }
+
+    public void createNewDirectChannelFragment(final String organizationName, final String newChannelName){
+        NavigationView nvDrawer = (NavigationView) findViewById(R.id.nav_view);
+        SubMenu channels = nvDrawer.getMenu().getItem(1).getSubMenu();
+        int unicodeUser = 0x1F47E;
+        int chanSize = channels.size();
+        int order = chanSize - 2;
+        channels.add(Menu.NONE, Menu.NONE, order,getEmojiByUnicode(unicodeUser)+" "+newChannelName);
+        channels.getItem(order).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override public boolean onMenuItemClick(MenuItem item) {
+                onBackPressed();
+                Fragment fragment = DirectChatChannelFragment.newInstance(organizationName,newChannelName);
+                displaySelectedFragment(fragment);
+                return true;
+            }
+        });
+        Fragment fragment = DirectChatChannelFragment.newInstance(organizationName,newChannelName);
         displaySelectedFragment(fragment);
     }
 

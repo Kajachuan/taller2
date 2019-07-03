@@ -6,6 +6,8 @@ import com.hypechat.models.bots.BotsDeletePost;
 import com.hypechat.models.channels.AddUserToChannelBody;
 import com.hypechat.models.channels.ChangeChannelPost;
 import com.hypechat.models.channels.ChannelInfoBody;
+import com.hypechat.models.channels.DirectChannelsGet;
+import com.hypechat.models.channels.DirectChannelsPost;
 import com.hypechat.models.firebase.TokenPost;
 import com.hypechat.models.invitations.AcceptInvitationBody;
 import com.hypechat.models.auth.ChangePasswordBody;
@@ -19,6 +21,7 @@ import com.hypechat.models.messages.Message;
 import com.hypechat.models.messages.MessageBodyGet;
 import com.hypechat.models.messages.MessageBodyList;
 import com.hypechat.models.messages.MessageBodyPost;
+import com.hypechat.models.messages.MessageDirectBodyPost;
 import com.hypechat.models.organizations.OrganizationCreateBody;
 import com.hypechat.models.organizations.OrganizationListBody;
 import com.hypechat.models.profile.ProfileBodySave;
@@ -125,4 +128,23 @@ public interface HypechatRequest {
 
     @GET("/organization/{organization_name}/locations")
     Call<MapGetLocations> getLocations(@Path("organization_name") String organization_name);
+
+    @POST("/organization/{organization_name}/direct-channels")
+    Call<Void> createDirectChannel(@Path("organization_name") String organization_name,
+                                 @Body DirectChannelsPost directChannelsPost);
+
+    @POST("/organization/{organization_name}/direct-channels/messages")
+    Call<MessageBodyList> getDirectChannelMessages(@Path("organization_name") String organization_name,
+                                        @Query("init") int init,
+                                        @Query("end") int end,
+                                        @Query("user1") String user1,
+                                        @Query("user2") String user2);
+
+    @POST("/organization/{organization_name}/direct-channels/messages")
+    Call<Void> sendDirectMessage(@Path("organization_name") String organization_name,
+                           @Body MessageDirectBodyPost messageBody);
+
+    @GET("/organization/{organization_name}/direct_channels")
+    Call<DirectChannelsGet> getDirectChannels(@Path("organization_name") String organization,
+                                              @Query("username") String username);
 }
