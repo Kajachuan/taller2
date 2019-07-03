@@ -1,16 +1,29 @@
 package com.hypechat;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.provider.Settings;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -47,6 +60,9 @@ public class RegistroActivity extends AppCompatActivity {
     private TextInputLayout mFloatLabelConfirmPassword;
     private View mProgressView;
     private View mRegisterFormView;
+    LocationManager locationManager;
+    double longitude;
+    double latitude;
 
     private HypechatRequest mHypechatRequest;
 
@@ -58,7 +74,7 @@ public class RegistroActivity extends AppCompatActivity {
         View view = this.getWindow().getDecorView();
         view.setBackgroundColor(getResources().getColor(R.color.activity_background));
 
-        ImageView viewGoBack =(ImageView) findViewById(R.id.go_back);
+        ImageView viewGoBack = (ImageView) findViewById(R.id.go_back);
         viewGoBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
@@ -84,7 +100,7 @@ public class RegistroActivity extends AppCompatActivity {
                         showRegisterError(getString(R.string.error_network));
                         return false;
                     }
-                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(mConfirmPasswordView.getWindowToken(), 0);
                     attemptRegister();
                     return true;
@@ -116,7 +132,63 @@ public class RegistroActivity extends AppCompatActivity {
 
         // Crear conexión a la API
         mHypechatRequest = mRegisterRestAdapter.create(HypechatRequest.class);
+
+        if (ContextCompat.checkSelfPermission(getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]
+                            {android.Manifest.permission.ACCESS_FINE_LOCATION,
+                                    android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                    101);
+        } else {
+            locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+            if (!isLocationEnabled()) {
+                showAlert();
+            } else {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2000, 10, locationListener);
+            }
+        }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 101: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+                    if (!isLocationEnabled()) {
+                        showAlert();
+                    }
+                } else {
+                    finish();
+                }
+            }
+        }
+    }
+
+    private final LocationListener locationListener = new LocationListener() {
+        public void onLocationChanged(Location location) {
+            longitude = location.getLongitude();
+            latitude = location.getLatitude();
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+        }
+
+    };
 
     private boolean isOnline() {
         ConnectivityManager cm =
@@ -148,12 +220,51 @@ public class RegistroActivity extends AppCompatActivity {
         return true;
     }
 
+    private boolean isLocationEnabled() {
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+    }
+
+    private void showAlert() {
+        final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Activar ubicación")
+                .setMessage("La ubicación está desactivada.\nPor favor, activela para usar esta app")
+                .setPositiveButton("Configuración ubicación", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                        startActivityForResult(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS), 1);
+                    }
+                })
+                .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                        finish();
+                    }
+                });
+        dialog.show();
+    }
+
+    @SuppressLint("MissingPermission")
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == 1){
+            if (!isLocationEnabled()) {
+                finish();
+            } else {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2000, 10, locationListener);
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
     /**
      * Attempts to sign in or register the account specified by the register form.
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual register attempt is made.
      */
     private void attemptRegister() {
+        Log.d("lat", String.valueOf(latitude));
+        Log.d("lon", String.valueOf(longitude));
         // Reset errors.
         mFloatLabelUsername.setError(null);
         mFloatLabelPassword.setError(null);
@@ -170,13 +281,12 @@ public class RegistroActivity extends AppCompatActivity {
         View focusView = null;
 
 
-
         // Check for a valid password, if the user entered one.
         if (TextUtils.isEmpty(password)) {
             mFloatLabelPassword.setError(getString(R.string.error_field_required));
             focusView = mFloatLabelPassword;
             cancel = true;
-        } else if (!isPasswordValid(password)){
+        } else if (!isPasswordValid(password)) {
             mFloatLabelPassword.setError(getString(R.string.error_incorrect_password));
             focusView = mFloatLabelPassword;
             cancel = true;
@@ -187,7 +297,7 @@ public class RegistroActivity extends AppCompatActivity {
             mFloatLabelConfirmPassword.setError(getString(R.string.error_field_required));
             focusView = mFloatLabelConfirmPassword;
             cancel = true;
-        } else if (!isPasswordValid(confirmPassword)){
+        } else if (!isPasswordValid(confirmPassword)) {
             mFloatLabelConfirmPassword.setError(getString(R.string.error_incorrect_password));
             focusView = mFloatLabelConfirmPassword;
             cancel = true;
@@ -228,23 +338,33 @@ public class RegistroActivity extends AppCompatActivity {
             // Show a progress spinner, and kick off a background task to
             // perform the user register attempt.
             showProgress(true);
+            if(locationDiffersFromZero()) {
+                final RegisterBody reg_body = new RegisterBody(username, email, password, confirmPassword, latitude, longitude);
+                Call<Void> registerCall = mHypechatRequest.register(reg_body);
+                registerCall.enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> response) {
+                        processResponse(response);
+                    }
 
-            final RegisterBody reg_body = new RegisterBody(username, email, password, confirmPassword);
-
-            Call<Void> registerCall = mHypechatRequest.register(reg_body);
-            registerCall.enqueue(new Callback<Void>() {
-                @Override
-                public void onResponse(Call<Void> call, Response<Void> response) {
-                    processResponse(response);
-                }
-
-                @Override
-                public void onFailure(Call<Void> call, Throwable t) {
-                    showProgress(false);
-                    showRegisterError(t.getMessage());
-                }
-            });
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+                        showProgress(false);
+                        showRegisterError(t.getMessage());
+                    }
+                });
+            } else {
+                showProgress(false);
+                showRegisterError("Se está computando la ubicación, por favor espere unos segundos y reintente");
+            }
         }
+    }
+
+    public boolean locationDiffersFromZero(){
+        boolean latIsZero = (latitude > -1 && latitude < 1);
+        boolean lonIsZero = (longitude > -1 && longitude < 1);
+
+        return (!latIsZero && !lonIsZero);
     }
 
     private void processResponse(Response<Void> response) {

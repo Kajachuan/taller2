@@ -317,8 +317,6 @@ public class ProfileActivity extends AppCompatActivity {
                 Bitmap imageBitmap = stringToBitmap(imageString);
                 mProfileImage.setImageBitmap(imageBitmap);
             }
-
-
         }
     }
 

@@ -117,6 +117,9 @@ public class AddUserToPrivateChannelFragment extends Fragment {
 
                 @Override
                 public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                    pbarAddToChannel.setVisibility(View.GONE);
+                    userTi.setVisibility(View.VISIBLE);
+                    mAddUser.setVisibility(View.VISIBLE);
                     Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
                 }
             });
@@ -137,6 +140,9 @@ public class AddUserToPrivateChannelFragment extends Fragment {
             } else {
                 error = response.message();
             }
+            pbarAddToChannel.setVisibility(View.GONE);
+            userTi.setVisibility(View.VISIBLE);
+            mAddUser.setVisibility(View.VISIBLE);
             Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
         } else {
             pbarAddToChannel.setVisibility(View.GONE);

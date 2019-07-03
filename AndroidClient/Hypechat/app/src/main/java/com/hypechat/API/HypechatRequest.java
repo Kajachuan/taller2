@@ -14,6 +14,7 @@ import com.hypechat.models.channels.ChannelListBody;
 import com.hypechat.models.invitations.InvitationsBody;
 import com.hypechat.models.invitations.InvitationsListBody;
 import com.hypechat.models.auth.LoginBody;
+import com.hypechat.models.map.MapGetLocations;
 import com.hypechat.models.messages.Message;
 import com.hypechat.models.messages.MessageBodyGet;
 import com.hypechat.models.messages.MessageBodyList;
@@ -121,4 +122,7 @@ public interface HypechatRequest {
     Call<Void> changeChannelInfo(@Path("organization_name") String organization_name,
                          @Path("channel_name") String channel_name,
                                  @Body ChangeChannelPost changeChannelPost);
+
+    @GET("/organization/{organization_name}/locations")
+    Call<MapGetLocations> getLocations(@Path("organization_name") String organization_name);
 }

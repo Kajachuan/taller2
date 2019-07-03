@@ -299,15 +299,21 @@ public class MainActivity extends AppCompatActivity
             organizations.setVisible(true);
         }
 
-        MenuItem aboutChannel = mMainMenu.getItem(1);
+        MenuItem maps = mMainMenu.getItem(1);
+        if(!maps.isVisible()){
+            maps.setVisible(true);
+        }
+
+        MenuItem aboutChannel = mMainMenu.getItem(2);
         if(!aboutChannel.isVisible()){
             aboutChannel.setVisible(true);
         }
 
-        MenuItem bots = mMainMenu.getItem(2);
+        MenuItem bots = mMainMenu.getItem(3);
         if(!bots.isVisible()){
             bots.setVisible(true);
         }
+
     }
 
     public String getEmojiByUnicode(int unicode){
@@ -541,6 +547,10 @@ public class MainActivity extends AppCompatActivity
             }else if(id == R.id.action_bots){
                 Fragment fragment = BotsFragment.newInstance(mOrgsSpinner.getSelectedItem().toString(), removeUnicodeFromTitle(String.valueOf(getTitle())));
                 displaySelectedFragment(fragment);
+            } else if(id == R.id.action_map){
+                Intent map = new Intent(this, MapsActivity.class);
+                map.putExtra("organization",mOrgsSpinner.getSelectedItem().toString());
+                startActivity(map);
             }
 
         return super.onOptionsItemSelected(item);

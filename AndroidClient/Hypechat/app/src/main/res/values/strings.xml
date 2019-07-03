@@ -119,4 +119,6 @@
     <string name="bot_url">URL del bot</string>
     <string name="action_bots">Bots</string>
     <string name="acton_save_channel">Guardar canal</string>
+    <string name="action_map">Ver mapa</string>
+    <string name="mapa">Mapa de organización</string>
 </resources>

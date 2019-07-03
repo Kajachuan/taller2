@@ -10,12 +10,17 @@ public class RegisterBody {
     private String email;
     private String password;
     private String password_confirmation;
+    private double lat;
+    private double lon;
 
-    public RegisterBody(String username, String email, String password, String password_confirmation) {
+    public RegisterBody(String username, String email, String password, String password_confirmation,
+                        double lat, double lon) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.password_confirmation = password_confirmation;
+        this.lat = lat;
+        this.lon = lon;
     }
 
     public String getUsername() {
