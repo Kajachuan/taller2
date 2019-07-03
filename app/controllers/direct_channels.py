@@ -48,7 +48,7 @@ def get_user_direct_channels(organization_name):
             direct_channels.append(dchannel.display_name(username))
     return jsonify(direct_channels = direct_channels)
 
-@direct_channels.route('/organization/<organization_name>/direct-channels/messages', methods=['GET'])
+@direct_channels.route('/organization/<organization_name>/direct-channels/message', methods=['GET'])
 @user_no_banned_required
 @organization_no_banned_required
 def get_n_channel_messages(organization_name):

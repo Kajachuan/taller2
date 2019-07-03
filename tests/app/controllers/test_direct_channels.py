@@ -35,7 +35,7 @@ class TestDirectChannel(object):
         assert response.status_code == HTTPStatus.OK
 
     def test_get_messages_empty(self):
-        response = client.get('/organization/Hogwarts/direct-channels/messages?init=1&end=5&user1=Harry&user2=Ron')
+        response = client.get('/organization/Hogwarts/direct-channels/message?init=1&end=5&user1=Harry&user2=Ron')
         assert response.status_code == HTTPStatus.OK
         assert response.get_json()['messages'] == []
 
@@ -46,7 +46,7 @@ class TestDirectChannel(object):
         assert response.status_code == HTTPStatus.CREATED
 
     def test_get_added_messages(self):
-        response = client.get('/organization/Hogwarts/direct-channels/messages?init=1&end=5&user1=Harry&user2=Ron')
+        response = client.get('/organization/Hogwarts/direct-channels/message?init=1&end=5&user1=Harry&user2=Ron')
         assert response.status_code == HTTPStatus.OK
         messages = [message[2] for message in response.get_json()['messages']]
         senders = [message[1] for message in response.get_json()['messages']]
