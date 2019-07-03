@@ -78,7 +78,7 @@ def send_message(organization_name):
     message.save()
     dchannel.update(push__messages = message)
     User.objects.get(username=sender).update(inc__sent_messages=1)
-    response = FirebaseApi().send_direct_message_to_user(message, organization_name, sender, receiver)
+    response = FirebaseApi().send_message_to_users([member.username for member in dchannel.members], message, organization_name, dchannel.display_name(sender))
     if not response:
         return jsonify(message = 'Firebase error'), HTTPStatus.SERVICE_UNAVAILABLE
     return jsonify(message = 'Message sent'),HTTPStatus.CREATED
