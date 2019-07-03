@@ -279,15 +279,18 @@ def add_member_to_channel(organization_name, channel_name):
 @user_no_banned_required
 @organization_no_banned_required
 def get_n_channel_messages(organization_name, channel_name):
+    current_app.logger.error('get messages')
     init = request.args.get('init', '')
     end = request.args.get('end', '')
     if channel_name == 'direct-channels':
+        current_app.logger.error('get messages direct_channels')
         username1 = request.args.get('user1','')
         username2 = request.args.get('user2','')
         dchannel = Organization.get_direct_channel(organization_name, username1, username2)
         messages = dchannel.get_messages(int(init), int(end))
         list_of_msg = [(message.timestamp,message.sender,message.message,message.type) for message in messages]
     else:
+        current_app.logger.error('get messages normal channels')
         channel = Organization.get_channel(organization_name, channel_name)
         messages = channel.get_messages(int(init), int(end))
         list_of_msg = [(message.timestamp,message.sender,message.message,message.type) for message in messages]
