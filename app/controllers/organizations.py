@@ -281,9 +281,16 @@ def add_member_to_channel(organization_name, channel_name):
 def get_n_channel_messages(organization_name, channel_name):
     init = request.args.get('init', '')
     end = request.args.get('end', '')
-    channel = Organization.get_channel(organization_name, channel_name)
-    messages = channel.get_messages(int(init), int(end))
-    list_of_msg = [(message.timestamp,message.sender,message.message,message.type) for message in messages]
+    if channel_name == 'direct_channels':
+        username1 = request.args.get('user1','')
+        username2 = request.args.get('user2','')
+        dchannel = Organization.get_direct_channel(organization_name, username1, username2)
+        messages = dchannel.get_messages(int(init), int(end))
+        list_of_msg = [(message.timestamp,message.sender,message.message,message.type) for message in messages]
+    else:
+        channel = Organization.get_channel(organization_name, channel_name)
+        messages = channel.get_messages(int(init), int(end))
+        list_of_msg = [(message.timestamp,message.sender,message.message,message.type) for message in messages]
     return jsonify(messages = list_of_msg), HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/<channel_name>/message', methods=['POST'])
