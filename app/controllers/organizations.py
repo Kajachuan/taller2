@@ -328,6 +328,7 @@ def send_message(organization_name, channel_name):
     message.save()
     channel.update(push__messages = message)
     User.objects.get(username=sender).update(inc__sent_messages=1)
+    FirebaseApi().send_notification_to_users(channel.members, 'Nuevo mensaje de %s en %s : (%s)'%(sender,channel_name, organization_name), 'Nuevo mensaje de %s'%sender)
     response = FirebaseApi().send_message_to_users(channel.members, message, organization_name, channel_name)
     if not response:
         return jsonify(message = 'Firebase error'), HTTPStatus.SERVICE_UNAVAILABLE

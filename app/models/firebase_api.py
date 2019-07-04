@@ -40,25 +40,6 @@ class FirebaseApi(object):
             response = messaging.send(new_message)
         return True
 
-    def send_direct_message_to_user(self, message, organization_name, sender, receiver):
-        if environ['FLASK_ENV'] != PRODUCTION:
-            return True
-        tokens = User.objects.get(username = receiver).firebase_token
-        message_payload = message.message if message.type == 'text' or message.type == 'snippet' else ''
-        new_message = messaging.Message(
-                data = {
-    		SENDER : message.sender,
-            MESSAGE : message_payload,
-            TIMESTAMP : str(message.timestamp),
-            TYPE: message.type,
-            ORGANIZATION : organization_name,
-            CHANNEL : channel_name,
-    		},
-    	token = token,
-        )
-        response = messaging.send(new_message)
-        return True if response else False
-
     def send_notification_to_users(self, list_username, title, body):
         if environ['FLASK_ENV'] != PRODUCTION:
             return
