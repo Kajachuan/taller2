@@ -145,7 +145,7 @@ class TestChannelsControllers(object):
             client.post('/organization/Avengers/EndGame/message', data = msg)
         response = client.get('/organization/Avengers/EndGame/messages?init=1&end=4')
         message_types = [message[3] for message in response.get_json()['messages']]
-        assert message_types == ['message', 'snippet', 'image', 'file']
+        assert message_types == ['text', 'snippet', 'image', 'file']
 
     def test_mention_in_message_ok(self):
         msg = '{"sender":"Thor","message":"Hola @IronMan"}'

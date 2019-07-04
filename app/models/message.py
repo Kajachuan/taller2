@@ -9,16 +9,20 @@ class Message(db.Document):
     sender = db.StringField(required = True)
     message = db.StringField(required = True)
     creation_date = db.DateTimeField(required=True)
-    type = db.StringField(required = True, default = 'message')
+    type = db.StringField(required = True, default = 'text')
     meta = {'strict': False}
 
     def clean(self):
+        if self.type != 'text':
+            return
         for forbidden_word in ForbiddenWords().get_words():
             if forbidden_word.lower() in self.message.lower():
                 fw = re.compile(re.escape(forbidden_word), re.IGNORECASE)
                 self.message = fw.sub('*' * len(forbidden_word), self.message)
 
     def replace_organization_forbidden_words(self, forbidden_words):
+        if self.type != 'text':
+            return
         for forbidden_word in forbidden_words:
             if forbidden_word.lower() in self.message.lower():
                 fw = re.compile(re.escape(forbidden_word), re.IGNORECASE)
