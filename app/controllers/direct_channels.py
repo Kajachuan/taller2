@@ -52,7 +52,6 @@ def get_user_direct_channels(organization_name):
 @user_no_banned_required
 @organization_no_banned_required
 def get_n_channel_messages(organization_name):
-    current_app.logger.error('get direct messages')
     init = request.args.get('init', '')
     end = request.args.get('end', '')
     username1 = request.args.get('user1','')
