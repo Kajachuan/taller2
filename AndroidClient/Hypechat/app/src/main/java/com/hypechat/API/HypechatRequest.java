@@ -31,6 +31,7 @@ import com.hypechat.models.auth.RegisterBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.HTTP;
 import retrofit2.http.Header;
@@ -133,7 +134,8 @@ public interface HypechatRequest {
     Call<Void> createDirectChannel(@Path("organization_name") String organization_name,
                                  @Body DirectChannelsPost directChannelsPost);
 
-    @POST("/organization/{organization_name}/direct-channels/messages")
+
+    @GET("/organization/{organization_name}/direct-channels/message")
     Call<MessageBodyList> getDirectChannelMessages(@Path("organization_name") String organization_name,
                                         @Query("init") int init,
                                         @Query("end") int end,

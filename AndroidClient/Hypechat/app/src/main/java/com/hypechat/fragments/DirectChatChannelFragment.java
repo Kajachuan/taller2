@@ -13,6 +13,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -25,6 +26,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -60,9 +62,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -84,6 +88,7 @@ public class DirectChatChannelFragment extends Fragment {
     private ProgressBar pbSendMessage;
     private ProgressBar mProgressBarLoadMessage;
     BroadcastReceiver mMessageReceiver;
+    String image;
 
     public static DirectChatChannelFragment newInstance(String organization, String channel) {
         DirectChatChannelFragment chatFragment = new DirectChatChannelFragment();
@@ -338,14 +343,21 @@ public class DirectChatChannelFragment extends Fragment {
                         Bitmap bitmap = null;
                         try {
                             if (targetUri != null) {
-                                //noinspection ConstantConditions
-                                bitmap = BitmapFactory.decodeStream(getActivity().getContentResolver().openInputStream(targetUri));
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                                    bitmap = BitmapFactory.decodeStream(Objects.requireNonNull(getActivity()).getContentResolver().openInputStream(targetUri));
+                                }
                                 Bitmap resizedBitmap = null;
-                                resizedBitmap = Bitmap.createScaledBitmap(bitmap,500,500,false);
-                                Drawable icon = new BitmapDrawable(getResources(), bitmap);
-                                String image = bitmapToString(resizedBitmap);
-                                String type = "img";
+                                if (bitmap != null) {
+                                    resizedBitmap = scaleBitmap(bitmap);
+                                }
+                                Drawable icon = new BitmapDrawable(getResources(),bitmap);
+                                image = bitmapToString(resizedBitmap);
+                            }
+                            String type = "img";
+                            if (image != null) {
                                 sendDirectMessage(image, type);
+                            } else {
+                                showChatError("No se pudo cargar la imagen");
                             }
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();

@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -18,6 +19,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
@@ -42,6 +44,7 @@ import android.webkit.RenderProcessGoneDetail;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -70,6 +73,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -96,6 +100,7 @@ public class ChatChannelFragment extends Fragment {
     private ProgressBar pbSendMessage;
     private ProgressBar mProgressBarLoadMessage;
     BroadcastReceiver mMessageReceiver;
+    String image;
 
     public static ChatChannelFragment newInstance(String organization, String channel, String privacy) {
         ChatChannelFragment chatFragment = new ChatChannelFragment();
@@ -174,10 +179,10 @@ public class ChatChannelFragment extends Fragment {
     @SuppressWarnings("ConstantConditions")
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        mEtMessage = (EditText) getView().findViewById(R.id.edittext_chatbox);
-        mProgressBarLoadMessage = (ProgressBar) getView().findViewById(R.id.progressBar_load_messages);
+        mEtMessage = getView().findViewById(R.id.edittext_chatbox);
+        mProgressBarLoadMessage = getView().findViewById(R.id.progressBar_load_messages);
 
-        swipeContainer = (SwipeRefreshLayout) getView().findViewById(R.id.swipeContainer);
+        swipeContainer = getView().findViewById(R.id.swipeContainer);
 
         // Setup refresh listener which triggers new data loading
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -193,7 +198,7 @@ public class ChatChannelFragment extends Fragment {
 
         attachments = getView().findViewById(R.id.attachments_layout);
 
-        mSendButton = (ImageButton) getView().findViewById(R.id.button_chatbox_send);
+        mSendButton = getView().findViewById(R.id.button_chatbox_send);
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -217,9 +222,9 @@ public class ChatChannelFragment extends Fragment {
             }
         }
 
-        pbSendMessage = (ProgressBar) getView().findViewById(R.id.progressBar_send_message);
+        pbSendMessage = getView().findViewById(R.id.progressBar_send_message);
 
-        ImageButton mSendImageButton = (ImageButton) getView().findViewById(R.id.imageButton_image);
+        ImageButton mSendImageButton = getView().findViewById(R.id.imageButton_image);
         mSendImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -229,7 +234,7 @@ public class ChatChannelFragment extends Fragment {
             }
         });
 
-        ImageButton mSendSnippetButton = (ImageButton) getView().findViewById(R.id.imageButton_snippet);
+        ImageButton mSendSnippetButton = getView().findViewById(R.id.imageButton_snippet);
         mSendSnippetButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -237,7 +242,7 @@ public class ChatChannelFragment extends Fragment {
             }
         });
 
-        ImageButton mSendFileButton = (ImageButton) getView().findViewById(R.id.imageButton_file);
+        ImageButton mSendFileButton = getView().findViewById(R.id.imageButton_file);
         mSendFileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -260,7 +265,7 @@ public class ChatChannelFragment extends Fragment {
             }
         });
 
-        mMessageRecycler = (RecyclerView) getView().findViewById(R.id.reyclerview_message_list);
+        mMessageRecycler = getView().findViewById(R.id.reyclerview_message_list);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         mMessageRecycler.setLayoutManager(linearLayoutManager);
         mMessageRecycler.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
@@ -282,7 +287,7 @@ public class ChatChannelFragment extends Fragment {
             }
         });
 
-        ImageButton mAttachButton = (ImageButton) getView().findViewById(R.id.button_attach);
+        ImageButton mAttachButton = getView().findViewById(R.id.button_attach);
         mAttachButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -370,25 +375,32 @@ public class ChatChannelFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (data != null && requestCode == 1) {
-                    if (resultCode == RESULT_OK) {
-                        Uri targetUri = data.getData();
-                        Bitmap bitmap = null;
-                        try {
-                            if (targetUri != null) {
-                                //noinspection ConstantConditions
-                                bitmap = BitmapFactory.decodeStream(getActivity().getContentResolver().openInputStream(targetUri));
-                                Bitmap resizedBitmap = null;
-                                resizedBitmap = Bitmap.createScaledBitmap(bitmap,500,500,false);
-                                Drawable icon = new BitmapDrawable(getResources(), bitmap);
-                                String image = bitmapToString(resizedBitmap);
-                                String type = "img";
-                                sendMessage(image, type);
-                            }
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
+            if (resultCode == RESULT_OK) {
+                Uri targetUri = data.getData();
+                Bitmap bitmap = null;
+                try {
+                    if (targetUri != null) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                            bitmap = BitmapFactory.decodeStream(Objects.requireNonNull(getActivity()).getContentResolver().openInputStream(targetUri));
                         }
+                        Bitmap resizedBitmap = null;
+                        if (bitmap != null) {
+                            resizedBitmap = scaleBitmap(bitmap);
+                        }
+                        Drawable icon = new BitmapDrawable(getResources(),bitmap);
+                        image = bitmapToString(resizedBitmap);
                     }
+                    String type = "img";
+                    if (image != null) {
+                        sendMessage(image, type);
+                    } else {
+                        showChatError("No se pudo cargar la imagen");
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
+        }
     }
 
     private Bitmap scaleBitmap(Bitmap bm) {
@@ -418,10 +430,10 @@ public class ChatChannelFragment extends Fragment {
     }
 
     public String bitmapToString(Bitmap bitmap){
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream .toByteArray();
-        return Base64.encodeToString(byteArray, Base64.DEFAULT);
+        ByteArrayOutputStream baos=new  ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);
+        byte [] b=baos.toByteArray();
+        return Base64.encodeToString(b, Base64.URL_SAFE);
     }
 
     @Override

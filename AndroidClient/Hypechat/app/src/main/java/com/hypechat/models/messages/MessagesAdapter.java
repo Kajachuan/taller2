@@ -21,6 +21,7 @@ import com.hypechat.R;
 import com.hypechat.cookies.ApplicationContextProvider;
 import com.hypechat.prefs.SessionPrefs;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -227,13 +228,15 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     public Bitmap stringToBitmap(String encodedString){
         try{
-            byte[] imageAsBytes = Base64.decode(encodedString.getBytes(), Base64.DEFAULT);
-            return BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            byte[] imageBytes = baos.toByteArray();
+            imageBytes = Base64.decode(encodedString, Base64.URL_SAFE);
+            return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
         }
         catch(Exception e){
             e.getMessage();
-            return null;
         }
+        return null;
     }
 
 
@@ -251,8 +254,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         void bind(Message message) {
             String imageString = message.getMessage();
             if(imageString != null){
-                Bitmap imageBitmap = stringToBitmap(imageString);
-                messageText.setImageBitmap(imageBitmap);
+                messageText.setImageBitmap(stringToBitmap(imageString));
             }
 
             // Format the stored timestamp into a readable String using method.
@@ -275,8 +277,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             String imageString = message.getMessage();
 
             if(imageString != null){
-                Bitmap imageBitmap = stringToBitmap(imageString);
-                messageText.setImageBitmap(imageBitmap);
+                messageText.setImageBitmap(stringToBitmap(imageString));
             }
 
             // Format the stored timestamp into a readable String using method.
