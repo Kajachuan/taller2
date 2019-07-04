@@ -93,6 +93,8 @@ def send_invitation(organization_name):
     User.invite(username, token, organization_name)
     organization.update(**{'set__pending_invitations__' + token: user.username})
     current_app.logger.debug('User %s invited to organization %s',user.username, organization_name)
+    FirebaseApi().send_notification_to_users([username], 'Te invitaron a la organización %s' % organization_name,
+                                             'Te enviaron una invitación para unirte a la organización %s' % organization_name)
     return jsonify(message = 'Sent invitation'),HTTPStatus.OK
 
 @organizations.route('/organization/<organization_name>/accept-invitation', methods=['POST'])
@@ -269,7 +271,8 @@ def add_member_to_channel(organization_name, channel_name):
     added = Organization.add_member_to_channel(organization_name, channel_name, member)
     if not added:
         return jsonify(message = 'User is already in channel'), HTTPStatus.BAD_REQUEST
-    FirebaseApi().send_invitation_notification_to_user(member, organization_name, channel_name)
+    FirebaseApi().send_notification_to_users([member], 'Te agregaron al canal %s' % channel_name,
+                                             'Fuiste agregado al canal %s de la organización %s' % (channel_name, organization_name))
     message = Message(message=Organization.get_welcome_message(organization_name), sender='tito',
                       timestamp=datetime.now(), creation_date=datetime.now(), type='text')
     FirebaseApi().send_message_to_users([member], message, organization_name, channel_name)
@@ -310,14 +313,17 @@ def send_message(organization_name, channel_name):
             FirebaseApi().send_message_to_users([session['username']], message, organization_name, channel_name)
             return jsonify(message = 'Message sent'), HTTPStatus.OK
         if mentioned == 'all':
-            FirebaseApi().send_notification_to_users(channel.members, organization_name, channel_name)
+            FirebaseApi().send_notification_to_users(channel.members, 'Te mencionaron en %s' % channel_name,
+                                                     'Fuiste mencionado en %s en el canal %s' % (organization_name, channel_name))
         elif mentioned not in channel.members:
             if not Organization.has_member(organization_name, mentioned):
                 return jsonify(message = 'User is not member of this organization'), HTTPStatus.BAD_REQUEST
             Organization.add_member_to_channel(organization_name, channel_name, mentioned)
-            FirebaseApi().send_invitation_notification_to_user(mentioned, organization_name, channel_name)
+            FirebaseApi().send_notification_to_users([mentioned], 'Te agregaron al canal %s' % channel_name,
+                                                     'Fuiste agregado al canal %s de la organización %s' % (channel_name, organization_name))
         else:
-            FirebaseApi().send_notification_to_users([mentioned], organization_name, channel_name)
+            FirebaseApi().send_notification_to_users([mentioned], 'Te mencionaron en %s' % channel_name,
+                                                     'Fuiste mencionado en %s en el canal %s' % (organization_name, channel_name))
     message.replace_organization_forbidden_words(Organization.get_forbidden_words(organization_name))
     message.save()
     channel.update(push__messages = message)
