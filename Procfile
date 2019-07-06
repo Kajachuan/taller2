@@ -1,1 +1,1 @@
-web: gunicorn --chdir app app:app
+web: gunicorn --workers 9 app.app:app
